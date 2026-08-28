@@ -985,16 +985,50 @@ document.addEventListener('DOMContentLoaded', () => {
         const revenueChartEl = document.getElementById('chart-revenue-trends');
         if (revenueChartEl) {
             const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-            const currentMonthIdx = new Date().getMonth();
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonthIdx = now.getMonth();
             const last6Months = [];
+            const monthKeys = [];
+
             for (let i = 5; i >= 0; i--) {
-                const idx = (currentMonthIdx - i + 12) % 12;
-                last6Months.push(months[idx]);
+                const d = new Date(currentYear, currentMonthIdx - i, 1);
+                const y = d.getFullYear();
+                const m = d.getMonth();
+                last6Months.push(months[m]);
+                monthKeys.push(`${y}-${String(m + 1).padStart(2, '0')}`);
             }
 
-            // Estimate distribution based on active quoteHistory
-            const peaDataSeries = [peaRev * 0.15, peaRev * 0.2, peaRev * 0.1, peaRev * 0.25, peaRev * 0.15, peaRev || 15000].map(Math.round);
-            const genDataSeries = [genRev * 0.1, genRev * 0.25, genRev * 0.15, genRev * 0.2, genRev * 0.1, genRev || 35000].map(Math.round);
+            // Real revenue distribution per month based on active quoteHistory
+            const peaDataSeries = [0, 0, 0, 0, 0, 0];
+            const genDataSeries = [0, 0, 0, 0, 0, 0];
+
+            if (Array.isArray(quoteHistory) && quoteHistory.length > 0) {
+                quoteHistory.forEach(q => {
+                    const dateStr = q.createdAt || q.startDate || q.serviceDate || getLocalDateString();
+                    let qKey = '';
+                    if (typeof dateStr === 'string') {
+                        const match = dateStr.match(/(\d{4})-(\d{2})/);
+                        if (match) qKey = `${match[1]}-${match[2]}`;
+                    }
+                    if (!qKey) {
+                        const dt = new Date(dateStr);
+                        if (!isNaN(dt.getTime())) {
+                            qKey = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
+                        }
+                    }
+
+                    let idx = monthKeys.indexOf(qKey);
+                    // If within range or newly created in current period
+                    if (idx === -1) idx = 5;
+
+                    if (q.type === 'cover') {
+                        peaDataSeries[idx] += Math.round(q.total || 0);
+                    } else if (q.type === 'generator') {
+                        genDataSeries[idx] += Math.round(q.totalPea || q.total || 0);
+                    }
+                });
+            }
 
             const revenueOptions = {
                 series: [{
@@ -1029,14 +1063,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 xaxis: {
                     categories: last6Months,
-                    labels: { style: { colors: textColor, fontSize: '12px' } },
+                    labels: { style: { colors: textColor, fontSize: '12px', fontFamily: 'Prompt, sans-serif' } },
                     axisBorder: { color: borderColor },
                     axisTicks: { color: borderColor }
                 },
                 yaxis: {
+                    min: 0,
+                    forceNiceScale: true,
                     labels: {
-                        style: { colors: textColor, fontSize: '11px' },
-                        formatter: (val) => val >= 1000 ? (val / 1000).toFixed(0) + 'k ฿' : val + ' ฿'
+                        style: { colors: textColor, fontSize: '11px', fontFamily: 'Prompt, sans-serif' },
+                        formatter: (val) => val >= 1000 ? (val / 1000).toFixed(0) + 'k ฿' : (val || 0) + ' ฿'
                     }
                 },
                 tooltip: {
@@ -1046,7 +1082,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 legend: {
                     position: 'top',
                     horizontalAlign: 'right',
-                    labels: { colors: textColor }
+                    labels: { colors: textColor, useSeriesColors: false }
                 }
             };
 
@@ -1054,7 +1090,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 revenueChartInstance.updateOptions({
                     theme: { mode: isDark ? 'dark' : 'light' },
                     grid: { borderColor: borderColor },
-                    xaxis: { labels: { style: { colors: textColor } } },
+                    xaxis: { categories: last6Months, labels: { style: { colors: textColor } } },
                     yaxis: { labels: { style: { colors: textColor } } },
                     legend: { labels: { colors: textColor } }
                 });
