@@ -1,0 +1,19 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor
+.vscode/
+.idea/
+
+# Logs & Temp
+*.log
+scratch/
+.tempmediaStorage/
+
+# Scripts/extracted text dumps
+extract.py
+excel_out.txt
+pdf_out_cover.txt
+pdf_out_gen.txt

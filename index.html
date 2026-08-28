@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeQuote — ระบบประมาณการค่าใช้จ่ายและบริหารคิวงาน PEA</title>
+    <!-- Google Fonts: Prompt (Thai Modern & Numbers) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Leaflet Map CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- ApexCharts CDN for Modern Dashboard Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- Application Stylesheet -->
+    <link rel="stylesheet" href="style.css?v=6">
+</head>
+
+<body>
+    <div class="ynex-layout">
+
+        <!-- ====== YNEX SIDEBAR ====== -->
+        <aside class="ynex-sidebar" id="app-sidebar">
+            <div class="sidebar-header">
+                <a class="sidebar-logo" href="#" onclick="switchTab('tab-dashboard'); return false;">
+                    <div class="brand-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                    </div>
+                    <div class="brand-details">
+                        <span class="brand-title">WeQuote</span>
+                        <span class="brand-subtitle">PEA Smart Quote</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="sidebar-nav-wrapper">
+                <!-- Category 1: Main -->
+                <div class="nav-category">MAIN</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <button class="tab-btn active" data-target="tab-dashboard">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                                    <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                                    <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                                    <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                                </svg>
+                            </span>
+                            <span class="nav-text">Dashboard</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Category 2: Services & Fleet -->
+                <div class="nav-category">SERVICES & FLEET</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <button class="tab-btn" data-target="tab-pea">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                </svg>
+                            </span>
+                            <span class="nav-text">ครอบการ์ด</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="tab-btn" data-target="tab-fleet">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                                    <line x1="8" y1="2" x2="8" y2="18"></line>
+                                    <line x1="16" y1="6" x2="16" y2="22"></line>
+                                </svg>
+                            </span>
+                            <span class="nav-text">คิวและแผนที่เครื่องกำเนิดไฟฟ้า</span>
+                            <span class="nav-badge" style="background:#FFFBEB; color:#D97706;" id="nav-badge-fleet-active">24 เครื่องพร้อมใช้งาน</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="tab-btn" data-target="tab-gen">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                                </svg>
+                            </span>
+                            <span class="nav-text">เช่าเครื่องกำเนิดไฟฟ้า</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Category 3: Reports & Archives -->
+                <div class="nav-category">REPORTS & ARCHIVES</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <button class="tab-btn" data-target="tab-history">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </span>
+                            <span class="nav-text">ประวัติใบเสนอราคา</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-pea-info">
+                    <span class="pea-pill">PEA เขต 1</span>
+                    <span class="pea-subtext">กฟฉ.1 (อุดรธานี)</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ====== MAIN WRAPPER ====== -->
+        <div class="ynex-main-wrapper">
+
+            <!-- ====== TOP HEADER ====== -->
+            <header class="ynex-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle-btn" id="btn-sidebar-toggle" title="ยุบ/ขยายแถบเมนู">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <div class="header-search">
+                        <span class="search-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </span>
+                        <input type="text" id="global-header-search" placeholder="ค้นหาหมายเลขผู้ใช้ไฟ (CA), สถานที่, หรือเมนู...">
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <!-- Real-time Status Badge -->
+                    <div class="system-status-badge">
+                        <span class="status-pulse-dot"></span>
+                        <span>ระบบพร้อมใช้งาน</span>
+                    </div>
+
+                    <!-- Theme Toggle (Eye-Care Mode) -->
+                    <button class="theme-toggle-btn" id="btn-theme-toggle" title="สลับโหมดถนอมสายตา / Dark Mode">
+                        <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                        <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    </button>
+
+                    <!-- User Profile Pill -->
+                    <div class="user-profile-widget" onclick="switchTab('tab-pea')" title="ข้อมูลผู้ใช้งาน">
+                        <div class="profile-info">
+                            <div class="profile-name">แผนกปฏิบัติการระบบไฟฟ้า</div>
+                            <div class="profile-role">กฟฉ.1 (อุดรธานี)</div>
+                        </div>
+                        <div class="profile-avatar">PEA</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- ====== MAIN CONTENT ====== -->
+            <main class="ynex-content">
+
+                <!-- Page Header Bar -->
+                <div class="page-header-bar">
+                    <div class="page-title-group">
+                        <h2 id="current-page-title">Dashboard</h2>
+                        <div class="page-breadcrumbs">
+                            <span>หน้าหลัก</span>
+                            <span>/</span>
+                            <span class="active" id="current-breadcrumb">ภาพรวมระบบและสถิติ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==============================================
+                     TAB 0: MODERN YNEX DASHBOARD
+                     ============================================== -->
+                <section id="tab-dashboard" class="tab-content active">
+
+                    <!-- Hero Welcome Banner -->
+                    <div class="dashboard-hero-banner">
+                        <div class="hero-banner-backdrop-shape"></div>
+                        <div class="hero-content">
+                            <h2>
+                                <span>ยินดีต้อนรับสู่ WeQuote PEA Portal</span>
+                                <span style="font-size: 1.1rem; opacity: 0.9;">⚡</span>
+                            </h2>
+                            <p>
+                                ระบบประมาณการค่าใช้จ่ายและบริหารคิวจัดสรรเครื่องยนต์กำเนิดไฟฟ้าเคลื่อนที่ (Mobile Generator) 
+                                และงานฉนวนครอบสายไฟแรงสูงตามมาตรฐานการไฟฟ้าส่วนภูมิภาค
+                            </p>
+                        </div>
+                        <div class="hero-actions">
+                            <button class="btn-hero btn-hero-primary" onclick="switchTab('tab-pea')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                </svg>
+                                คำนวณครอบการ์ด
+                            </button>
+                            <button class="btn-hero btn-hero-secondary" onclick="switchTab('tab-gen')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                </svg>
+                                เช่าเครื่อง Gen
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Top Row: 4 Status KPI Metric Cards -->
+                    <div class="kpi-grid">
+                        <!-- Total Fleet -->
+                        <div class="kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-title">จำนวนเครื่องทั้งหมด</span>
+                                <div class="kpi-icon-badge emerald">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                                        <line x1="9" y1="3" x2="9" y2="21"></line>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="kpi-body">
+                                <div class="kpi-value"><span id="dash-total-gen">24</span><span class="kpi-unit">เครื่อง</span></div>
+                            </div>
+                            <div class="kpi-footer">
+                                <span class="kpi-pill success">ครอบคลุม 17 จุดรวมงาน</span>
+                                <span>ขนาด 60-800 kW</span>
+                            </div>
+                        </div>
+
+                        <!-- Standby -->
+                        <div class="kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-title">ว่าง / สแตนด์บาย</span>
+                                <div class="kpi-icon-badge blue">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="kpi-body">
+                                <div class="kpi-value"><span id="dash-standby-gen">24</span><span class="kpi-unit">เครื่อง</span></div>
+                            </div>
+                            <div class="kpi-footer">
+                                <span class="kpi-pill info">พร้อมจ่ายไฟทันที</span>
+                                <span id="dash-standby-pct">100% พร้อมใช้งาน</span>
+                            </div>
+                        </div>
+
+                        <!-- Active -->
+                        <div class="kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-title">กำลังปฏิบัติงาน</span>
+                                <div class="kpi-icon-badge amber">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="kpi-body">
+                                <div class="kpi-value"><span id="dash-active-gen">0</span><span class="kpi-unit">เครื่อง</span></div>
+                            </div>
+                            <div class="kpi-footer">
+                                <span class="kpi-pill warning">ปฏิบัติงานในพื้นที่</span>
+                                <span>ภารกิจจ่ายไฟ</span>
+                            </div>
+                        </div>
+
+                        <!-- Maintenance -->
+                        <div class="kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-title">ซ่อมบำรุง / ตรวจเช็ค</span>
+                                <div class="kpi-icon-badge rose">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="kpi-body">
+                                <div class="kpi-value"><span id="dash-maint-gen">0</span><span class="kpi-unit">เครื่อง</span></div>
+                            </div>
+                            <div class="kpi-footer">
+                                <span class="kpi-pill danger">ระงับจ่ายงานชั่วคราว</span>
+                                <span>ตรวจสอบสภาพ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Middle Row: 3 Revenue Metric Cards -->
+                    <div class="kpi-grid-revenue">
+                        <!-- PEA Cover Revenue -->
+                        <div class="kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-title">รายได้: ครอบการ์ด</span>
+                                <div class="kpi-icon-badge blue">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="kpi-body">
+                                <div class="kpi-value" id="dash-rev-pea">0 ฿</div>
+                            </div>
+                            <div class="kpi-footer">
+                                <span class="kpi-pill info">ฉนวนครอบสายและลูกถ้วย</span>
+                                <span>บริการฉนวนแรงสูง</span>
+                            </div>
+                        </div>
+
+                        <!-- Gen Rental Revenue -->
+                        <div class="kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-title">รายได้: เช่าเครื่องกำเนิดไฟฟ้า</span>
+                                <div class="kpi-icon-badge purple">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="kpi-body">
+                                <div class="kpi-value" id="dash-rev-gen">0 ฿</div>
+                            </div>
+                            <div class="kpi-footer">
+                                <span class="kpi-pill warning">ค่าเช่า + ค่าขนส่ง + คุมงาน</span>
+                                <span>ตามระเบียบ กฟภ.</span>
+                            </div>
+                        </div>
+
+                        <!-- Grand Total Revenue -->
+                        <div class="kpi-card revenue-card-total">
+                            <div class="kpi-header">
+                                <span class="kpi-title" style="color:var(--primary); font-weight:700;">รวมประมาณการรายได้สุทธิ</span>
+                                <div class="kpi-icon-badge emerald">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+                                        <line x1="12" y1="6" x2="12" y2="8"></line>
+                                        <line x1="12" y1="16" x2="12" y2="18"></line>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="kpi-body">
+                                <div class="kpi-value" id="dash-rev-total" style="color:var(--primary);">0 ฿</div>
+                            </div>
+                            <div class="kpi-footer">
+                                <span class="kpi-pill success">รวมทั้ง 2 บริการ</span>
+                                <span>อัปเดตแบบ Real-time</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Analytics: ApexCharts Grid -->
+                    <div class="charts-grid-2-1">
+                        <!-- Chart 1: Revenue Trends -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <div class="chart-title-group">
+                                    <h3>📊 แนวโน้มรายได้และสถิติการให้บริการ</h3>
+                                    <p>เปรียบเทียบประมาณการรายได้ระหว่างงานครอบการ์ดและงานเช่าเครื่องกำเนิดไฟฟ้า</p>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper" id="chart-revenue-trends"></div>
+                        </div>
+
+                        <!-- Chart 2: Fleet Utilization Ratio -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <div class="chart-title-group">
+                                    <h3>⚡ สัดส่วนความพร้อมใช้งานของเครื่อง</h3>
+                                    <p>สถานะของเครื่องยนต์กำเนิดไฟฟ้าทั้งหมด 24 เครื่อง</p>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper" id="chart-fleet-status"></div>
+                        </div>
+                    </div>
+
+                    <!-- Map and Recent Activity Feed Grid -->
+                    <div class="dash-map-feed-grid">
+                        <!-- Left: Interactive Map -->
+                        <div id="dashboard-map-container" class="dash-map-card">
+                            <div class="map-header-controls">
+                                <div class="chart-title-group">
+                                    <h3>📍 คิวและแผนที่ปฏิบัติงานเครื่องกำเนิดไฟฟ้า</h3>
+                                    <p>แสดงจุดรวมงานเขต 17 แห่ง และคิวงานที่กำลังจ่ายไฟจริง</p>
+                                </div>
+                                <div class="map-status-chips">
+                                    <span class="chip active"><span class="chip-dot" style="background:#3B82F6;"></span> จุดรวมงาน</span>
+                                    <span class="chip active"><span class="chip-dot" style="background:#F59E0B;"></span> งานปฏิบัติการ</span>
+                                </div>
+                            </div>
+                            <div id="dashboard-map"></div>
+                        </div>
+
+                        <!-- Right: Recent Activity Table -->
+                        <div class="recent-activity-card">
+                            <div class="chart-header">
+                                <div class="chart-title-group">
+                                    <h3>📋 รายการใบเสนอราคาล่าสุด</h3>
+                                    <p>ข้อมูลใบเสนอราคาที่ถูกบันทึกล่าสุดในระบบ</p>
+                                </div>
+                                <button class="btn btn-xs btn-outline" onclick="switchTab('tab-history')">ดูทั้งหมด</button>
+                            </div>
+                            <div class="ynex-table-wrapper">
+                                <table class="ynex-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ประเภท</th>
+                                            <th>ผู้ขอรับบริการ</th>
+                                            <th>ยอดสุทธิ</th>
+                                            <th>จัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dash-recent-quotes-tbody">
+                                        <!-- Rendered dynamically by app.js -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+                <!-- ==============================================
+                     TAB 1: PEA COVER
+                     ============================================== -->
+                <section id="tab-pea" class="tab-content">
+                    <div class="grid-layout">
+                        <!-- Left: Form -->
+                        <div class="card form-card">
+                            <div class="card-header">
+                                <span class="dot green"></span>
+                                <h2>ข้อมูลงานครอบการ์ดฉนวนแรงสูง</h2>
+                                <span class="badge badge-green">มาตรฐาน PEA</span>
+                            </div>
+
+                            <!-- Customer Info -->
+                            <div class="section-divider"><span>ข้อมูลผู้รับบริการ</span></div>
+                            <div class="form-group">
+                                <label>หมายเลขผู้ใช้ไฟ (CA)</label>
+                                <input type="text" id="cust-id" placeholder="หมายเลขผู้ใช้ไฟ 12 หลัก">
+                            </div>
+                            <div class="form-group">
+                                <label>ชื่อผู้รับบริการ</label>
+                                <input type="text" id="cust-name" placeholder="ชื่อ-นามสกุล หรือชื่อหน่วยงาน">
+                            </div>
+                            <div class="form-group">
+                                <label>ที่อยู่</label>
+                                <textarea id="cust-address" rows="2" placeholder="ที่อยู่ผู้รับบริการ"></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>วันที่เริ่มใช้บริการ</label>
+                                    <input type="date" id="cust-start-date">
+                                </div>
+                                <div class="form-group half">
+                                    <label>วันที่สิ้นสุดการใช้บริการ</label>
+                                    <input type="date" id="cust-end-date">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>สถานที่รับบริการ</label>
+                                <input type="text" id="cust-location" placeholder="เช่น บ้านเลขที่ / กม. / จุดติดตั้ง">
+                            </div>
+
+                            <!-- Service Info -->
+                            <div class="section-divider"><span>รายละเอียดงาน</span></div>
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>ฉนวนครอบสายไฟ (ชิ้น)</label>
+                                    <input type="number" id="pea-qty-wire" placeholder="ระบุจำนวน" min="0">
+                                </div>
+                                <div class="form-group half">
+                                    <label>ฉนวนครอบลูกถ้วยแรงสูง (ชิ้น)</label>
+                                    <input type="number" id="pea-qty-insulator" placeholder="ระบุจำนวน" min="0">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>จำนวนวันขอเช่า</label>
+                                <input type="number" id="pea-days" placeholder="ระบุจำนวนวัน" min="1">
+                            </div>
+
+                            <!-- Signatories for PEA Cover -->
+                            <div class="section-divider"><span>ข้อมูลผู้ลงนามในเอกสาร (ใบเสนอราคา)</span></div>
+                            <div style="font-weight:600; font-size:0.88rem; margin-bottom:6px; color:var(--primary); display:flex; align-items:center; gap:6px;">
+                                <span>✍️ ผู้ประมาณการ</span>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>ชื่อ-นามสกุล</label>
+                                    <input type="text" id="pea-estimator-name" value="นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง" placeholder="ชื่อ-นามสกุล ผู้ประมาณการ">
+                                </div>
+                                <div class="form-group half">
+                                    <label>ตำแหน่ง</label>
+                                    <input type="text" id="pea-estimator-pos" value="วิศวกร" placeholder="ตำแหน่ง">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>แผนก / สังกัด</label>
+                                <input type="text" id="pea-estimator-dept" value="แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า" placeholder="แผนก / สังกัด">
+                            </div>
+
+                            <div style="font-weight:600; font-size:0.88rem; margin-top:8px; margin-bottom:6px; color:var(--primary); display:flex; align-items:center; gap:6px;">
+                                <span>🔍 ผู้ตรวจสอบ</span>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>ชื่อ-นามสกุล</label>
+                                    <input type="text" id="pea-checker-name" value="นายปฐมทรรศน์ ชงัดเวช" placeholder="ชื่อ-นามสกุล ผู้ตรวจสอบ">
+                                </div>
+                                <div class="form-group half">
+                                    <label>ตำแหน่ง</label>
+                                    <input type="text" id="pea-checker-pos" value="หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า" placeholder="ตำแหน่ง">
+                                </div>
+                            </div>
+
+                            <button class="btn btn-outline btn-full" id="pea-calculate-btn" style="margin-top:10px;">คำนวณราคา</button>
+                        </div>
+
+                        <!-- Right: Result -->
+                        <div class="card result-card">
+                            <div class="card-header">
+                                <span class="dot green"></span>
+                                <h2>ผลการคำนวณราคา</h2>
+                                <span class="badge badge-gray" id="pea-save-status">ยังไม่บันทึก</span>
+                            </div>
+                            <div class="result-details">
+                                <div class="result-row">
+                                    <span>ฉนวนครอบสายไฟ (<span id="out-wire-qty">16</span> ชิ้น × <span id="out-days">2</span> วัน × 100 ฿)</span>
+                                    <span class="val" id="out-wire-cost">3,200.00 ฿</span>
+                                </div>
+                                <div class="result-row">
+                                    <span>ฉนวนครอบลูกถ้วยแรงสูง (<span id="out-ins-qty">0</span> ชิ้น × <span id="out-days2">2</span> วัน × 100 ฿)</span>
+                                    <span class="val" id="out-ins-cost">0.00 ฿</span>
+                                </div>
+                                <div class="result-row">
+                                    <span>ค่าบริการติดตั้ง-รื้อถอน (เหมาจ่าย)</span>
+                                    <span class="val">3,500.00 ฿</span>
+                                </div>
+                                <div class="result-row">
+                                    <span>รวมก่อน VAT</span>
+                                    <span class="val" id="out-subtotal">6,700.00 ฿</span>
+                                </div>
+                                <div class="result-row">
+                                    <span>ภาษีมูลค่าเพิ่ม 7%</span>
+                                    <span class="val" id="out-vat">469.00 ฿</span>
+                                </div>
+                                <div class="divider"></div>
+                                <div class="result-row total">
+                                    <span>ค่าใช้จ่ายรวมทั้งสิ้น</span>
+                                    <span class="val total-val" id="out-total">7,169.00 ฿</span>
+                                </div>
+                            </div>
+
+                            <div class="summary-cards">
+                                <div class="sum-card">
+                                    <span>อัตราค่าเช่าฉนวน</span>
+                                    <h3>100 <small>฿/ชิ้น/วัน</small></h3>
+                                </div>
+                                <div class="sum-card success-bg">
+                                    <span>มาตรฐาน PEA</span>
+                                    <h3>ผ่าน <span class="check">✓</span></h3>
+                                </div>
+                            </div>
+
+                            <div class="action-buttons">
+                                <button class="btn btn-outline btn-full" id="pea-export-pdf" style="background-color: var(--primary-light); color: var(--primary); border-color: var(--primary-border);">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="9" y1="13" x2="15" y2="13"></line>
+                                        <line x1="9" y1="17" x2="15" y2="17"></line>
+                                    </svg>
+                                    ออกใบเสนอราคา PDF
+                                </button>
+                                <button class="btn btn-green btn-full" id="pea-save-data" style="margin-top: 8px;">
+                                    💾 บันทึกข้อมูล (อัปเดต Dashboard)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==============================================
+                     TAB 2: GENERATOR RENTAL
+                     ============================================== -->
+                <section id="tab-gen" class="tab-content">
+                    <div class="grid-layout">
+                        <!-- Left: Form -->
+                        <div class="card form-card">
+                            <div class="card-header">
+                                <span class="dot orange"></span>
+                                <h2>ข้อมูลการเช่าและวิเคราะห์ขนาด Gen</h2>
+                                <span class="badge badge-orange">วิเคราะห์ขนาดอัตโนมัติ</span>
+                            </div>
+
+                            <div class="section-divider"><span>ข้อมูลผู้เช่า / สถานที่</span></div>
+                            <div class="form-group">
+                                <label>หมายเลขผู้ใช้ไฟ (CA)</label>
+                                <input type="text" id="gen-cust-id" placeholder="หมายเลขผู้ใช้ไฟ 12 หลัก">
+                            </div>
+                            <div class="form-group">
+                                <label>ชื่อผู้เช่า / หน่วยงาน</label>
+                                <input type="text" id="gen-cust-name" placeholder="ชื่อ-นามสกุล หรือชื่อหน่วยงาน">
+                            </div>
+                            <div class="form-group">
+                                <label>ที่อยู่</label>
+                                <textarea id="gen-cust-address" rows="2" placeholder="ที่อยู่ผู้เช่า"></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>วันที่เริ่มใช้บริการ</label>
+                                    <input type="date" id="gen-start-date">
+                                </div>
+                                <div class="form-group half">
+                                    <label>วันที่สิ้นสุดการใช้บริการ</label>
+                                    <input type="date" id="gen-end-date">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>สถานที่ใช้งาน</label>
+                                <input type="text" id="gen-location" placeholder="บ้านเลขที่ / ตำบล / อำเภอ">
+                            </div>
+                            <div class="form-group">
+                                <label>จุดประสงค์การใช้งาน</label>
+                                <input type="text" id="gen-purpose" placeholder="เช่น งานมหกรรมกีฬา, สำรองไฟฟ้างานรัฐ">
+                            </div>
+
+                            <div class="section-divider"><span>ข้อมูลโหลดและการเช่า</span></div>
+                            <div class="form-group">
+                                <label>ประเภทผู้เช่า</label>
+                                <select id="gen-type">
+                                    <option value="A">ประเภท ก (หน่วยงานรัฐ, ศาสนสถาน)</option>
+                                    <option value="A_EXEMPT">ประเภท ก (งานสาธารณประโยชน์ - ยกเว้นค่าเช่า)</option>
+                                    <option value="B" selected>ประเภท ข (นิติบุคคล, เอกชน)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>โหลดไฟฟ้า (Amp) <small style="color:var(--text-muted);">(แก้ไขได้)</small></label>
+                                    <input type="number" id="gen-load-amp" value="180" min="1">
+                                    <div id="amp-load-indicator" style="margin-top:6px;">
+                                        <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-muted); margin-bottom:3px;">
+                                            <span id="amp-load-label">โหลด: 100%</span>
+                                            <span id="amp-max-label">สูงสุด: 180 A</span>
+                                        </div>
+                                        <div style="background:var(--bg-surface-soft); border-radius:4px; height:6px; overflow:hidden;">
+                                            <div id="amp-load-bar" style="height:100%; width:100%; background:var(--primary); border-radius:4px; transition:width 0.3s, background 0.3s;"></div>
+                                        </div>
+                                    </div>
+                                    <div id="amp-overload-warning" style="display:none; margin-top:5px; font-size:0.74rem; color:var(--accent-rose); font-weight:600; background:var(--accent-rose-light); border:1px solid var(--accent-rose-border); border-radius:6px; padding:4px 8px; line-height:1.4;">
+                                        ⚠️ กระแสเกินขีดจำกัด Gen ที่เลือก (<span id="amp-max-val">180</span> A)
+                                    </div>
+                                </div>
+                                <div class="form-group half">
+                                    <label>เทียบเท่า (kW)</label>
+                                    <input type="number" id="gen-load-kw" value="180" readonly style="background:var(--bg-surface-soft); font-weight:bold;">
+                                    <div style="font-size:0.72rem; color:var(--text-muted); margin-top:5px; line-height:1.4;">
+                                        💡 ขนาดจากเครื่องที่เลือก<br>Amp สูงสุด = kW × 1.8
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>ระยะทางขนส่ง (กม.) ไป-กลับ</label>
+                                <input type="number" id="gen-distance" value="60">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>ระยะเวลาเช่า (วัน)</label>
+                                    <input type="number" id="gen-days" value="3">
+                                </div>
+                                <div class="form-group half">
+                                    <label>ชั่วโมงใช้งาน/วัน</label>
+                                    <input type="number" id="gen-hours" value="12" min="1" max="24">
+                                    <div id="gen-hours-warning" style="display:none; color:var(--accent-rose); font-size:0.75rem; margin-top:4px;">
+                                        ⚠️ จำกัดไม่เกิน 12 ชม./วัน ตามระเบียบ กฟภ.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span>ราคาน้ำมันดีเซล (฿/ลิตร)</span>
+                                    <button type="button" class="btn btn-xs btn-outline" id="btn-fetch-fuel-price" style="font-size:0.75rem; padding:2px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:4px; cursor:pointer;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                                        </svg>
+                                        ดึงราคาน้ำมันล่าสุด
+                                    </button>
+                                </label>
+                                <div style="display:flex; gap:8px;">
+                                    <input type="number" id="gen-fuel-price" value="38.39" step="0.01" style="flex:1;">
+                                    <button type="button" class="btn btn-outline" id="btn-fetch-fuel-price-addon" title="ดึงราคาปัจจุบันจาก API" style="padding:0 12px; white-space:nowrap; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                                        🔄 ดึงราคา API
+                                    </button>
+                                </div>
+                                <div id="fuel-price-source-info" style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
+                                    กำลังเชื่อมต่อฐานข้อมูลราคาน้ำมันดีเซลจริง...
+                                </div>
+                            </div>
+
+                            <!-- Signatories for Generator Rental -->
+                            <div class="section-divider"><span>ข้อมูลผู้ลงนามในเอกสาร (ใบเสนอราคา)</span></div>
+
+                            <!-- ผู้ประมาณการ -->
+                            <div style="font-weight:600; font-size:0.88rem; margin-bottom:6px; color:var(--primary); display:flex; align-items:center; gap:6px;">
+                                <span>✍️ ผู้ประมาณการ</span>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>ชื่อ-นามสกุล</label>
+                                    <input type="text" id="gen-estimator-name" value="นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง" placeholder="ชื่อ-นามสกุล ผู้ประมาณการ">
+                                </div>
+                                <div class="form-group half">
+                                    <label>ตำแหน่ง</label>
+                                    <input type="text" id="gen-estimator-pos" value="วิศวกร" placeholder="ตำแหน่ง">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>แผนก / สังกัด</label>
+                                <input type="text" id="gen-estimator-dept" value="แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า" placeholder="แผนก / สังกัด">
+                            </div>
+
+                            <!-- ผู้ตรวจสอบ -->
+                            <div style="font-weight:600; font-size:0.88rem; margin-top:8px; margin-bottom:6px; color:var(--primary); display:flex; align-items:center; gap:6px;">
+                                <span>🔍 ผู้ตรวจสอบ</span>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>ชื่อ-นามสกุล</label>
+                                    <input type="text" id="gen-checker-name" value="นายปฐมทรรศน์ ชงัดเวช" placeholder="ชื่อ-นามสกุล ผู้ตรวจสอบ">
+                                </div>
+                                <div class="form-group half">
+                                    <label>ตำแหน่ง</label>
+                                    <input type="text" id="gen-checker-pos" value="หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า" placeholder="ตำแหน่ง">
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary btn-full" id="gen-calculate-btn" style="margin-top:10px;">⚡ วิเคราะห์และคำนวณ</button>
+                        </div>
+
+                        <!-- Right: Result & Recommendations -->
+                        <div class="card result-card">
+                            <div class="card-header">
+                                <span class="dot orange"></span>
+                                <h2>ผลวิเคราะห์และพยากรณ์</h2>
+                                <span class="badge badge-gray" id="gen-save-status">ยังไม่บันทึก</span>
+                            </div>
+
+                            <div class="gen-recommendations">
+                                <label class="section-label">ขนาด Gen ที่แนะนำ (โหลด ≤ 70%)</label>
+                                <div id="gen-options-container"></div>
+                            </div>
+
+                            <div class="fuel-forecast" id="fuel-forecast-container" style="display:none;">
+                                <label class="section-label" id="forecast-title">รายละเอียดค่าใช้จ่ายบริการ</label>
+                                <div class="result-details" style="background:var(--bg-surface-soft); border:1px solid var(--border-color);">
+                                    <div class="result-row">
+                                        <span>ค่าเช่าเครื่องกำเนิดไฟฟ้า (<span id="disp-gen-days"></span> วัน)</span>
+                                        <span class="val" id="cost-rental">0 ฿</span>
+                                    </div>
+                                    <div class="result-row">
+                                        <span>ค่าขนส่ง (<span id="disp-gen-dist"></span> กม.)</span>
+                                        <span class="val" id="cost-transport">0 ฿</span>
+                                    </div>
+                                    <div class="result-row">
+                                        <span>ค่าพนักงานควบคุมงาน</span>
+                                        <span class="val" id="cost-op">0 ฿</span>
+                                    </div>
+                                    <div class="result-row">
+                                        <span>VAT 7%</span>
+                                        <span class="val" id="cost-vat">0 ฿</span>
+                                    </div>
+                                    <div class="divider" style="background:var(--border-color);"></div>
+                                    <div class="result-row total">
+                                        <span>ค่าบริการ กฟภ. (สุทธิ)</span>
+                                        <span class="val total-val" id="cost-pea-total" style="color:var(--accent-orange);">0 ฿</span>
+                                    </div>
+                                </div>
+
+                                <div class="forecast-bar" style="margin-top:20px;">
+                                    <span>อัตราใช้น้ำมัน (โหลด <span id="forecast-load-pct"></span>%)</span>
+                                    <span>~<span id="forecast-fuel-rate"></span> ลิตร/ชม.</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="fuel-progress" style="width:50%"></div>
+                                </div>
+
+                                <div class="forecast-grid">
+                                    <div class="f-card">
+                                        <span>พยากรณ์น้ำมันรวม</span>
+                                        <h4><span id="forecast-total-fuel">0</span> <span>ลิตร</span></h4>
+                                    </div>
+                                    <div class="f-card">
+                                        <span>ค่าน้ำมันโดยประมาณ</span>
+                                        <h4><span id="forecast-fuel-cost">0</span> <span>฿</span></h4>
+                                    </div>
+                                    <div class="f-card highlight" style="grid-column:span 2;">
+                                        <span>ประมาณการค่าใช้จ่ายรวม (PEA + ค่าน้ำมัน)</span>
+                                        <h4><span id="forecast-grand-total">0</span> <span>฿</span></h4>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-buttons">
+                                <button class="btn btn-outline btn-full" id="gen-export-pdf" style="background-color: var(--accent-orange-light); color: var(--accent-orange); border-color: var(--accent-orange-border);">
+                                    ออกใบเสนอราคา PDF
+                                </button>
+                                <button class="btn btn-primary btn-full" id="gen-save-data" style="margin-top: 8px;">
+                                    💾 บันทึกข้อมูล (อัปเดต Dashboard)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==============================================
+                     TAB 3: FLEET & QUEUE MANAGEMENT
+                     ============================================== -->
+                <section id="tab-fleet" class="tab-content">
+                    <!-- Fleet KPIs -->
+                    <div class="kpi-grid" style="margin-bottom: 22px;">
+                        <div class="kpi-card">
+                            <span class="kpi-title">จำนวนเครื่องทั้งหมด</span>
+                            <div class="kpi-value" id="fleet-total-cnt">24 <small class="kpi-unit">เครื่อง</small></div>
+                        </div>
+                        <div class="kpi-card">
+                            <span class="kpi-title" style="color:var(--primary);">ว่าง / สแตนด์บาย</span>
+                            <div class="kpi-value" id="fleet-standby-cnt" style="color:var(--primary);">24 <small class="kpi-unit">เครื่อง</small></div>
+                        </div>
+                        <div class="kpi-card">
+                            <span class="kpi-title" style="color:var(--accent-orange);">กำลังปฏิบัติงาน</span>
+                            <div class="kpi-value" id="fleet-active-cnt" style="color:var(--accent-orange);">0 <small class="kpi-unit">เครื่อง</small></div>
+                        </div>
+                        <div class="kpi-card">
+                            <span class="kpi-title" style="color:var(--accent-rose);">ซ่อมบำรุง</span>
+                            <div class="kpi-value" id="fleet-maint-cnt" style="color:var(--accent-rose);">0 <small class="kpi-unit">เครื่อง</small></div>
+                        </div>
+                    </div>
+
+                    <div class="grid-layout">
+                        <!-- Left: Interactive Map & Nearest Search -->
+                        <div class="card map-card" style="display:flex; flex-direction:column; gap:16px;">
+                            <div class="card-header" style="margin-bottom:0; padding-bottom:10px;">
+                                <span class="dot orange"></span>
+                                <h2>แผนที่ระบบบริหารเครื่องกำเนิดไฟฟ้า (17 จุดรวมงานในเขต)</h2>
+                            </div>
+
+                            <div id="fleet-map"></div>
+
+                            <div class="section-divider" style="margin: 5px 0;">
+                                <span>วางแผนจัดสรรเครื่องจากจุดที่ใกล้ที่สุด</span>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>จุดติดตั้งปฏิบัติงาน<br><span style="font-size:0.75rem; color:var(--text-muted);">(คลิกเลือกจุดบนแผนที่ด้านบน)</span></label>
+                                    <input type="text" id="search-target-display" value="-- กรุณาคลิกเลือกจุดบนแผนที่ --" readonly style="background:var(--bg-surface-soft);">
+                                    <input type="hidden" id="search-target-location" value="">
+                                </div>
+                                <div class="form-group half">
+                                    <label>ขนาดเครื่องยนต์ที่ต้องการ<br><span style="font-size:0.75rem; visibility:hidden;">&nbsp;</span></label>
+                                    <select id="search-gen-size">
+                                        <option value="60">60 kW</option>
+                                        <option value="120">120 kW</option>
+                                        <option value="300" selected>300 kW</option>
+                                        <option value="500">500 kW</option>
+                                        <option value="800">800 kW</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>วันที่เริ่มสัญญา</label>
+                                    <input type="date" id="search-start-date">
+                                </div>
+                                <div class="form-group half">
+                                    <label>วันที่สิ้นสุดสัญญา</label>
+                                    <input type="date" id="search-end-date">
+                                </div>
+                            </div>
+
+                            <button class="btn btn-green btn-full" id="btn-search-nearest">⚡ ค้นหาเครื่องยนต์ที่ว่างจากจุดที่ใกล้ที่สุด</button>
+
+                            <div id="search-results-area" style="display:none; padding:12px; background:var(--primary-light); border-radius:var(--radius-md); border:1px solid var(--primary-border);">
+                                <h4 style="color:var(--primary); font-size:0.9rem; margin-bottom:8px;">📍 ผลการจัดสรรเครื่องยนต์ที่ว่าง:</h4>
+                                <div id="search-results-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Queue Timeline & Calendar -->
+                        <div class="card timeline-card" style="display:flex; flex-direction:column; gap:16px;">
+                            <div class="card-header" style="margin-bottom:0; padding-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span class="dot green"></span>
+                                    <h2>ตารางการเดินเครื่องและจัดสรรคิวงาน</h2>
+                                </div>
+                                <div style="display:flex; gap:6px;">
+                                    <button class="btn btn-xs btn-outline" id="btn-admin-import-export">📥 นำเข้า/ส่งออก</button>
+                                    <button class="btn btn-xs btn-outline" id="btn-admin-inventory">⚙️ สถานะเครื่อง</button>
+                                </div>
+                            </div>
+
+                            <!-- Calendar navigation -->
+                            <div id="fleet-calendar-wrapper">
+                                <div class="cal-nav">
+                                    <button id="cal-prev-month" class="cal-nav-btn">&#8249;</button>
+                                    <span id="cal-month-label" class="cal-month-label"></span>
+                                    <button id="cal-next-month" class="cal-nav-btn">&#8250;</button>
+                                </div>
+                                <div class="cal-grid" id="cal-grid">
+                                    <!-- rendered by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Detail panel for selected date -->
+                            <div id="cal-detail-panel" style="display:none; margin-top:4px;">
+                                <div class="section-divider" style="margin: 0 0 8px;"><span id="cal-detail-title">รายการคิวเครื่องวันที่เลือก</span></div>
+                                <div id="cal-status-filters" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                                    <button class="cal-filter-btn active" data-filter="all">ทั้งหมด</button>
+                                    <button class="cal-filter-btn" data-filter="booked">🔸 กำลังใช้งาน</button>
+                                    <button class="cal-filter-btn" data-filter="available">🟢 ว่าง/Standby</button>
+                                    <button class="cal-filter-btn" data-filter="maintenance">🔴 ซ่อมบำรุง</button>
+                                </div>
+                                <div id="cal-detail-container" style="overflow-y:auto; max-height:380px; display:flex; flex-direction:column; gap:8px;">
+                                    <!-- rendered by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Fallback: show all bookings list -->
+                            <div id="cal-all-list-panel" style="margin-top:4px;">
+                                <div class="section-divider" style="margin: 0 0 8px;"><span>คิวทั้งหมด (เลือกวันในปฏิทินเพื่อดูรายละเอียด)</span></div>
+                                <div id="schedule-timeline-container" style="overflow-y:auto; max-height:400px; display:flex; flex-direction:column; gap:10px;">
+                                    <!-- rendered by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==============================================
+                     TAB 4: HISTORY
+                     ============================================== -->
+                <section id="tab-history" class="tab-content">
+                    <div class="history-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                            <h2 style="margin:0; font-size:1.15rem; color:var(--text-main);">ประวัติใบเสนอราคา</h2>
+                            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                <label style="font-size:0.85rem; color:var(--text-muted);">ค้นหาตาม:</label>
+                                <select id="history-search-type" style="width:auto; padding:6px 10px;">
+                                    <option value="all">ทั้งหมด</option>
+                                    <option value="custId">หมายเลขผู้ใช้ไฟ (CA)</option>
+                                    <option value="genSize">ขนาดเครื่องยนต์ (kW)</option>
+                                </select>
+                                <input type="text" id="history-search-input" placeholder="พิมพ์คำค้นหา..." style="width:auto; min-width:220px; padding:6px 12px;">
+                            </div>
+                        </div>
+                        <div class="divider" style="margin-top:0; background:var(--border-color);"></div>
+                        <div id="history-list" class="history-list">
+                            <div class="empty-state">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                <p>รายการใบเสนอราคาจะแสดงที่นี่</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ==============================================
+         PRINT QUOTATION AREA (PEA COVER)
+         ============================================== -->
+    <div id="print-area" style="display:none;">
+        <style>
+            @media print {
+                @page { size: A4; margin: 0; }
+                body { background: #FFFFFF !important; }
+                html, body { background: #FFFFFF !important; }
+            }
+            #print-area {
+                font-family: 'TH Sarabun PSK', 'TH Sarabun New', 'Sarabun', 'Prompt', sans-serif;
+                font-size: 16pt;
+                color: #000;
+                line-height: 1.35;
+                background: #FFFFFF;
+            }
+            #print-area * { font-family: 'TH Sarabun PSK', 'TH Sarabun New', 'Sarabun', 'Prompt', sans-serif; }
+            #print-area .q-page {
+                width: 210mm; min-height: 297mm; padding: 12mm 18mm 10mm 22mm; box-sizing: border-box; position: relative; background: #FFFFFF;
+            }
+            #print-area .q-page-num { position: absolute; top: 10mm; right: 18mm; font-size: 16pt; }
+            #print-area .q-logo-area { text-align: center; margin-bottom: 3mm; }
+            #print-area .q-logo-area img.pea-logo { height: 25mm; width: auto; display: block; margin: 0 auto; }
+            #print-area .q-title { text-align: center; font-size: 17pt; font-weight: 700; margin-bottom: 1mm; }
+            #print-area .q-subtitle { text-align: center; font-size: 15pt; margin-bottom: 5mm; }
+            #print-area .q-info-table { width: 100%; margin-bottom: 5mm; border-collapse: collapse; }
+            #print-area .q-info-table td { padding: 1.5mm 0; vertical-align: bottom; font-size: 16pt; }
+            #print-area .q-info-table .label { white-space: nowrap; padding-right: 4mm; font-weight: 600; width: 42mm; }
+            #print-area .q-info-table .val-line { border-bottom: 1px solid #000; width: 100%; display: block; min-height: 6mm; padding-left: 3mm; }
+            #print-area .q-items-table { width: 100%; border-collapse: collapse; margin-bottom: 1mm; }
+            #print-area .q-items-table th, #print-area .q-items-table td { border: 1px solid #333; padding: 2mm 3mm; text-align: center; font-size: 16pt; }
+            #print-area .q-items-table th { background: #f5f5f5; font-weight: 700; }
+            #print-area .q-items-table td.left { text-align: left; }
+            #print-area .q-items-table td.right { text-align: right; }
+            #print-area .q-total-row td { font-weight: 700; background: #f5f5f5; }
+            #print-area .q-grand-total td { font-weight: 700; font-size: 16pt; }
+            #print-area .q-notes { margin-top: 5mm; }
+            #print-area .q-notes-title { font-weight: 700; margin-bottom: 2mm; font-size: 16pt; }
+            #print-area .q-notes ol { padding-left: 7mm; margin: 0; }
+            #print-area .q-notes li { margin-bottom: 1.5mm; font-size: 15pt; line-height: 1.4; }
+            #print-area .q-page-break { page-break-before: always; }
+            #print-area .q-sig-section { margin-top: 35mm; }
+            #print-area .q-sig-block { margin-bottom: 25mm; text-align: center; font-size: 16pt; }
+            #print-area .q-sig-line { border-bottom: 1px dotted #333; width: 110mm; display: inline-block; margin-bottom: 3mm; }
+        </style>
+
+        <div class="q-page" id="q-page1">
+            <div class="q-page-num">1</div>
+            <div class="q-logo-area">
+                <img class="pea-logo" src="pea_logo.jpg.jpg" alt="ตราการไฟฟ้าส่วนภูมิภาค" onerror="this.style.display='none';">
+            </div>
+            <div class="q-title">ประมาณการค่าใช้จ่ายค่าเช่าฉนวนครอบสายไฟ และลูกถ้วยแรงสูง</div>
+            <div class="q-subtitle">(ใบเสนอราคา)</div>
+
+            <table class="q-info-table">
+                <tr><td class="label">หมายเลขผู้ใช้ไฟ</td><td><span class="val-line" id="q-cust-id"></span></td></tr>
+                <tr><td class="label">ชื่อผู้ใช้บริการ</td><td><span class="val-line" id="q-cust-name"></span></td></tr>
+                <tr><td class="label">ที่อยู่</td><td><span class="val-line" id="q-cust-address"></span></td></tr>
+                <tr><td class="label">วันที่ใช้บริการ</td><td><span class="val-line" id="q-service-date"></span></td></tr>
+                <tr><td class="label">สถานที่รับบริการ</td><td><span class="val-line" id="q-location"></span></td></tr>
+            </table>
+
+            <table class="q-items-table">
+                <thead>
+                    <tr>
+                        <th style="width:8mm;">ที่</th>
+                        <th>รายการ</th>
+                        <th style="width:20mm;">จำนวน<br>ชิ้น</th>
+                        <th style="width:20mm;">จำนวน<br>วันขอเช่า</th>
+                        <th style="width:24mm;">ราคาต่อ/ชิ้น<br>(บาท)</th>
+                        <th style="width:26mm;">จำนวนเงิน<br>(บาท)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td class="left">ฉนวนครอบสายไฟ</td>
+                        <td id="q-wire-qty">-</td>
+                        <td id="q-wire-days">-</td>
+                        <td id="q-wire-rate">100</td>
+                        <td class="right" id="q-wire-amount">0.00</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="left">ฉนวนครอบลูกถ้วยแรงสูง</td>
+                        <td id="q-ins-qty">-</td>
+                        <td id="q-ins-days">-</td>
+                        <td id="q-ins-rate">-</td>
+                        <td class="right" id="q-ins-amount">0.00</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="left" colspan="4">ค่าบริการติดตั้ง-รื้อถอน</td>
+                        <td class="right">3,500.00</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="text-align:right;font-weight:600;">รวมเป็นเงิน</td>
+                        <td class="right" id="q-subtotal">0.00</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="text-align:right;font-weight:600;">ภาษีมูลค่าเพิ่ม 7 %</td>
+                        <td class="right" id="q-vat">0.00</td>
+                    </tr>
+                    <tr class="q-grand-total">
+                        <td colspan="5" style="text-align:right;">ค่าใช้จ่ายที่เรียกเก็บรวมเป็นเงินทั้งสิ้น</td>
+                        <td class="right" id="q-total">0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="q-notes">
+                <div class="q-notes-title">หมายเหตุ</div>
+                <ol>
+                    <li>ให้หลักเกณฑ์การคิดค่าใช้จ่ายในการให้บริการฉนวนครอบสายไฟแรงสูง และฉนวนครอบลูกถ้วยแรงสูง ฉบับปี พ.ศ. 2566 ในการคิดค่าใช้จ่าย</li>
+                    <li>หากต้องการขยายระยะเวลาการติดตั้งฉนวนครอบฯ เพิ่มเติม ให้ชำระค่าเช่าในอัตรา 100 บาท/ชิ้น/วัน สำหรับจำนวนชิ้นที่เพิ่มขึ้น โดยกรณีที่ยังไม่ได้นำฉนวนครอบฯ ลงจากเสาไฟฟ้า ไม่ต้องชำระค่าบริการติดตั้ง-รื้อถอนเพิ่ม (3,500.00 บาท) แต่กรณีนำฉนวนครอบฯ ลงจากเสาแล้วและต้องการติดตั้งใหม่ จะต้องชำระค่าบริการติดตั้ง-รื้อถอนใหม่ 3,500.00 บาท</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Page 2 (PEA Cover): Signatures -->
+        <div class="q-page q-page-break" id="q-page2" style="background:#fff; position:relative;">
+            <div class="q-page-num">2</div>
+            <div style="padding-top:35mm; padding-left:30mm; font-size:16pt; font-family:'TH Sarabun PSK','TH Sarabun New','Sarabun',sans-serif;">
+                <div style="margin-bottom:18mm;">
+                    <table style="width:100%; border-collapse:collapse; margin-bottom:4mm;">
+                        <tr>
+                            <td style="white-space:nowrap; padding-right:3mm; vertical-align:bottom; font-size:16pt; width:1%;">(ลงชื่อ)</td>
+                            <td style="vertical-align:bottom; border-bottom:1px dotted #222; padding-bottom:1mm; font-size:16pt;"></td>
+                            <td style="white-space:nowrap; padding-left:3mm; vertical-align:bottom; font-size:16pt; width:1%;">ผู้ประมาณการ</td>
+                        </tr>
+                    </table>
+                    <div style="text-align:center; font-size:16pt; margin-bottom:1mm;" id="pea-sig-estimator-name" class="sig-estimator-name">(นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง)</div>
+                    <div style="text-align:center; font-size:16pt; margin-bottom:1mm;" id="pea-sig-estimator-pos" class="sig-estimator-pos">วิศวกร</div>
+                    <div style="text-align:center; font-size:16pt;" id="pea-sig-estimator-dept" class="sig-estimator-dept">แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
+                </div>
+                <div>
+                    <table style="width:100%; border-collapse:collapse; margin-bottom:4mm;">
+                        <tr>
+                            <td style="white-space:nowrap; padding-right:3mm; vertical-align:bottom; font-size:16pt; width:1%;">(ลงชื่อ)</td>
+                            <td style="vertical-align:bottom; border-bottom:1px dotted #222; padding-bottom:1mm; font-size:16pt;"></td>
+                            <td style="white-space:nowrap; padding-left:3mm; vertical-align:bottom; font-size:16pt; width:1%;">ผู้ตรวจสอบ</td>
+                        </tr>
+                    </table>
+                    <div style="text-align:center; font-size:16pt; margin-bottom:1mm;" id="pea-sig-checker-name" class="sig-checker-name">(นายปฐมทรรศน์ ชงัดเวช)</div>
+                    <div style="text-align:center; font-size:16pt;" id="pea-sig-checker-pos" class="sig-checker-pos">หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================
+         GEN FUEL COST PRINT AREA
+         ============================================== -->
+    <div id="gen-print-area" style="display:none;">
+        <style>
+            #gen-print-area {
+                font-family: 'TH Sarabun PSK', 'TH Sarabun New', 'Sarabun', 'Prompt', sans-serif;
+                font-size: 15pt;
+                color: #000;
+                line-height: 1.3;
+                background: #fff;
+            }
+            #gen-print-area * {
+                font-family: 'TH Sarabun PSK', 'TH Sarabun New', 'Sarabun', 'Prompt', sans-serif;
+                box-sizing: border-box;
+            }
+            #gen-print-area .gp {
+                width: 210mm;
+                min-height: 297mm;
+                padding: 10mm 16mm 10mm 20mm;
+                box-sizing: border-box;
+                position: relative;
+                background: #fff;
+            }
+            #gen-print-area .gp-num {
+                position: absolute;
+                top: 8mm;
+                right: 16mm;
+                font-size: 15pt;
+            }
+            #gen-print-area .gp-logo {
+                text-align: center;
+                margin-bottom: 2mm;
+            }
+            #gen-print-area .gp-logo img {
+                height: 20mm;
+                width: auto;
+                display: block;
+                margin: 0 auto;
+            }
+            #gen-print-area .gp-title {
+                text-align: center;
+                font-size: 16.5pt;
+                font-weight: 700;
+                margin-bottom: 1mm;
+            }
+            #gen-print-area .gp-subtitle {
+                text-align: center;
+                font-size: 14.5pt;
+                margin-bottom: 3mm;
+            }
+            #gen-print-area .gp-info-table {
+                width: 100%;
+                margin-bottom: 3mm;
+                border-collapse: collapse;
+            }
+            #gen-print-area .gp-info-table td {
+                padding: 1mm 0;
+                vertical-align: bottom;
+                font-size: 15pt;
+            }
+            #gen-print-area .gp-info-table .label {
+                white-space: nowrap;
+                padding-right: 3mm;
+                width: 38mm;
+                font-weight: 600;
+            }
+            #gen-print-area .gp-info-table .val-line {
+                border-bottom: 1px solid #000;
+                width: 100%;
+                display: block;
+                min-height: 5.5mm;
+                padding-left: 2mm;
+            }
+            #gen-print-area .gp-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 3mm 0;
+                font-size: 14.5pt;
+            }
+            #gen-print-area .gp-table th, #gen-print-area .gp-table td {
+                border: 1px solid #333;
+                padding: 1.5mm 2.5mm;
+                text-align: center;
+                font-size: 14.5pt;
+            }
+            #gen-print-area .gp-table th {
+                background: #f5f5f5;
+                font-weight: 700;
+            }
+            #gen-print-area .gp-table td.left {
+                text-align: left;
+            }
+            #gen-print-area .gp-table td.right {
+                text-align: right;
+            }
+            #gen-print-area .gp-page-break {
+                page-break-before: always;
+            }
+            #gen-print-area .gp-notes {
+                margin-top: 3.5mm;
+                font-size: 13.5pt;
+                line-height: 1.32;
+            }
+            #gen-print-area .gp-notes-title {
+                font-weight: 700;
+                margin-bottom: 1mm;
+                font-size: 14pt;
+            }
+            #gen-print-area .gp-notes-list {
+                padding-left: 0;
+                margin: 0;
+                list-style: none;
+            }
+            #gen-print-area .gp-notes-list li {
+                margin-bottom: 1mm;
+                text-align: justify;
+            }
+            #gen-print-area .gp-sig-section {
+                margin-top: 6mm;
+            }
+            #gen-print-area .gp-sig-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            #gen-print-area .gp-sig-cell {
+                width: 50%;
+                text-align: center;
+                vertical-align: top;
+                font-size: 14.5pt;
+                line-height: 1.25;
+            }
+        </style>
+
+        <!-- Gen Print Page 1: Rental Estimate -->
+        <div class="gp" id="gp-rental-page">
+            <div class="gp-num">1</div>
+            <div class="gp-logo">
+                <img src="pea_logo.jpg.jpg" alt="PEA" onerror="this.style.display='none';">
+            </div>
+            <div class="gp-title">ประมาณการค่าใช้จ่ายเช่าเครื่องกำเนิดไฟฟ้า ขนาด <span id="gpr-gen-size" class="gpr-gen-size-val">300</span> kW</div>
+            <div class="gp-subtitle">(ใบเสนอราคา)</div>
+
+            <table class="gp-info-table">
+                <tr><td class="label">หมายเลขผู้ใช้ไฟ</td><td><span class="val-line" id="gpr-cust-id"></span></td></tr>
+                <tr><td class="label">ชื่อผู้เช่า/หน่วยงาน</td><td><span class="val-line" id="gpr-cust-name"></span></td></tr>
+                <tr><td class="label">วัตถุประสงค์การใช้งาน</td><td><span class="val-line" id="gpr-purpose"></span></td></tr>
+                <tr><td class="label">วันที่ใช้งาน</td><td><span class="val-line" id="gpr-service-date"></span></td></tr>
+                <tr><td class="label">สถานที่ใช้งาน</td><td><span class="val-line" id="gpr-location"></span></td></tr>
+            </table>
+
+            <table class="gp-table">
+                <thead>
+                    <tr>
+                        <th style="width:8mm;">ที่</th>
+                        <th>รายการ</th>
+                        <th style="width:25mm;">จำนวนวัน</th>
+                        <th style="width:30mm;">จำนวนเงิน (บาท)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td class="left" id="gpr-rent-label">ค่าเช่าเครื่องกำเนิดไฟฟ้า</td>
+                        <td id="gpr-rent-days">-</td>
+                        <td class="right" id="gpr-rent-cost">0.00</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="left">ค่าพนักงานควบคุมเครื่องยนต์กำเนิดไฟฟ้า</td>
+                        <td id="gpr-op-days">-</td>
+                        <td class="right" id="gpr-op-cost">0.00</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="left">ค่าขนส่งเครื่องกำเนิดไฟฟ้า</td>
+                        <td>-</td>
+                        <td class="right" id="gpr-trans-cost">0.00</td>
+                    </tr>
+                    <tr style="font-weight:700; background:#f5f5f5;">
+                        <td colspan="3" style="text-align:right;">รวมเป็นเงินก่อนภาษีมูลค่าเพิ่ม</td>
+                        <td class="right" id="gpr-subtotal">0.00</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="text-align:right;">ภาษีมูลค่าเพิ่ม 7%</td>
+                        <td class="right" id="gpr-vat">0.00</td>
+                    </tr>
+                    <tr style="font-weight:700; font-size:15pt;">
+                        <td colspan="3" style="text-align:right;">รวมเป็นเงินทั้งสิ้น</td>
+                        <td class="right" id="gpr-total">0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Page 1 Notes -->
+            <div class="gp-notes">
+                <div class="gp-notes-title">หมายเหตุ</div>
+                <ul class="gp-notes-list">
+                    <li>1. ใช้ระเบียบการไฟฟ้าส่วนภูมิภาค ว่าด้วย การเช่าชุดเครื่องยนต์กำเนิดไฟฟ้า พ.ศ. 2559 และระเบียบการไฟฟ้าส่วนภูมิภาค ว่าด้วย การนำชุดเครื่องยนต์กำเนิดไฟฟ้าไปสำรองจ่าย พ.ศ. 2559 ในการคิดค่าใช้จ่าย</li>
+                    <li>2. น้ำมันเชื้อเพลิงของชุดเครื่องยนต์กำเนิดไฟฟ้า ขนาด <span class="gpr-gen-size-val">300</span> กิโลวัตต์ ผู้เช่าเป็นผู้จัดหา</li>
+                    <li>3. เงื่อนไขการขอขยายสัญญาเช่า: หากต้องการขยายระยะเวลาเช่าเพิ่มเติม จะต้องแจ้งเป็นลายลักษณ์อักษรให้ กฟภ. ทราบล่วงหน้าอย่างน้อย 2 วันก่อนถึงวันสิ้นสุดสัญญาเช่าเดิม</li>
+                    <li>4. ข้อจำกัดชั่วโมงการใช้งาน: จำกัดเวลาการใช้งานชุดเครื่องยนต์กำเนิดไฟฟ้าสูงสุดไม่เกินวันละ 12 ชั่วโมง</li>
+                </ul>
+            </div>
+
+            <!-- Page 1 Signatures -->
+            <div class="gp-sig-section">
+                <table class="gp-sig-table">
+                    <tr>
+                        <td class="gp-sig-cell" style="padding-right:6mm;">
+                            <div style="margin-bottom:1.5mm;">(ลงชื่อ) ........................................................... ผู้ประมาณการ</div>
+                            <div style="font-weight:600;" id="gpr-sig-estimator-name" class="sig-estimator-name">(นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง)</div>
+                            <div id="gpr-sig-estimator-pos" class="sig-estimator-pos">วิศวกร</div>
+                            <div id="gpr-sig-estimator-dept" class="sig-estimator-dept">แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
+                        </td>
+                        <td class="gp-sig-cell" style="padding-left:6mm;">
+                            <div style="margin-bottom:1.5mm;">(ลงชื่อ) ........................................................... ผู้ตรวจสอบ</div>
+                            <div style="font-weight:600;" id="gpr-sig-checker-name" class="sig-checker-name">(นายปฐมทรรศน์ ชงัดเวช)</div>
+                            <div id="gpr-sig-checker-pos" class="sig-checker-pos">หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Gen Print Page 2: Fuel Estimate -->
+        <div class="gp gp-page-break" id="gp-fuel-page">
+            <div class="gp-num">2</div>
+            <div class="gp-logo">
+                <img src="pea_logo.jpg.jpg" alt="PEA" onerror="this.style.display='none';">
+            </div>
+            <div class="gp-title">ประมาณการใช้น้ำมันเชื้อเพลิงเครื่องยนต์กำเนิดไฟฟ้า ขนาด <span id="gpf-gen-size" class="gpf-gen-size-val">300</span> kW</div>
+            <div class="gp-subtitle">(เพื่อประกอบการพิจารณาของผู้ขอเช่า)</div>
+
+            <table class="gp-info-table">
+                <tr><td class="label">วันที่</td><td><span class="val-line" id="gpf-date"></span></td></tr>
+                <tr><td class="label">วัตถุประสงค์</td><td><span class="val-line" id="gpf-purpose"></span></td></tr>
+                <tr><td class="label">วันที่ใช้งาน</td><td><span class="val-line" id="gpf-service-date-line"></span></td></tr>
+            </table>
+
+            <div style="margin:2.5mm 0; text-align:center; font-size:14pt;">
+                โหลดไฟฟ้าเฉลี่ยประมาณ <b id="gpf-load-kw">0</b> kW | อัตราสิ้นเปลืองเฉลี่ย ~<b id="gpf-fuel-rate">0</b> ลิตร/ชม. | ราคาน้ำมันดีเซล <b id="gpf-fuel-price">0.00</b> บาท/ลิตร
+            </div>
+
+            <table class="gp-table">
+                <thead>
+                    <tr>
+                        <th style="width:25mm;">ชั่วโมงที่เดินเครื่อง</th>
+                        <th>ปริมาณน้ำมัน (ลิตร)</th>
+                        <th id="gpf-price-header">ประมาณการค่าน้ำมัน</th>
+                    </tr>
+                </thead>
+                <tbody id="gp-fuel-tbody">
+                    <!-- populated dynamically -->
+                </tbody>
+            </table>
+
+            <!-- Page 2 Notes -->
+            <div class="gp-notes">
+                <div class="gp-notes-title">หมายเหตุ</div>
+                <ul class="gp-notes-list">
+                    <li>1. น้ำมันเชื้อเพลิงสำหรับเครื่องยนต์กำเนิดไฟฟ้า ขนาด <span class="gpf-gen-size-val">300</span> กิโลวัตต์ เป็นความรับผิดชอบของผู้เช่า โดยผู้ให้เช่าจะจัดเตรียมน้ำมันเชื้อเพลิงในปริมาณเต็มถังให้ในวันที่ส่งมอบเครื่อง ทั้งนี้ เมื่อสิ้นสุดระยะเวลาการเช่าและใช้งาน ผู้เช่ามีหน้าที่เติมน้ำมันเชื้อเพลิงให้คืนสู่ระดับเต็มถังตามสภาพเดิมที่ได้รับมอบ ก่อนการส่งคืนเครื่องยนต์กำเนิดไฟฟ้าแก่ผู้ให้เช่า</li>
+                </ul>
+            </div>
+
+            <!-- Page 2 Signatures -->
+            <div class="gp-sig-section">
+                <table class="gp-sig-table">
+                    <tr>
+                        <td class="gp-sig-cell" style="padding-right:6mm;">
+                            <div style="margin-bottom:1.5mm;">(ลงชื่อ) ........................................................... ผู้ประมาณการ</div>
+                            <div style="font-weight:600;" id="gpf-sig-estimator-name" class="sig-estimator-name">(นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง)</div>
+                            <div id="gpf-sig-estimator-pos" class="sig-estimator-pos">วิศวกร</div>
+                            <div id="gpf-sig-estimator-dept" class="sig-estimator-dept">แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
+                        </td>
+                        <td class="gp-sig-cell" style="padding-left:6mm;">
+                            <div style="margin-bottom:1.5mm;">(ลงชื่อ) ........................................................... ผู้ตรวจสอบ</div>
+                            <div style="font-weight:600;" id="gpf-sig-checker-name" class="sig-checker-name">(นายปฐมทรรศน์ ชงัดเวช)</div>
+                            <div id="gpf-sig-checker-pos" class="sig-checker-pos">หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================
+         ALL INTERACTIVE MODALS
+         ============================================== -->
+    <!-- Modal 1: Admin Add/Edit Booking Modal -->
+    <div class="modal-overlay" id="admin-booking-modal" style="display:none;">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+                <h3 style="margin:0; font-size:1.15rem;">⚡ บันทึกและจัดสรรคิวเครื่องยนต์กำเนิดไฟฟ้า</h3>
+                <button class="btn-close-modal" onclick="closeAdminBookingModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>ชื่อโครงการ / วัตถุประสงค์งาน</label>
+                <input type="text" id="adm-project-name" placeholder="เช่น พิธีเปิดสะพานมิตรภาพไทย-ลาว แห่งที่ 5">
+            </div>
+            <div class="form-group">
+                <label>สถานที่ปฏิบัติงาน (จุดติดตั้ง)</label>
+                <input type="text" id="adm-location-name" placeholder="เช่น อาคารด่านพรมแดนบึงกาฬ">
+            </div>
+            <div class="form-row">
+                <div class="form-group half">
+                    <label>ละติจูด (Lat)</label>
+                    <input type="number" step="any" id="adm-lat" placeholder="18.xxxx">
+                </div>
+                <div class="form-group half">
+                    <label>ลองจิจูด (Lng)</label>
+                    <input type="number" step="any" id="adm-lng" placeholder="103.xxxx">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>เลือกเครื่องยนต์กำเนิดไฟฟ้าที่ต้องการจ่ายงาน</label>
+                <select id="adm-gen-asset">
+                    <!-- Populated dynamically -->
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group half">
+                    <label>วันที่เริ่มปฏิบัติงาน</label>
+                    <input type="date" id="adm-start-date">
+                </div>
+                <div class="form-group half">
+                    <label>วันที่สิ้นสุดสัญญา</label>
+                    <input type="date" id="adm-end-date">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group half">
+                    <label>สถานะ</label>
+                    <select id="adm-status">
+                        <option value="Active">กำลังปฏิบัติงาน (Active)</option>
+                        <option value="Standby">สำรองจ่าย (Standby)</option>
+                        <option value="Pending">รอประชุม (Pending)</option>
+                    </select>
+                </div>
+                <div class="form-group half">
+                    <label>หน่วยงาน/แผนกผู้ควบคุม</label>
+                    <input type="text" id="adm-responsible" placeholder="เช่น แผนกปฏิบัติการระบบไฟฟ้า">
+                </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; border-top:1px solid var(--border-color); padding-top:12px;">
+                <button class="btn btn-outline" onclick="closeAdminBookingModal()">ยกเลิก</button>
+                <button class="btn btn-green" id="btn-save-admin-booking">💾 บันทึกคิวงาน</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Excel & CSV Import/Export -->
+    <div class="modal-overlay" id="admin-import-modal" style="display:none;">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+                <h3 style="margin:0; font-size:1.15rem;">📥 นำเข้า / ส่งออกข้อมูลคิวรถยนต์เครื่องกำเนิดไฟฟ้า</h3>
+                <button class="btn-close-modal" onclick="closeAdminImportModal()">&times;</button>
+            </div>
+            <div style="font-size:0.85rem; color:var(--text-body);">
+                เลือกนำเข้าข้อมูลผ่านไฟล์ <b>CSV (.csv)</b> หรือคัดลอกจาก <b>Excel</b> มาวางลงในช่องด้านล่างโดยตรงได้เลยครับ
+            </div>
+            <div class="section-divider" style="margin:5px 0;"><span>วิธีที่ 1: คัดลอกแถวจาก Excel มาวางโดยตรง</span></div>
+            <div class="form-group">
+                <label>คัดลอกจาก Excel (เลือกตารางใน Excel กด Ctrl+C แล้วมากดวางที่นี่)</label>
+                <textarea id="import-excel-paste" rows="4" style="font-family:monospace; font-size:0.75rem;" placeholder="ตัวอย่างแถวที่วาง:&#13;พิธีเปิดสะพานฯ	อาคารด่านบึงกาฬ	18.4069	103.5414	GEN-800-01	800	กฟจ.บึงกาฬ	2025-12-24	2025-12-26	Active	1000 kVA	กฟจ.บก."></textarea>
+            </div>
+            <button class="btn btn-green" id="btn-import-excel-submit">⚡ นำเข้าข้อมูลคิวที่วาง</button>
+            <div class="section-divider" style="margin:5px 0;"><span>วิธีที่ 2: อัปโหลดไฟล์ CSV</span></div>
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:space-between;">
+                <input type="file" id="import-csv-file" accept=".csv" style="flex:1;">
+                <button class="btn btn-outline" id="btn-download-csv-template">📥 ดาวน์โหลดแม่แบบ CSV</button>
+            </div>
+            <div class="section-divider" style="margin:5px 0;"><span>วิธีที่ 3: ส่งออกข้อมูลเก็บไว้ (Backup)</span></div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-outline" id="btn-export-fleet-csv" style="flex:1;">📤 ส่งออก CSV</button>
+                <button class="btn btn-outline" id="btn-export-fleet-json" style="flex:1;">📤 ส่งออก JSON</button>
+            </div>
+            <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:12px;">
+                <button class="btn btn-outline" onclick="closeAdminImportModal()">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Generator Asset Inventory Status Toggle -->
+    <div class="modal-overlay" id="admin-inventory-modal" style="display:none;">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+                <h3 style="margin:0; font-size:1.15rem;">⚙️ รายชื่อและสถานะเครื่องยนต์กำเนิดไฟฟ้าทั้งหมด (24 เครื่อง)</h3>
+                <button class="btn-close-modal" onclick="closeAdminInventoryModal()">&times;</button>
+            </div>
+            <div style="overflow-y:auto; max-height:400px; border:1px solid var(--border-color); border-radius:var(--radius-md);">
+                <table class="ynex-table">
+                    <thead>
+                        <tr>
+                            <th>รหัสเครื่อง</th>
+                            <th>ขนาด (kW)</th>
+                            <th>คลัง/จุดรวมงาน</th>
+                            <th>สถานะการใช้งาน</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body">
+                        <!-- populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+            <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:12px;">
+                <button class="btn btn-outline" onclick="closeAdminInventoryModal()">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Extend Rental Period -->
+    <div class="modal-overlay" id="extend-rental-modal" style="display:none;">
+        <div class="modal-card" style="max-width:420px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+                <h3 style="margin:0; font-size:1.15rem;">🔄 ขยายระยะเวลาเช่าเครื่อง</h3>
+                <button class="btn-close-modal" onclick="closeExtendRentalModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>วันที่เริ่มต้นใหม่</label>
+                <input type="date" id="ext-start-date">
+            </div>
+            <div class="form-group">
+                <label>วันที่สิ้นสุดใหม่</label>
+                <input type="date" id="ext-end-date">
+            </div>
+            <div class="form-group">
+                <label>ระยะเวลาเช่าใหม่ (วัน)</label>
+                <input type="number" id="ext-days" min="1">
+            </div>
+            <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:12px; gap:8px;">
+                <button class="btn btn-outline" onclick="closeExtendRentalModal()">ยกเลิก</button>
+                <button class="btn btn-primary" onclick="submitExtendRental()">บันทึกข้อมูล</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 5: Inspect Booking Modal -->
+    <div class="modal-overlay" id="inspect-booking-modal" onclick="if(event.target===this) closeInspectBookingModal()" style="display:none;">
+        <div class="modal-card" style="max-width:520px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+                <h3 style="margin:0; font-size:1.15rem;">📋 ตรวจสอบข้อมูลคิวงาน</h3>
+                <button class="btn-close-modal" onclick="closeInspectBookingModal()">&times;</button>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>หมายเลขผู้ใช้ไฟ (CA)</label>
+                    <input type="text" id="ins-cust-id" disabled>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>ชื่อโครงการ / วัตถุประสงค์</label>
+                    <input type="text" id="ins-project-name" disabled>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>สถานที่ติดตั้งปฏิบัติงาน</label>
+                    <input type="text" id="ins-location-name" disabled>
+                </div>
+                <div class="form-group">
+                    <label>วันที่เริ่มต้น</label>
+                    <input type="text" id="ins-start-date" disabled>
+                </div>
+                <div class="form-group">
+                    <label>วันที่สิ้นสุด</label>
+                    <input type="text" id="ins-end-date" disabled>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>เครื่องกำเนิดไฟฟ้าที่ใช้</label>
+                    <input type="text" id="ins-gen-info" disabled>
+                </div>
+                <div class="form-group">
+                    <label>คลังต้นทาง</label>
+                    <input type="text" id="ins-hub-name" disabled>
+                </div>
+                <div class="form-group">
+                    <label>ผู้รับผิดชอบ / ผู้เช่า</label>
+                    <input type="text" id="ins-responsible" disabled>
+                </div>
+            </div>
+            <div id="ins-cost-section" style="background:var(--bg-surface-soft); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; margin-top:8px;">
+                <h4 style="margin:0 0 12px 0; font-size:0.95rem; border-bottom:1px dashed var(--border-color); padding-bottom:8px;">พยากรณ์ค่าใช้จ่าย</h4>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
+                    <span>ค่าเช่าเครื่องกำเนิดไฟฟ้า:</span>
+                    <span id="ins-cost-rental" style="font-weight:600;">-</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
+                    <span>ค่าขนส่ง:</span>
+                    <span id="ins-cost-transport" style="font-weight:600;">-</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
+                    <span>ค่าพนักงานควบคุมงาน:</span>
+                    <span id="ins-cost-op" style="font-weight:600;">-</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
+                    <span>VAT 7%:</span>
+                    <span id="ins-cost-vat" style="font-weight:600;">-</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px solid var(--border-color); font-size:1rem;">
+                    <span style="font-weight:700;">ค่าบริการ กฟภ. (สุทธิ):</span>
+                    <span id="ins-cost-total" style="font-weight:700; color:var(--primary);">-</span>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:12px;">
+                <button class="btn btn-outline" onclick="closeInspectBookingModal()">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 6: Inspect Quote Modal -->
+    <div class="modal-overlay" id="inspect-quote-modal" onclick="if(event.target===this) closeInspectQuoteModal()" style="display:none;">
+        <div class="modal-card" style="max-width:520px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+                <h3 style="margin:0; font-size:1.15rem;">📋 รายละเอียดใบเสนอราคา</h3>
+                <button class="btn-close-modal" onclick="closeInspectQuoteModal()">&times;</button>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>ชื่อลูกค้า / ผู้ขอเช่า</label>
+                    <input type="text" id="iq-cust-name" disabled>
+                </div>
+                <div class="form-group">
+                    <label>หมายเลขผู้ใช้ไฟ (CA)</label>
+                    <input type="text" id="iq-cust-id" disabled>
+                </div>
+                <div class="form-group">
+                    <label>ประเภทบริการ</label>
+                    <input type="text" id="iq-type" disabled>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>วัตถุประสงค์ / โครงการ</label>
+                    <input type="text" id="iq-purpose" disabled>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>สถานที่ติดตั้งปฏิบัติงาน</label>
+                    <input type="text" id="iq-location" disabled>
+                </div>
+                <div class="form-group">
+                    <label>ขนาดเครื่องยนต์ / อุปกรณ์</label>
+                    <input type="text" id="iq-gen-size" disabled>
+                </div>
+                <div class="form-group">
+                    <label>ระยะเวลาเช่า</label>
+                    <input type="text" id="iq-days" disabled>
+                </div>
+                <div class="form-group">
+                    <label>วันที่เริ่มต้น</label>
+                    <input type="text" id="iq-start-date" disabled style="color:var(--primary); font-weight:600;">
+                </div>
+                <div class="form-group">
+                    <label>วันที่สิ้นสุด</label>
+                    <input type="text" id="iq-end-date" disabled style="color:var(--accent-rose); font-weight:600;">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>วันที่ทำรายการเสนอราคา</label>
+                    <input type="text" id="iq-created-at" disabled>
+                </div>
+            </div>
+            <div id="iq-cost-section" style="background:var(--bg-surface-soft); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; margin-top:8px;">
+                <h4 style="margin:0 0 12px 0; font-size:0.95rem; border-bottom:1px dashed var(--border-color); padding-bottom:8px;">สรุปค่าใช้จ่ายสุทธิ</h4>
+                <div id="iq-gen-costs" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
+                        <span>ค่าเช่าเครื่องกำเนิดไฟฟ้า:</span>
+                        <span id="iq-cost-rental" style="font-weight:600;">-</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
+                        <span>ค่าเชื้อเพลิง:</span>
+                        <span id="iq-cost-fuel" style="font-weight:600;">-</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
+                        <span>ค่าขนส่ง:</span>
+                        <span id="iq-cost-transport" style="font-weight:600;">-</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
+                        <span>ค่าพนักงานควบคุมงาน:</span>
+                        <span id="iq-cost-op" style="font-weight:600;">-</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
+                        <span>VAT 7%:</span>
+                        <span id="iq-cost-vat" style="font-weight:600;">-</span>
+                    </div>
+                </div>
+                <div id="iq-pea-costs" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
+                        <span>ค่าเช่าฉนวน:</span>
+                        <span id="iq-pea-cost-rental" style="font-weight:600;">-</span>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px solid var(--border-color); font-size:1rem;">
+                    <span style="font-weight:700;">ยอดรวมสุทธิ:</span>
+                    <span id="iq-cost-total" style="font-weight:700; color:var(--primary);">-</span>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:12px;">
+                <button class="btn btn-outline" onclick="closeInspectQuoteModal()">ปิด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js?v=24"></script>
+</body>
+
+</html>
