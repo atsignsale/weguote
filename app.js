@@ -112,8 +112,8 @@ const DISTRICT_HUBS = [
     { id: 'hub_pea_r1',         name: 'กฟฉ.1 (อุดรธานี)',        lat: 17.4152, lng: 102.7833 },
     // การไฟฟ้าจังหวัด
     { id: 'hub_khonkaen',       name: 'กฟจ.ขอนแก่น',              lat: 16.4419, lng: 102.8359 },
-    { id: 'hub_chumphae',       name: 'กฟจ.ชุมแพ',                lat: 16.5411, lng: 102.0980 },
-    { id: 'hub_banphai',        name: 'กฟจ.บ้านไผ่',              lat: 16.0700, lng: 102.7236 },
+    { id: 'hub_chumphae',       name: 'กฟอ.ชุมแพ',                lat: 16.5411, lng: 102.0980 },
+    { id: 'hub_banphai',        name: 'กฟอ.บ้านไผ่',              lat: 16.0700, lng: 102.7236 },
     { id: 'hub_nakhonphanom',   name: 'กฟจ.นครพนม',               lat: 17.4042, lng: 104.7818 },
     { id: 'hub_nongkhai',       name: 'กฟจ.หนองคาย',              lat: 17.8783, lng: 102.7411 },
     { id: 'hub_nongbualamphu',  name: 'กฟจ.หนองบัวลำภู',          lat: 17.2049, lng: 102.4379 },
@@ -121,14 +121,14 @@ const DISTRICT_HUBS = [
     { id: 'hub_udonthani1',     name: 'กฟจ.อุดรธานี 1',            lat: 17.4157, lng: 102.7900 },
     { id: 'hub_udonthani2',     name: 'กฟจ.อุดรธานี 2',            lat: 17.3833, lng: 102.8167 },
     { id: 'hub_loei',           name: 'กฟจ.เลย',                  lat: 17.4861, lng: 101.7223 },
-    { id: 'hub_sakonnakhon',    name: 'กฟจ.สกลนคร',               lat: 17.1636, lng: 104.1451 },
-    { id: 'hub_phangkhon',      name: 'กฟจ.พังโคน',               lat: 17.3742, lng: 103.9614 },
-    { id: 'hub_sawangdaendin',  name: 'กฟจ.สว่างแดนดิน',           lat: 17.4597, lng: 103.7161 },
+    { id: 'hub_sakonnakhon',    name: 'กฟจ.สกลนคร',               lat: 17.1455034, lng: 104.1069212 },
+    { id: 'hub_phangkhon',      name: 'กฟอ.พังโคน',               lat: 17.3836871, lng: 103.7130564 },
+    { id: 'hub_sawangdaendin',  name: 'กฟอ.สว่างแดนดิน',           lat: 17.4594606, lng: 103.4348865 },
     { id: 'hub_khonkaen2',      name: 'กฟจ.ขอนแก่น 2',            lat: 16.4600, lng: 102.8200 },
     // การไฟฟ้าสาขา (เพิ่มใหม่)
-    { id: 'hub_kumphawapi',     name: 'กฟส.กุมภวาปี',              lat: 17.1167, lng: 103.0059 },
-    { id: 'hub_wangsaphung',    name: 'กฟส.วังสะพุง',              lat: 17.2981, lng: 101.7619 },
-    { id: 'hub_nonghan',        name: 'กฟส.หนองหาน',              lat: 17.3481, lng: 103.1000 }
+    { id: 'hub_kumphawapi',     name: 'กฟอ.กุมภวาปี',              lat: 17.1167, lng: 103.0059 },
+    { id: 'hub_wangsaphung',    name: 'กฟอ.วังสะพุง',              lat: 17.2981, lng: 101.7619 },
+    { id: 'hub_nonghan',        name: 'กฟอ.หนองหาน',              lat: 17.3624792, lng: 103.1240484 }
 ];
 
 const TARGET_SITES = {
@@ -161,9 +161,9 @@ let GENERATOR_FLEET = [
     { id: 'gen_r1_120_2',   name: 'NE1-GEN-120-02',  size: 120, hubId: 'hub_pea_r1',        status: 'Standby' },
     // กฟจ.ขอนแก่น — 500 kW x1
     { id: 'gen_kk_500_1',   name: 'KKN-GEN-500',     size: 500, hubId: 'hub_khonkaen',      status: 'Standby' },
-    // กฟจ.ชุมแพ — 60 kW x1
+    // กฟอ.ชุมแพ — 60 kW x1
     { id: 'gen_cp_60_1',    name: 'CMP-GEN-060',     size: 60,  hubId: 'hub_chumphae',      status: 'Standby' },
-    // กฟจ.บ้านไผ่ — 60 kW x1
+    // กฟอ.บ้านไผ่ — 60 kW x1
     { id: 'gen_bp_60_1',    name: 'BPI-GEN-060',     size: 60,  hubId: 'hub_banphai',        status: 'Standby' },
     // กฟจ.นครพนม — 500 kW x1
     { id: 'gen_np_500_1',   name: 'NPN-GEN-500',     size: 500, hubId: 'hub_nakhonphanom',  status: 'Standby' },
@@ -181,33 +181,146 @@ let GENERATOR_FLEET = [
     { id: 'gen_ly_500_1',   name: 'LOE-GEN-500',     size: 500, hubId: 'hub_loei',           status: 'Standby' },
     // กฟจ.สกลนคร — 500 kW x1
     { id: 'gen_sk_500_1',   name: 'SKK-GEN-500',     size: 500, hubId: 'hub_sakonnakhon',   status: 'Standby' },
-    // กฟจ.พังโคน — 60 kW x1
+    // กฟอ.พังโคน — 60 kW x1
     { id: 'gen_pk_60_1',    name: 'PKN-GEN-060',     size: 60,  hubId: 'hub_phangkhon',     status: 'Standby' },
-    // กฟจ.สว่างแดนดิน — 60 kW x1
+    // กฟอ.สว่างแดนดิน — 60 kW x1
     { id: 'gen_sd_60_1',    name: 'SDD-GEN-060',     size: 60,  hubId: 'hub_sawangdaendin', status: 'Standby' },
     // กฟจ.ขอนแก่น 2 — 500 kW x1
     { id: 'gen_kk2_500_1',  name: 'KK2-GEN-500',     size: 500, hubId: 'hub_khonkaen2',     status: 'Standby' },
-    // กฟส.กุมภวาปี — 60 kW x1
+    // กฟอ.กุมภวาปี — 60 kW x1
     { id: 'gen_kwp_60_1',   name: 'KWP-GEN-500',     size: 60,  hubId: 'hub_kumphawapi',    status: 'Standby' },
-    // กฟส.วังสะพุง — 60 kW x1
+    // กฟอ.วังสะพุง — 60 kW x1
     { id: 'gen_wsp_60_1',   name: 'WSP-GEN-500',     size: 60,  hubId: 'hub_wangsaphung',   status: 'Standby' },
-    // กฟส.หนองหาน — 60 kW x1
+    // กฟอ.หนองหาน — 60 kW x1
     { id: 'gen_nhn_60_1',   name: 'NHN-GEN-500',     size: 60,  hubId: 'hub_nonghan',       status: 'Standby' }
 ];
 
-// รีเซ็ต localStorage เพื่อโหลดข้อมูลเครื่องใหม่ (กฟฉ.1)
-localStorage.removeItem('generatorFleet');
-localStorage.setItem('generatorFleet', JSON.stringify(GENERATOR_FLEET));
-localStorage.removeItem('fleetBookings');
-let fleetBookings = [];
+// Initial Generator Fleet (กฟฉ.1)
+if (!localStorage.getItem('generatorFleet')) {
+    localStorage.setItem('generatorFleet', JSON.stringify(GENERATOR_FLEET));
+} else {
+    try {
+        const storedFleet = JSON.parse(localStorage.getItem('generatorFleet'));
+        if (Array.isArray(storedFleet) && storedFleet.length > 0) {
+            GENERATOR_FLEET = storedFleet;
+        }
+    } catch(e) {}
+}
+
+// Clean out any demo bookings from localStorage
+try {
+    let existingBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
+    if (Array.isArray(existingBookings)) {
+        const cleanedBookings = existingBookings.filter(b => 
+            !String(b.id).startsWith('b_demo_') &&
+            b.id !== 'b_demo_1' && b.id !== 'b_demo_2' && b.id !== 'b_demo_3' &&
+            !['BKA-GEN-500', 'NE1-GEN-800-01', 'KKN-GEN-500'].includes(b.genName && b.id && b.id.startsWith('b_demo') ? b.genName : '')
+        );
+        localStorage.setItem('fleetBookings', JSON.stringify(cleanedBookings));
+    }
+} catch(e) {}
+
+try {
+    let existingQuotes = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
+    if (Array.isArray(existingQuotes)) {
+        const cleanedQuotes = existingQuotes.filter(q => 
+            !String(q.id).startsWith('b_demo_') &&
+            q.id !== 'b_demo_1' && q.id !== 'b_demo_2' && q.id !== 'b_demo_3'
+        );
+        localStorage.setItem('coverQuoteHistory', JSON.stringify(cleanedQuotes));
+    }
+} catch(e) {}
+
+let fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
+if (!Array.isArray(fleetBookings)) fleetBookings = [];
 
 // HISTORY STORAGE
 // ===========================
 let quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
+if (!Array.isArray(quoteHistory)) quoteHistory = [];
 
 // Sync quote history to fleet bookings
 const syncFleetBookingsFromHistory = () => {
     fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
+    if (!fleetBookings || !Array.isArray(fleetBookings)) fleetBookings = [];
+    quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
+    if (!quoteHistory || !Array.isArray(quoteHistory)) quoteHistory = [];
+
+    // Ensure all saved generator quotes from quoteHistory are represented in fleetBookings
+    quoteHistory.forEach(q => {
+        if (q.type === 'generator' && q.startDate && q.endDate) {
+            const bookingId = 'q_' + q.id;
+            const existingIdx = fleetBookings.findIndex(b => b.id === bookingId);
+
+            let lat = q.lat;
+            let lng = q.lng;
+            let hubName = q.hubName;
+            let genId = q.genId;
+            let genName = q.genName;
+
+            if (!lat || !lng || isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) {
+                let matchedHub = null;
+                if (q.location) {
+                    const loc = q.location;
+                    matchedHub = DISTRICT_HUBS.find(h => {
+                        const cleanName = h.name.replace('กฟจ.', '').replace('กฟส.', '').replace('กฟฉ.1', '').replace('(', '').replace(')', '').trim();
+                        return loc.includes(cleanName) || loc.includes(h.name);
+                    });
+                }
+                if (!matchedHub && genId) {
+                    const g = GENERATOR_FLEET.find(x => x.id === genId);
+                    if (g) matchedHub = DISTRICT_HUBS.find(h => h.id === g.hubId);
+                }
+                if (!matchedHub) {
+                    const g = GENERATOR_FLEET.find(x => x.size === q.genSize);
+                    if (g) matchedHub = DISTRICT_HUBS.find(h => h.id === g.hubId);
+                }
+                if (!matchedHub) matchedHub = DISTRICT_HUBS[0];
+                lat = matchedHub.lat;
+                lng = matchedHub.lng;
+                if (!hubName) hubName = matchedHub.name;
+                q.lat = parseFloat(lat);
+                q.lng = parseFloat(lng);
+                q.hubName = hubName;
+            }
+
+            if (!genId) {
+                const g = GENERATOR_FLEET.find(x => x.size === q.genSize) || GENERATOR_FLEET[0];
+                genId = g.id;
+                genName = g.name;
+                if (!hubName) {
+                    const hub = DISTRICT_HUBS.find(h => h.id === g.hubId);
+                    hubName = hub ? hub.name : 'กฟจ.อุดรธานี';
+                }
+                q.genId = genId;
+                q.genName = genName;
+            }
+
+            const bookingObj = {
+                id: bookingId,
+                projectName: q.purpose || q.custName || 'งานบริการเครื่องกำเนิดไฟฟ้า',
+                locationName: q.location || 'จุดติดตั้งปฏิบัติงาน',
+                lat: parseFloat(lat),
+                lng: parseFloat(lng),
+                genId: genId,
+                genName: genName || `GEN-${q.genSize}`,
+                genSize: q.genSize || 300,
+                hubName: hubName || 'กฟจ.อุดรธานี',
+                startDate: q.startDate,
+                endDate: q.endDate,
+                status: q.status || 'Active',
+                responsible: q.custName || 'แผนกปฏิบัติการระบบไฟฟ้า'
+            };
+
+            if (existingIdx > -1) {
+                fleetBookings[existingIdx] = { ...fleetBookings[existingIdx], ...bookingObj };
+            } else {
+                fleetBookings.unshift(bookingObj);
+            }
+        }
+    });
+
+    localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
 };
 
 syncFleetBookingsFromHistory();
@@ -216,68 +329,129 @@ const saveHistory = (entry) => {
     const entryCopy = JSON.parse(JSON.stringify(entry));
     entryCopy.id = Date.now();
     entryCopy.createdAt = new Date().toISOString();
+
+    if (entryCopy.type === 'generator') {
+        let lat = entryCopy.lat;
+        let lng = entryCopy.lng;
+        let genId = entryCopy.genId;
+        let genName = entryCopy.genName;
+        let hubName = entryCopy.hubName;
+
+        if (!lat || !lng || isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) {
+            let matchedHub = null;
+            if (entryCopy.location) {
+                const loc = entryCopy.location;
+                matchedHub = DISTRICT_HUBS.find(h => {
+                    const cleanName = h.name.replace('กฟจ.', '').replace('กฟส.', '').replace('กฟฉ.1', '').replace('(', '').replace(')', '').trim();
+                    return loc.includes(cleanName) || loc.includes(h.name);
+                });
+            }
+            if (!matchedHub && genId) {
+                const g = GENERATOR_FLEET.find(x => x.id === genId);
+                if (g) matchedHub = DISTRICT_HUBS.find(h => h.id === g.hubId);
+            }
+            if (!matchedHub) {
+                const g = GENERATOR_FLEET.find(x => x.size === entryCopy.genSize);
+                if (g) matchedHub = DISTRICT_HUBS.find(h => h.id === g.hubId);
+            }
+            if (!matchedHub) matchedHub = DISTRICT_HUBS[0];
+
+            lat = matchedHub.lat;
+            lng = matchedHub.lng;
+            if (!hubName) hubName = matchedHub.name;
+        }
+
+        if (!genId) {
+            const g = GENERATOR_FLEET.find(x => x.size === entryCopy.genSize) || GENERATOR_FLEET[0];
+            genId = g.id;
+            genName = g.name;
+            if (!hubName) {
+                const hub = DISTRICT_HUBS.find(h => h.id === g.hubId);
+                hubName = hub ? hub.name : 'กฟจ.อุดรธานี';
+            }
+        }
+
+        entryCopy.lat = parseFloat(lat);
+        entryCopy.lng = parseFloat(lng);
+        entryCopy.genId = genId;
+        entryCopy.genName = genName;
+        entryCopy.hubName = hubName;
+
+        const bookingId = 'q_' + entryCopy.id;
+        const bookingObj = {
+            id: bookingId,
+            projectName: entryCopy.purpose || entryCopy.custName || 'งานบริการเครื่องกำเนิดไฟฟ้า',
+            locationName: entryCopy.location || 'จุดติดตั้งปฏิบัติงาน',
+            lat: parseFloat(lat),
+            lng: parseFloat(lng),
+            genId: genId,
+            genName: genName || `GEN-${entryCopy.genSize}`,
+            genSize: entryCopy.genSize || 300,
+            hubName: hubName || 'กฟจ.อุดรธานี',
+            startDate: entryCopy.startDate || getLocalDateString(),
+            endDate: entryCopy.endDate || getLocalDateString(),
+            status: 'Active',
+            responsible: entryCopy.custName || 'แผนกปฏิบัติการระบบไฟฟ้า'
+        };
+
+        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
+        const existingIdx = fleetBookings.findIndex(b => b.id === bookingId);
+        if (existingIdx > -1) {
+            fleetBookings[existingIdx] = bookingObj;
+        } else {
+            fleetBookings.unshift(bookingObj);
+        }
+        localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
+    }
+
+    quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
     quoteHistory.unshift(entryCopy);
     localStorage.setItem('coverQuoteHistory', JSON.stringify(quoteHistory));
+    
     syncFleetBookingsFromHistory();
     renderHistory();
 };
 
-const renderHistory = () => {
-    const list = document.getElementById('history-list');
-    if (!list) return;
+const escapeHTML = (str) => {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+};
+
+window.renderHistory = () => {
+    quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
+    const container = document.getElementById('history-list');
+    if (!container) return;
+
     if (quoteHistory.length === 0) {
-        list.innerHTML = `<div class="empty-state">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <p>รายการใบเสนอราคาจะแสดงที่นี่</p>
-        </div>`;
+        container.innerHTML = `
+            <div class="empty-state">
+                <p>ยังไม่มีประวัติการคำนวณราคา</p>
+            </div>`;
         return;
     }
 
-    const searchTypeEl = document.getElementById('history-search-type');
-    const searchInputEl = document.getElementById('history-search-input');
-    const searchType = searchTypeEl ? searchTypeEl.value : 'all';
-    const searchQuery = searchInputEl ? searchInputEl.value.trim().toLowerCase() : '';
-
-    let filteredHistory = quoteHistory;
-    if (searchQuery) {
-        filteredHistory = quoteHistory.filter(q => {
-            const custIdStr = (q.custId || '').toString().toLowerCase();
-            const genSizeStr = (q.genSize || '').toString().toLowerCase();
-            const custNameStr = (q.custName || '').toString().toLowerCase();
-
-            if (searchType === 'custId') {
-                return custIdStr.includes(searchQuery);
-            } else if (searchType === 'genSize') {
-                return genSizeStr.includes(searchQuery);
-            } else {
-                return custIdStr.includes(searchQuery) ||
-                       genSizeStr.includes(searchQuery) ||
-                       custNameStr.includes(searchQuery);
-            }
-        });
-    }
-
-    if (filteredHistory.length === 0) {
-        list.innerHTML = `<div class="empty-state" style="padding: 30px; text-align: center;">
-            <p style="color: var(--muted); font-size: 0.9rem;">🔍 ไม่พบข้อมูลใบเสนอราคาที่ตรงกับคำค้นหา</p>
-        </div>`;
-        return;
-    }
-
-    list.innerHTML = filteredHistory.map(q => {
+    container.innerHTML = quoteHistory.map(q => {
         let details = '';
         let extensionHTML = '';
         if (q.type === 'generator') {
-            details = `เช่าเครื่องกำเนิดไฟฟ้า ${q.genSize} kW × ${q.days} วัน | รวม ${fmt(q.totalPea)} ฿ | ${new Date(q.createdAt).toLocaleDateString('th-TH')}`;
-            if (q.startDate && q.endDate) {
-                const sDate = new Date(q.startDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
-                const eDate = new Date(q.endDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+            const grandTotal = q.grandTotal || (q.totalPea + (q.totalFuelCost || 0));
+            details = `ขนาด ${q.genSize} kW | ${q.days} วัน (${q.hours} ชม./วัน) | ค่าบริการรวม ${fmt(grandTotal)} ฿`;
+            
+            if (q.serviceDate) {
+                const parts = q.serviceDate.split(' - ');
+                const sDate = parts[0] || '';
+                const eDate = parts[1] || parts[0] || '';
                 
                 if (q.originalDays && q.originalDays !== q.days) {
                     extensionHTML = `
                     <div style="margin-top: 6px;">
                         <span class="badge" style="background: #F1F5F9; color: #475569; font-size: 0.75rem; font-weight: normal; border: 1px solid #CBD5E1; display: inline-flex; align-items: center; gap: 4px;">
-                            ℹ️ ระยะเวลาเช่า: ${q.days} วัน (เริ่ม ${sDate} ถึง ${eDate})
+                            ℹ️ ระยะเวลาเช่า: ${q.days} วัน (เริ่ม ${escapeHTML(sDate)} ถึง ${escapeHTML(eDate)})
                         </span>
                     </div>`;
                 } else {
@@ -308,9 +482,14 @@ const renderHistory = () => {
     }).join('');
 };
 
-window.inspectQuoteDetails = (id) => {
-    const q = quoteHistory.find(x => x.id === id);
-    if (!q) return;
+window.inspectQuote = window.inspectQuoteDetails = (id) => {
+    quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
+    fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
+    const q = quoteHistory.find(x => String(x.id) === String(id));
+    if (!q) {
+        alert('ไม่พบข้อมูลใบเสนอราคารายการนี้');
+        return;
+    }
     
     // Find matching booking in fleetBookings if available
     const booking = fleetBookings.find(b => b.id === 'q_' + q.id);
@@ -365,11 +544,11 @@ window.inspectQuoteDetails = (id) => {
     
     if (q.type === 'generator') {
         document.getElementById('iq-cost-rental').textContent = `${fmt(q.rentalCost || 0)} ฿`;
-        document.getElementById('iq-cost-fuel').textContent = `${fmt(q.fuelCost || 0)} ฿`;
+        document.getElementById('iq-cost-fuel').textContent = `${fmt(q.fuelCost || q.totalFuelCost || 0)} ฿`;
         document.getElementById('iq-cost-transport').textContent = `${fmt(q.transportCost || 0)} ฿`;
         document.getElementById('iq-cost-op').textContent = `${fmt(q.opCost || 0)} ฿`;
-        document.getElementById('iq-cost-vat').textContent = `${fmt(q.vat || q.vatPea || 0)} ฿`;
-        document.getElementById('iq-cost-total').textContent = `${fmt(q.totalPea || q.total || 0)} ฿`;
+        document.getElementById('iq-cost-vat').textContent = `${fmt(q.vatPea || q.vat || 0)} ฿`;
+        document.getElementById('iq-cost-total').textContent = `${fmt(q.totalPea || q.grandTotal || q.total || 0)} ฿`;
     } else {
         document.getElementById('iq-pea-cost-rental').textContent = `${fmt(q.total || 0)} ฿`;
         document.getElementById('iq-cost-total').textContent = `${fmt(q.total || 0)} ฿`;
@@ -512,8 +691,12 @@ window.deleteQuote = (id) => {
 };
 
 window.reprintQuote = (id) => {
-    const q = quoteHistory.find(x => x.id === id);
-    if (!q) return;
+    quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
+    const q = quoteHistory.find(x => String(x.id) === String(id));
+    if (!q) {
+        alert('ไม่พบข้อมูลใบเสนอราคาที่จะพิมพ์');
+        return;
+    }
     if (q.type === 'generator') {
         genExportPDF(q);
     } else {
@@ -538,32 +721,38 @@ const applySignatoriesToPDF = (data = {}) => {
     const estDept = (data.estimatorDept || document.getElementById('gen-estimator-dept')?.value || document.getElementById('pea-estimator-dept')?.value || 'แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า').trim();
     const chkName = (data.checkerName   || document.getElementById('gen-checker-name')?.value   || document.getElementById('pea-checker-name')?.value   || 'นายปฐมทรรศน์ ชงัดเวช').trim();
     const chkPos  = (data.checkerPos    || document.getElementById('gen-checker-pos')?.value    || document.getElementById('pea-checker-pos')?.value    || 'หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า').trim();
+    const chkDept = (data.checkerDept   || document.getElementById('gen-checker-dept')?.value   || document.getElementById('pea-checker-dept')?.value   || '').trim();
 
     document.querySelectorAll('.sig-estimator-name').forEach(el => el.textContent = fmtParentheses(estName));
     document.querySelectorAll('.sig-estimator-pos').forEach(el => el.textContent = estPos);
     document.querySelectorAll('.sig-estimator-dept').forEach(el => el.textContent = estDept);
     document.querySelectorAll('.sig-checker-name').forEach(el => el.textContent = fmtParentheses(chkName));
     document.querySelectorAll('.sig-checker-pos').forEach(el => el.textContent = chkPos);
+    document.querySelectorAll('.sig-checker-dept').forEach(el => el.textContent = chkDept);
 };
 
-// ===========================
-// GEN FUEL COST PDF
-// ===========================
-const genExportPDF = (data) => {
-    const d = (data && !(data instanceof Event)) ? data : window._currentGenData;
+const genExportPDF = async (data) => {
+    let d = (data && !(data instanceof Event)) ? data : window._currentGenData;
     if (!d) {
-        alert('กรุณาวิเคราะห์และคำนวณข้อมูลก่อนออกใบเสนอราคา');
+        const calcBtn = document.getElementById('gen-calculate-btn');
+        if (calcBtn) calcBtn.click();
+        d = window._currentGenData;
+    }
+    if (!d) {
+        alert('กรุณากรอกข้อมูลและคำนวณราคาก่อนพิมพ์ใบเสนอราคา');
         return;
     }
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
+    const genSizeVal = d.genSize || 300;
+
     // --- Page 1: Rental Estimate ---
-    set('gpr-gen-size', d.genSize + '');
-    document.querySelectorAll('.gpr-gen-size-val').forEach(el => el.textContent = d.genSize + '');
+    set('gpr-gen-size', genSizeVal + '');
+    document.querySelectorAll('.gpr-gen-size-val').forEach(el => el.textContent = genSizeVal + '');
     set('gpr-cust-id', d.custId || '-');
     set('gpr-cust-name', d.custName || '-');
     set('gpr-purpose', d.purpose || '-');
-    set('gpr-service-date', d.serviceDate ? fmtDate(d.serviceDate) : '-');
+    set('gpr-service-date', d.serviceDate ? (typeof d.serviceDate === 'string' && d.serviceDate.includes(' - ') ? d.serviceDate : fmtDate(d.serviceDate)) : '-');
     set('gpr-location', d.location || '-');
 
     const typeDesc = {
@@ -572,39 +761,39 @@ const genExportPDF = (data) => {
         'B': 'ประเภท ข (นิติบุคคล, เอกชน)'
     };
     set('gpr-rent-label', 'ค่าเช่า (' + (typeDesc[d.rawType] || 'ประเภท ข') + ')');
-    set('gpr-rent-days', d.days + '');
-    set('gpr-op-days', d.days + '');
+    set('gpr-rent-days', (d.days || 1) + '');
+    set('gpr-op-days', (d.days || 1) + '');
 
-    set('gpr-rent-cost', fmt(d.rentalCost));
-    set('gpr-op-cost', fmt(d.opCost));
-    set('gpr-trans-cost', fmt(d.transportCost));
-    set('gpr-subtotal', fmt(d.subtotalPea));
-    set('gpr-vat', fmt(d.vatPea));
-    set('gpr-total', fmt(d.totalPea));
+    set('gpr-rent-cost', fmt(d.rentalCost || 0));
+    set('gpr-op-cost', fmt(d.opCost || 0));
+    set('gpr-trans-cost', fmt(d.transportCost || 0));
+    set('gpr-subtotal', fmt(d.subtotalPea || 0));
+    set('gpr-vat', fmt(d.vatPea || 0));
+    set('gpr-total', fmt(d.totalPea || 0));
 
     // --- Page 2: Fuel Estimate ---
-    set('gpf-gen-size',   d.genSize + '');
-    document.querySelectorAll('.gpf-gen-size-val').forEach(el => el.textContent = d.genSize + '');
-    set('gpf-load-kw',    d.loadKw.toFixed(1));
-    set('gpf-fuel-rate',  d.fuelRate.toFixed(1));
-    set('gpf-fuel-price', d.fuelPrice.toFixed(2));
-    set('gpf-date',       d.serviceDate ? fmtDate(d.serviceDate) : '');
+    set('gpf-gen-size',   genSizeVal + '');
+    document.querySelectorAll('.gpf-gen-size-val').forEach(el => el.textContent = genSizeVal + '');
+    set('gpf-load-kw',    (d.loadKw != null ? d.loadKw.toFixed(1) : '0.0'));
+    set('gpf-fuel-rate',  (d.fuelRate != null ? d.fuelRate.toFixed(1) : '0.0'));
+    set('gpf-fuel-price', (d.fuelPrice != null ? d.fuelPrice.toFixed(2) : '30.00'));
+    set('gpf-date',       d.startDate ? fmtDate(d.startDate) : (d.serviceDate || ''));
     set('gpf-purpose',    d.purpose || '-');
-    set('gpf-service-date-line', d.serviceDate ? fmtDate(d.serviceDate) : '-');
+    set('gpf-service-date-line', d.serviceDate ? (typeof d.serviceDate === 'string' && d.serviceDate.includes(' - ') ? d.serviceDate : fmtDate(d.serviceDate)) : '-');
 
     // Update price header
     const hdr = document.getElementById('gpf-price-header');
-    if (hdr) hdr.textContent = `(${d.fuelPrice.toFixed(2)} บ./ลิตร)`;
+    const fPrice = d.fuelPrice != null ? d.fuelPrice : 30.00;
+    if (hdr) hdr.textContent = `ประมาณการค่าน้ำมัน (${fPrice.toFixed(2)} บ./ลิตร)`;
 
-    // Build fuel table: rows 1 hour to maxHours (hours per day)
-    const maxHours = Math.min(d.hours, 24);
+    // Build fuel table: rows 1 hour to maxHours (max 12 hours)
+    const maxHours = Math.min(Math.max(parseInt(d.hours) || 8, 1), 12);
     const tbody = document.getElementById('gp-fuel-tbody');
     if (tbody) {
         tbody.innerHTML = '';
-        let cumulativeCost = 0;
         for (let h = 1; h <= maxHours; h++) {
-            const liters = d.fuelRate * h;           
-            const cost   = liters * d.fuelPrice;     
+            const liters = (d.fuelRate || 0) * h;
+            const cost   = liters * fPrice;
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${h}</td>
@@ -615,20 +804,123 @@ const genExportPDF = (data) => {
         }
     }
 
-    // Apply dynamic signatories to PDF Page 1 & 2
+    // -------------------------------------------------------
+    // STEP 1: Fetch PEA logo as base64 data URI BEFORE opening
+    // popup — avoids URL resolution, onerror hiding, and timing
+    // issues caused by the 1.7MB image not loading in time.
+    // -------------------------------------------------------
+    let logoDataUri = '';
+    try {
+        const logoUrl = new URL('pea_logo.jpg.jpg', window.location.href).href;
+        const resp = await fetch(logoUrl);
+        if (resp.ok) {
+            const blob = await resp.blob();
+            logoDataUri = await new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+            });
+        }
+    } catch (e) {
+        console.warn('PEA logo fetch failed:', e);
+    }
+
+    // -------------------------------------------------------
+    // STEP 2: Show area → apply signatories → clone → hide
+    // (applySignatoriesToPDF MUST run while area is visible
+    //  and AFTER await so text is captured correctly in clone)
+    // -------------------------------------------------------
+    const genArea = document.getElementById('gen-print-area');
+    if (!genArea) { alert('ไม่พบหน้าพิมพ์'); return; }
+
+    genArea.style.display = 'block';
+
+    // Apply signatories NOW (area visible, after await) so clone captures them
     applySignatoriesToPDF(d);
 
-    // Show and print (use class to avoid printing both areas at once)
-    document.body.classList.add('print-gen');
-    document.body.classList.remove('print-pea');
-    const pa = document.getElementById('gen-print-area');
-    pa.style.display = 'block';
+    const genClone = genArea.cloneNode(true);
+    genArea.style.display = 'none';
+
+    // Replace every logo <img> src with the pre-fetched base64 data URI
+    genClone.querySelectorAll('.gp-logo img').forEach(img => {
+        img.removeAttribute('onerror');          // don't silently hide on error
+        img.style.display = 'block';
+        img.style.height  = '20mm';
+        img.style.width   = 'auto';
+        img.style.margin  = '0 auto';
+        if (logoDataUri) img.setAttribute('src', logoDataUri);
+    });
+
+    const genHTML = genClone.outerHTML;
+
+    // -------------------------------------------------------
+    // STEP 3: Open popup and print
+    // -------------------------------------------------------
+    const printWin = window.open('', '_blank', 'width=900,height=700');
+    if (!printWin) {
+        alert('กรุณาอนุญาต Popup สำหรับหน้านี้ แล้วลองใหม่อีกครั้ง');
+        return;
+    }
+
+    printWin.document.write(`<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ประมาณการเครื่องกำเนิดไฟฟ้า</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    @page { size: A4 portrait; margin: 0; }
+    *, *::before, *::after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        box-sizing: border-box;
+    }
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #FFFFFF !important;
+        font-family: 'TH Sarabun PSK', 'TH Sarabun New', 'Sarabun', 'Prompt', sans-serif;
+    }
+    @media print {
+        html, body { margin: 0 !important; padding: 0 !important; }
+        #gen-print-area { display: block !important; }
+        #gen-print-area .gp {
+            width: 210mm !important;
+            min-height: 285mm !important;
+            padding: 10mm 16mm 8mm 20mm !important;
+            box-sizing: border-box !important;
+            position: relative !important;
+            background: #FFFFFF !important;
+            page-break-after: always !important;
+            break-after: page !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            overflow: visible !important;
+        }
+        #gen-print-area .gp:last-child {
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+        }
+    }
+</style>
+</head>
+<body>
+${genHTML}
+</body>
+</html>`);
+
+    printWin.document.close();
+    printWin.focus();
+    // Image is already embedded as base64 — no network wait needed
     setTimeout(() => {
-        window.print();
-        pa.style.display = 'none';
-        document.body.classList.remove('print-gen');
-    }, 300);
+        printWin.print();
+        setTimeout(() => printWin.close(), 500);
+    }, 400);
 };
+
+
 
 // ===========================
 // POPULATE + PRINT QUOTATION (PEA Cover)
@@ -682,12 +974,19 @@ const populateAndPrint = (data) => {
     document.body.classList.add('print-pea');
     document.body.classList.remove('print-gen');
     const printArea = document.getElementById('print-area');
-    printArea.style.display = 'block';
+    if (printArea) printArea.style.display = 'block';
+
+    const cleanupPrintPea = () => {
+        if (printArea) printArea.style.display = 'none';
+        document.body.classList.remove('print-pea');
+        window.removeEventListener('afterprint', cleanupPrintPea);
+    };
+    window.addEventListener('afterprint', cleanupPrintPea);
+
     setTimeout(() => {
         window.print();
-        printArea.style.display = 'none';
-        document.body.classList.remove('print-pea');
-    }, 300);
+        setTimeout(cleanupPrintPea, 1000);
+    }, 150);
 };
 
 // ===========================
@@ -699,7 +998,8 @@ const initSignatoriesSync = () => {
         estimatorPos:  'วิศวกร',
         estimatorDept: 'แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า',
         checkerName:   'นายปฐมทรรศน์ ชงัดเวช',
-        checkerPos:    'หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า'
+        checkerPos:    'หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า',
+        checkerDept:   ''
     };
 
     let saved = {};
@@ -720,6 +1020,7 @@ const initSignatoriesSync = () => {
     setVal('pea-estimator-dept', sigs.estimatorDept);
     setVal('pea-checker-name',   sigs.checkerName);
     setVal('pea-checker-pos',    sigs.checkerPos);
+    setVal('pea-checker-dept',   sigs.checkerDept);
 
     // Populate Gen Rental inputs
     setVal('gen-estimator-name', sigs.estimatorName);
@@ -727,6 +1028,7 @@ const initSignatoriesSync = () => {
     setVal('gen-estimator-dept', sigs.estimatorDept);
     setVal('gen-checker-name',   sigs.checkerName);
     setVal('gen-checker-pos',    sigs.checkerPos);
+    setVal('gen-checker-dept',   sigs.checkerDept);
 
     // Sync helper
     const handleSync = (srcId, targetId, key) => {
@@ -753,6 +1055,8 @@ const initSignatoriesSync = () => {
     handleSync('pea-checker-name',   'gen-checker-name',   'checkerName');
     handleSync('gen-checker-pos',    'pea-checker-pos',    'checkerPos');
     handleSync('pea-checker-pos',    'gen-checker-pos',    'checkerPos');
+    handleSync('gen-checker-dept',   'pea-checker-dept',   'checkerDept');
+    handleSync('pea-checker-dept',   'gen-checker-dept',   'checkerDept');
 
     // Initial apply to PDF template
     applySignatoriesToPDF(sigs);
@@ -1214,10 +1518,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </td>
                     <td>
                         <div style="display:flex; gap:6px;">
-                            <button class="btn btn-xs btn-outline" onclick="inspectQuote('${q.id}')" title="ตรวจสอบข้อมูล">
+                            <button class="btn btn-xs btn-outline" style="cursor:pointer; padding:4px 8px; font-size:0.85rem;" onclick="inspectQuote('${q.id}')" title="ตรวจสอบรายละเอียดใบเสนอราคา">
                                 📋
                             </button>
-                            <button class="btn btn-xs btn-outline" onclick="reprintQuote('${q.id}')" title="พิมพ์ PDF">
+                            <button class="btn btn-xs btn-outline" style="cursor:pointer; padding:4px 8px; font-size:0.85rem;" onclick="reprintQuote('${q.id}')" title="พิมพ์ใบเสนอราคา (PDF)">
                                 🖨️
                             </button>
                         </div>
@@ -1228,38 +1532,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ---- Dashboard Logic ----
     let dashboardMap = null;
+    let dashboardMarkersGroup = null;
+
     const initDashboardMap = () => {
         const mapContainer = document.getElementById('dashboard-map');
         if (!mapContainer) return;
         
         if (!dashboardMap) {
             if (mapContainer.offsetHeight === 0) return; // Must be visible for FIRST initialization
-            dashboardMap = L.map('dashboard-map').setView([18.232, 103.882], 8);
+            dashboardMap = L.map('dashboard-map').setView([17.6500, 103.2000], 8);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(dashboardMap);
+            dashboardMarkersGroup = L.layerGroup().addTo(dashboardMap);
         } else {
-            // Clear existing markers (works even if map is currently hidden)
-            dashboardMap.eachLayer((layer) => {
-                if (layer instanceof L.Marker || layer instanceof L.CircleMarker) {
-                    dashboardMap.removeLayer(layer);
-                }
-            });
+            if (dashboardMarkersGroup) {
+                dashboardMarkersGroup.clearLayers();
+            } else {
+                dashboardMarkersGroup = L.layerGroup().addTo(dashboardMap);
+            }
+            setTimeout(() => { if (dashboardMap) dashboardMap.invalidateSize(); }, 50);
         }
 
         // Render hubs
         DISTRICT_HUBS.forEach(hub => {
-            L.circleMarker([hub.lat, hub.lng], {
-                radius: 8, color: '#3B82F6', fillColor: '#3B82F6', fillOpacity: 0.6
-            }).addTo(dashboardMap).bindPopup(`<b>${hub.name}</b><br>จุดรวมงานเขต กฟฉ.1`);
+            const standby = GENERATOR_FLEET.filter(g => g.hubId === hub.id && g.status === 'Standby').length;
+            const hubMarker = L.circleMarker([hub.lat, hub.lng], {
+                radius: 7,
+                color: '#3B82F6',
+                fillColor: '#3B82F6',
+                fillOpacity: 0.75,
+                weight: 2
+            }).bindPopup(`<b>🏢 ${hub.name}</b><br>จุดรวมงานเขต กฟฉ.1<br>🟢 เครื่องพร้อมใช้งาน: ${standby} เครื่อง`);
+
+            hubMarker.bindTooltip(hub.name, {
+                direction: 'top',
+                offset: [0, -6],
+                className: 'hub-marker-label'
+            });
+            dashboardMarkersGroup.addLayer(hubMarker);
         });
 
-        // Render active bookings today
-        const todayStr = getLocalDateString();
-        const activeBookings = fleetBookings.filter(b => b.startDate <= todayStr && b.endDate >= todayStr && b.genSize > 0);
+        // Render all generator job coordinates
+        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
         
-        activeBookings.forEach(booking => {
-            if (booking.lat && booking.lng) {
+        fleetBookings.forEach(booking => {
+            if (booking.lat && booking.lng && booking.genSize > 0) {
                 const orangeIcon = L.icon({
                     iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
                     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -1269,8 +1587,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     shadowSize: [41, 41]
                 });
                 
-                const marker = L.marker([booking.lat, booking.lng], { icon: orangeIcon }).addTo(dashboardMap)
-                 .bindPopup(`<b>${booking.projectName}</b><br>เครื่อง: ${booking.genName}<br>วันที่: ${booking.startDate} ถึง ${booking.endDate}`);
+                const marker = L.marker([booking.lat, booking.lng], { icon: orangeIcon });
+                marker.bindPopup(`
+                    <div style="font-family:'Prompt',sans-serif; min-width:200px;">
+                        <div style="font-weight:700; color:#1E293B; font-size:0.92rem; margin-bottom:4px;">⚡ ${booking.projectName || booking.locationName}</div>
+                        <div style="font-size:0.82rem; color:#475569; line-height:1.4;">
+                            📍 <b>สถานที่:</b> ${booking.locationName}<br>
+                            ⚡ <b>เครื่อง:</b> ${booking.genName} (${booking.genSize} kW)<br>
+                            🏢 <b>คลังต้นทาง:</b> ${booking.hubName || '-'}<br>
+                            📅 <b>วันปฏิบัติงาน:</b> ${fmtDateRange(booking.startDate, booking.endDate)}<br>
+                            👷 <b>ผู้รับผิดชอบ:</b> ${booking.responsible || '-'}
+                        </div>
+                    </div>
+                `);
                  
                 marker.bindTooltip(`${booking.genSize} kW`, {
                     permanent: true,
@@ -1278,6 +1607,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     className: 'job-marker-label',
                     offset: [0, 5]
                 });
+
+                dashboardMarkersGroup.addLayer(marker);
             }
         });
     };
@@ -1384,18 +1715,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 initDashboardMap();
                 if (dashboardMap) dashboardMap.invalidateSize();
             }, 100);
+            setTimeout(() => {
+                if (dashboardMap) dashboardMap.invalidateSize();
+            }, 300);
         }
         if (target === 'tab-history') {
             renderHistory();
         }
         if (target === 'tab-fleet') {
             setTimeout(() => {
+                fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
                 initFleetMap();
-                if (map) map.invalidateSize();
+                if (map) {
+                    map.invalidateSize();
+                    updateMapMarkers();
+                }
                 const fDateEl = document.getElementById('filter-schedule-date');
                 renderScheduleList(fDateEl ? fDateEl.value : '');
+                renderCalendar();
                 updateFleetStats();
             }, 100);
+            setTimeout(() => {
+                if (map) map.invalidateSize();
+            }, 300);
         }
     };
 
@@ -1518,7 +1860,8 @@ document.addEventListener('DOMContentLoaded', () => {
             estimatorPos:  document.getElementById('pea-estimator-pos')?.value || '',
             estimatorDept: document.getElementById('pea-estimator-dept')?.value || '',
             checkerName:   document.getElementById('pea-checker-name')?.value || '',
-            checkerPos:    document.getElementById('pea-checker-pos')?.value || ''
+            checkerPos:    document.getElementById('pea-checker-pos')?.value || '',
+            checkerDept:   document.getElementById('pea-checker-dept')?.value || ''
         };
 
         const badge = document.getElementById('pea-save-status');
@@ -1674,14 +2017,39 @@ document.addEventListener('DOMContentLoaded', () => {
             estimatorPos:  document.getElementById('gen-estimator-pos')?.value || '',
             estimatorDept: document.getElementById('gen-estimator-dept')?.value || '',
             checkerName:   document.getElementById('gen-checker-name')?.value || '',
-            checkerPos:    document.getElementById('gen-checker-pos')?.value || ''
+            checkerPos:    document.getElementById('gen-checker-pos')?.value || '',
+            checkerDept:   document.getElementById('gen-checker-dept')?.value || ''
         };
+        // Determine coordinates & generator/hub info
+        let matchedHub = null;
+        const locText = (document.getElementById('gen-location')?.value || '').trim();
+        if (locText) {
+            matchedHub = DISTRICT_HUBS.find(h => 
+                locText.includes(h.name.replace('กฟจ.', '').replace('กฟส.', '')) || 
+                locText.includes(h.name)
+            );
+        }
+
+        const matchedGen = GENERATOR_FLEET.find(g => g.size === selectedSize && g.status !== 'Maintenance') || 
+                           GENERATOR_FLEET.find(g => g.size === selectedSize) || 
+                           GENERATOR_FLEET[0];
+        if (!matchedHub && matchedGen) {
+            matchedHub = DISTRICT_HUBS.find(h => h.id === matchedGen.hubId);
+        }
+        if (!matchedHub) matchedHub = DISTRICT_HUBS[0];
 
         if (window._activeRentalData) {
             window._currentGenData.genId = window._activeRentalData.genId;
+            window._currentGenData.genName = (GENERATOR_FLEET.find(g => g.id === window._activeRentalData.genId) || matchedGen).name;
             window._currentGenData.lat = window._activeRentalData.lat;
             window._currentGenData.lng = window._activeRentalData.lng;
             window._currentGenData.hubName = window._activeRentalData.hubName;
+        } else {
+            window._currentGenData.genId = matchedGen.id;
+            window._currentGenData.genName = matchedGen.name;
+            window._currentGenData.lat = matchedHub.lat;
+            window._currentGenData.lng = matchedHub.lng;
+            window._currentGenData.hubName = matchedHub.name;
         }
 
         const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
@@ -1783,12 +2151,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const genSaveDataBtn = document.getElementById('gen-save-data');
     if (genSaveDataBtn) {
         genSaveDataBtn.addEventListener('click', () => {
+            if (!window._currentGenData) {
+                const calcBtn = document.getElementById('gen-calculate-btn');
+                if (calcBtn) calcBtn.click();
+            }
             if (!window._currentGenData) { alert('กรุณาวิเคราะห์และคำนวณราคาก่อนบันทึกข้อมูลครับ'); return; }
             
             if (window._extendingBookingId) {
                 if (window._extendingBookingId.startsWith('q_')) {
                     const oldQid = window._extendingBookingId.substring(2);
-                    quoteHistory = quoteHistory.filter(q => q.id !== oldQid);
+                    quoteHistory = quoteHistory.filter(q => String(q.id) !== String(oldQid));
                     localStorage.setItem('coverQuoteHistory', JSON.stringify(quoteHistory));
                 }
                 fleetBookings = fleetBookings.filter(b => b.id !== window._extendingBookingId);
@@ -1797,15 +2169,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             saveHistory(window._currentGenData);
+            
             const badge = document.getElementById('gen-save-status');
             if (badge) {
                 badge.textContent = 'บันทึกแล้ว ✓';
                 badge.style.background = '#E8F5EE';
                 badge.style.color = '#1F906A';
             }
-            alert('บันทึกข้อมูลสำเร็จ! อัปเดตรายได้ "เช่าเครื่องกำเนิดไฟฟ้า" ในหน้า Dashboard เรียบร้อยแล้วครับ');
+            alert('บันทึกข้อมูลสำเร็จ! ระบบได้อัปเดตข้อมูลไปยัง Dashboard และตารางคิวงานเรียบร้อยแล้วครับ');
+            
             renderDashboard();
             initDashboardMap();
+            updateMapMarkers();
+            updateFleetStats();
+            renderScheduleList('');
+            renderCalendar();
+            renderHistory();
         });
     }
 
@@ -1847,12 +2226,20 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const initFleetMap = () => {
+        const mapContainer = document.getElementById('fleet-map');
+        if (!mapContainer) return;
+
         if (map) {
-            setTimeout(() => { map.invalidateSize(); }, 100);
+            setTimeout(() => { 
+                map.invalidateSize(); 
+                updateMapMarkers();
+            }, 50);
             return;
         }
         
-        map = L.map('fleet-map').setView([18.1500, 103.5500], 9);
+        if (mapContainer.offsetHeight === 0) return;
+
+        map = L.map('fleet-map').setView([17.6500, 103.2000], 8);
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
@@ -1863,25 +2250,31 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateMapMarkers = () => {
-        if (!markersGroup) return;
+        if (!map) return;
+        if (!markersGroup) {
+            markersGroup = L.layerGroup().addTo(map);
+        }
         markersGroup.clearLayers();
+
+        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
         
+        // 1. Render Hubs
         DISTRICT_HUBS.forEach(hub => {
             const standby = GENERATOR_FLEET.filter(g => g.hubId === hub.id && g.status === 'Standby').length;
             const active = GENERATOR_FLEET.filter(g => g.hubId === hub.id && g.status === 'Active').length;
             const maint = GENERATOR_FLEET.filter(g => g.hubId === hub.id && g.status === 'Maintenance').length;
             
-            const tooltipText = `<b>${hub.name}</b><br>
+            const tooltipText = `<b>🏢 ${hub.name}</b><br>
                                  🟢 ว่าง: ${standby} เครื่อง<br>
-                                 🟠 ใช้: ${active} เครื่อง<br>
-                                 🔴 ซ่อม: ${maint} เครื่อง`;
+                                 🟠 ปฏิบัติงาน: ${active} เครื่อง<br>
+                                 🔴 ซ่อมบำรุง: ${maint} เครื่อง`;
                                  
             const marker = L.circleMarker([hub.lat, hub.lng], {
-                radius: 10 + standby * 2,
-                fillColor: '#1F906A',
+                radius: 8 + standby * 1.5,
+                fillColor: '#10B981',
                 color: '#FFFFFF',
-                weight: 2,
-                fillOpacity: 0.8
+                weight: 2.5,
+                fillOpacity: 0.85
             });
             
             marker.bindPopup(tooltipText);
@@ -1890,20 +2283,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 permanent: true,
                 direction: 'top',
                 className: 'hub-marker-label',
-                offset: [0, -5]
+                offset: [0, -6]
             });
             
             markersGroup.addLayer(marker);
         });
         
+        // 2. Render Active Bookings
         fleetBookings.forEach(booking => {
-            if (booking.genSize === 0) return;
+            if (booking.genSize === 0 || !booking.lat || !booking.lng) return;
             
-            const tooltipText = `<b>งาน: ${booking.projectName}</b><br>
+            const tooltipText = `<b>⚡ ${booking.projectName}</b><br>
                                  📍 สถานที่: ${booking.locationName}<br>
-                                 ⚡ เครื่องยนต์: ${booking.genName} (${booking.genSize} kW)<br>
-                                 📅 วันใช้งาน: ${fmtDateRange(booking.startDate, booking.endDate)}<br>
-                                 🏢 จุดรวมงานต้นทาง: ${booking.hubName}`;
+                                 ⚡ เครื่อง: ${booking.genName} (${booking.genSize} kW)<br>
+                                 🏢 ต้นทาง: ${booking.hubName || '-'}<br>
+                                 📅 วันสัญญา: ${fmtDateRange(booking.startDate, booking.endDate)}<br>
+                                 👷 ผู้รับผิดชอบ: ${booking.responsible || '-'}`;
                                  
             const marker = L.marker([booking.lat, booking.lng], {
                 icon: L.icon({
@@ -1928,19 +2323,11 @@ document.addEventListener('DOMContentLoaded', () => {
             markersGroup.addLayer(marker);
         });
         
+        // 3. Map Click Event: Select Destination Coordinate
+        map.off('click');
         map.on('click', (e) => {
             const lat = e.latlng.lat;
             const lng = e.latlng.lng;
-            
-            let closestHub = null;
-            let minDist = Infinity;
-            DISTRICT_HUBS.forEach(hub => {
-                const dist = haversineDistance(lat, lng, hub.lat, hub.lng);
-                if (dist < minDist) {
-                    minDist = dist;
-                    closestHub = hub;
-                }
-            });
             
             if (window._tempClickMarker) {
                 map.removeLayer(window._tempClickMarker);
@@ -1957,7 +2344,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             }).addTo(map);
             
-            window._tempClickMarker.bindPopup(`<b>พิกัดเป้าหมายที่คุณเลือก:</b><br>Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}<br>จุดรวมงานใกล้สุด: ${closestHub.name} (${minDist.toFixed(1)} กม.)`).openPopup();
+            window._tempClickMarker.bindPopup(`<b>📍 จุดติดตั้งปฏิบัติงานที่เลือก:</b><br>พิกัด: ${lat.toFixed(4)}, ${lng.toFixed(4)}`).openPopup();
             
             const sel = document.getElementById('search-target-location');
             if (sel) {
@@ -1969,7 +2356,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const displayInput = document.getElementById('search-target-display');
             if (displayInput) {
-                displayInput.value = `พิกัด (${lat.toFixed(4)}, ${lng.toFixed(4)}) - ใกล้ ${closestHub.name} (${minDist.toFixed(1)} กม.)`;
+                displayInput.value = `พิกัดบนแผนที่ (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
             }
         });
     };
@@ -1978,6 +2365,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('schedule-timeline-container');
         if (!container) return;
         
+        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
+        quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
+
         let filtered = fleetBookings;
         if (filterDate) {
             filtered = fleetBookings.filter(b => {
@@ -1988,7 +2378,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (filtered.length === 0) {
             container.innerHTML = `
             <div class="empty-state" style="padding: 20px; text-align: center;">
-                <p style="font-size:0.85rem; color:var(--muted);">ไม่มีการเดินเครื่องยนต์ในวันที่เลือก</p>
+                <p style="font-size:0.85rem; color:var(--text-muted);">ไม่มีรายการคิวงานเครื่องยนต์ในวันที่เลือก</p>
             </div>`;
             return;
         }
@@ -2170,14 +2560,23 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsArea.style.display = 'block';
         resultsList.innerHTML = ratedResults.map(r => {
             return `
-            <div class="result-item">
-                <div class="result-item-info">
-                    <h5 style="margin:0;">${r.gen.name} (${r.gen.size} kW)</h5>
-                    <p style="margin:2px 0 0 0;">📍 คลัง: <b>${r.hub.name}</b> | ระยะห่าง: <b>${r.distance.toFixed(1)} กม.</b> (ไป-กลับ ${r.roundTrip} กม.)</p>
-                    <p style="margin:2px 0 0 0; color:var(--green)">🚛 ค่าจัดส่ง: <b>${fmt(r.transportCost)} ฿</b></p>
+            <div class="result-item-card" style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:14px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:10px; margin-bottom:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+                    <div>
+                        <h4 style="margin:0; font-size:0.95rem; color:var(--text-main); font-weight:700; display:flex; align-items:center; gap:6px;">
+                            ⚡ ${r.gen.name} <span class="badge badge-green" style="font-size:0.75rem;">${r.gen.size} kW</span>
+                        </h4>
+                        <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">
+                            📍 คลัง: <b style="color:var(--text-main);">${r.hub.name}</b> &nbsp;|&nbsp; 📏 ระยะห่าง: <b style="color:var(--secondary);">${r.distance.toFixed(1)} กม.</b> (ไป-กลับ ${r.roundTrip} กม.)
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:0.75rem; color:var(--text-muted);">ค่าจัดส่ง (ไป-กลับ)</div>
+                        <div style="font-size:1rem; font-weight:700; color:var(--primary);">${fmt(r.transportCost)} ฿</div>
+                    </div>
                 </div>
-                <button class="btn btn-outline" style="font-size: 0.75rem; padding: 6px 10px; font-family:'Kanit',sans-serif; cursor:pointer;" onclick="useNearestGenForRental('${r.gen.id}', '${targetName}', ${targetLat}, ${targetLng}, ${r.roundTrip}, ${r.gen.size}, '${startDate}', '${endDate}')">
-                    เช่าเครื่องนี้
+                <button class="btn btn-secondary btn-full" style="padding:10px 16px; font-size:0.9rem; font-weight:600; font-family:'Kanit',sans-serif; cursor:pointer; width:100%; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:var(--radius-md);" onclick="useNearestGenForRental('${r.gen.id}', '${targetName}', ${targetLat}, ${targetLng}, ${r.roundTrip}, ${r.gen.size}, '${startDate}', '${endDate}')">
+                    <span>⚡ เช่าเครื่องนี้ (${r.gen.name} ขนาด ${r.gen.size} kW)</span>
                 </button>
             </div>
             `;
@@ -2224,6 +2623,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateFleetStats = () => {
+        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
         const total = GENERATOR_FLEET.length;
         const maint = GENERATOR_FLEET.filter(g => g.status === 'Maintenance').length;
         
@@ -2278,6 +2678,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // How many bookings land on a date string?
     const getBookingsForDate = (dateStr) => {
+        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
         return fleetBookings.filter(b => b.startDate <= dateStr && b.endDate >= dateStr);
     };
 
@@ -2290,6 +2691,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderCalendar = () => {
         const grid = document.getElementById('cal-grid');
         if (!grid) return;
+
+        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
 
         document.getElementById('cal-month-label').textContent =
             `${THAI_MONTHS[calMonth]} ${calYear + 543}`;
@@ -2340,12 +2743,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Click a date: show detail panel, hide the all-list panel
     window.calSelectDate = (dateStr) => {
+        if (calSelectedDate === dateStr && document.getElementById('cal-detail-panel').style.display === 'block') {
+            calShowAllBookings();
+            return;
+        }
         calSelectedDate = dateStr;
         renderCalendar();
         renderCalDetail();
 
         document.getElementById('cal-detail-panel').style.display = 'block';
         document.getElementById('cal-all-list-panel').style.display = 'none';
+    };
+
+    window.calShowAllBookings = () => {
+        calSelectedDate = null;
+        renderCalendar();
+        renderScheduleList('');
+        document.getElementById('cal-detail-panel').style.display = 'none';
+        document.getElementById('cal-all-list-panel').style.display = 'block';
     };
 
     // Render the detail panel for the selected date with status filter
@@ -2503,6 +2918,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Modal controls helpers
     window.closeAdminBookingModal = () => {
         document.getElementById('admin-booking-modal').style.display = 'none';
+        window._editFleetBookingId = null;
+        const btnSave = document.getElementById('btn-save-admin-booking');
+        if (btnSave) btnSave.innerHTML = '💾 บันทึกคิวงาน';
     };
     
     window.closeAdminImportModal = () => {
@@ -2512,25 +2930,75 @@ document.addEventListener('DOMContentLoaded', () => {
     window.closeAdminInventoryModal = () => {
         document.getElementById('admin-inventory-modal').style.display = 'none';
     };
-    
 
-    document.getElementById('adm-gen-asset').addEventListener('change', (e) => {
-        const genId = e.target.value;
-        const gen = GENERATOR_FLEET.find(g => g.id === genId);
-        if (gen) {
-            document.getElementById('adm-gen-size').value = gen.size;
-            const hub = DISTRICT_HUBS.find(h => h.id === gen.hubId);
-            document.getElementById('adm-hub-name').value = hub ? hub.name : '';
+    window.openAdminBookingModal = (prefill = {}) => {
+        window._editFleetBookingId = null;
+        const btnSave = document.getElementById('btn-save-admin-booking');
+        if (btnSave) btnSave.innerHTML = '💾 บันทึกคิวงาน';
+
+        // Populate Generator Select
+        const selGen = document.getElementById('adm-gen-asset');
+        if (selGen) {
+            selGen.innerHTML = GENERATOR_FLEET.map(g => {
+                const hub = DISTRICT_HUBS.find(h => h.id === g.hubId);
+                return `<option value="${g.id}">${g.name} (${g.size} kW) — ${hub ? hub.name : ''}</option>`;
+            }).join('');
         }
-    });
-    
+
+        document.getElementById('adm-project-name').value = prefill.projectName || '';
+        document.getElementById('adm-location-name').value = prefill.loc || prefill.locationName || '';
+        document.getElementById('adm-lat').value = prefill.lat != null ? prefill.lat : '';
+        document.getElementById('adm-lng').value = prefill.lng != null ? prefill.lng : '';
+        
+        const todayStr = getLocalDateString();
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+        document.getElementById('adm-start-date').value = prefill.startDate || todayStr;
+        document.getElementById('adm-end-date').value = prefill.endDate || tomorrowStr;
+        document.getElementById('adm-status').value = prefill.status || 'Active';
+        document.getElementById('adm-responsible').value = prefill.responsible || 'แผนกปฏิบัติการระบบไฟฟ้า';
+
+        if (prefill.genId && selGen) selGen.value = prefill.genId;
+
+        document.getElementById('admin-booking-modal').style.display = 'flex';
+    };
+
+    window.editFleetBooking = (bookingId) => {
+        const b = fleetBookings.find(x => x.id === bookingId);
+        if (!b) return;
+        window._editFleetBookingId = bookingId;
+        const btnSave = document.getElementById('btn-save-admin-booking');
+        if (btnSave) btnSave.innerHTML = '💾 บันทึกการแก้ไขคิวงาน';
+
+        const selGen = document.getElementById('adm-gen-asset');
+        if (selGen) {
+            selGen.innerHTML = GENERATOR_FLEET.map(g => {
+                const hub = DISTRICT_HUBS.find(h => h.id === g.hubId);
+                return `<option value="${g.id}">${g.name} (${g.size} kW) — ${hub ? hub.name : ''}</option>`;
+            }).join('');
+            selGen.value = b.genId;
+        }
+
+        document.getElementById('adm-project-name').value = b.projectName || '';
+        document.getElementById('adm-location-name').value = b.locationName || '';
+        document.getElementById('adm-lat').value = b.lat != null ? b.lat : '';
+        document.getElementById('adm-lng').value = b.lng != null ? b.lng : '';
+        document.getElementById('adm-start-date').value = b.startDate || '';
+        document.getElementById('adm-end-date').value = b.endDate || '';
+        document.getElementById('adm-status').value = b.status || 'Active';
+        document.getElementById('adm-responsible').value = b.responsible || '';
+
+        document.getElementById('admin-booking-modal').style.display = 'flex';
+    };
+
     document.getElementById('btn-save-admin-booking').addEventListener('click', () => {
         const proj = document.getElementById('adm-project-name').value.trim();
         const loc = document.getElementById('adm-location-name').value.trim();
         const lat = parseFloat(document.getElementById('adm-lat').value);
         const lng = parseFloat(document.getElementById('adm-lng').value);
         const genId = document.getElementById('adm-gen-asset').value;
-        const trans = document.getElementById('adm-transformer').value.trim();
         const start = document.getElementById('adm-start-date').value;
         const end = document.getElementById('adm-end-date').value;
         const status = document.getElementById('adm-status').value;
@@ -2558,16 +3026,13 @@ document.addEventListener('DOMContentLoaded', () => {
             startDate: start,
             endDate: end,
             status: status,
-            transformerInfo: trans || 'ไม่ได้ระบุ',
             responsible: resp || 'แผนกปฏิบัติการระบบไฟฟ้า'
         };
         
         if (window._editFleetBookingId) {
-            // Update existing in fleetBookings
             const idx = fleetBookings.findIndex(b => b.id === window._editFleetBookingId);
             if (idx > -1) fleetBookings[idx] = newBooking;
             
-            // If it's a quote-based booking, update quoteHistory too (all relevant fields)
             if (window._editFleetBookingId.startsWith('q_')) {
                 const qId = parseInt(window._editFleetBookingId.replace('q_', ''));
                 const qIdx = quoteHistory.findIndex(q => q.id === qId);
@@ -2583,68 +3048,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     quoteHistory[qIdx].startDate   = start;
                     quoteHistory[qIdx].endDate     = end;
                     quoteHistory[qIdx].custName    = resp;
-                    quoteHistory[qIdx].transformerInfo = trans || 'ไม่ได้ระบุ';
                     quoteHistory[qIdx].status      = status;
-
-                    // Recalculate days from new dates
-                    const startObj = new Date(start);
-                    const endObj   = new Date(end);
-                    const diffDays = Math.ceil((endObj - startObj) / (1000 * 60 * 60 * 24)) + 1;
-
-                    // Save originalDays on first edit (so we can show ℹ️ when extended)
-                    if (!quoteHistory[qIdx].originalDays) {
-                        quoteHistory[qIdx].originalDays = quoteHistory[qIdx].days || diffDays;
-                    }
-
-                    // Recalculate costs only if the number of days changed
-                    const oldDays = quoteHistory[qIdx].days || diffDays;
-                    if (diffDays !== oldDays) {
-                        const q = quoteHistory[qIdx];
-                        const rawType  = q.rawType || 'A';
-                        const typeKey  = rawType === 'A_EXEMPT' ? 'A' : rawType;
-                        const genSize  = gen.size;
-                        const dist     = q.roundTrip || 0;
-                        const hours    = q.hours || 12;
-                        const fuelPrice = q.fuelPrice || 0;
-                        const loadKw    = q.loadKw || genSize;
-
-                        const rentalCost    = rawType === 'A_EXEMPT' ? 0 : getRentalCost(typeKey, genSize, diffDays);
-                        const transportCost = getTransportCost(genSize, dist);
-                        const opCost        = getControlCost(diffDays);
-                        const subtotalPea   = rentalCost + transportCost + opCost;
-                        const vatPea        = subtotalPea * VAT_RATE;
-                        const totalPea      = subtotalPea + vatPea;
-
-                        const loadPct       = Math.min(loadKw / genSize, 1.0);
-                        const fuelRate      = getFuelRate(genSize, loadPct);
-                        const totalFuelLit  = fuelRate * hours * diffDays;
-                        const totalFuelCost = totalFuelLit * fuelPrice;
-                        const grandTotal    = totalPea + totalFuelCost;
-
-                        quoteHistory[qIdx].rentalCost    = rentalCost;
-                        quoteHistory[qIdx].transportCost = transportCost;
-                        quoteHistory[qIdx].opCost        = opCost;
-                        quoteHistory[qIdx].subtotalPea   = subtotalPea;
-                        quoteHistory[qIdx].vatPea        = vatPea;
-                        quoteHistory[qIdx].totalPea      = totalPea;
-                        quoteHistory[qIdx].totalFuelLit  = totalFuelLit;
-                        quoteHistory[qIdx].totalFuelCost = totalFuelCost;
-                        quoteHistory[qIdx].grandTotal    = grandTotal;
-                        quoteHistory[qIdx].fuelRate      = fuelRate;
-                    }
-
-                    quoteHistory[qIdx].days        = diffDays;
-                    quoteHistory[qIdx].serviceDate = fmtDateRange(start, end);
                     localStorage.setItem('coverQuoteHistory', JSON.stringify(quoteHistory));
                 }
             }
             
-            alert('อัปเดตข้อมูลคิวงานเรียบร้อยแล้ว!');
+            alert('อัปเดตข้อมูลคิวงานและพิกัดแผนที่เรียบร้อยแล้ว!');
             window._editFleetBookingId = null;
-            document.getElementById('btn-save-admin-booking').innerHTML = '💾 บันทึกคิวงาน';
         } else {
             fleetBookings.push(newBooking);
-            alert('บันทึกคิวงานลงในระบบเรียบร้อยแล้ว!');
+            alert('บันทึกคิวงานและปักหมุดพิกัดแผนที่สำเร็จ!');
         }
         
         localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
@@ -2941,37 +3354,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCalendar();
         renderCalDetail();
         alert('ลบคิวรายการที่เลือกเรียบร้อยแล้ว!');
-    };
-
-    window.editFleetBooking = (bookingId) => {
-        const b = fleetBookings.find(x => x.id === bookingId);
-        if (!b) return;
-        
-        window._editFleetBookingId = bookingId;
-        
-        const assetSelect = document.getElementById('adm-gen-asset');
-        assetSelect.innerHTML = GENERATOR_FLEET.map(g => {
-            const hub = DISTRICT_HUBS.find(h => h.id === g.hubId);
-            return `<option value="${g.id}">${g.name} (${g.size} kW) - คลัง ${hub ? hub.name : '-'}</option>`;
-        }).join('');
-        
-        document.getElementById('adm-project-name').value = b.projectName || '';
-        document.getElementById('adm-location-name').value = b.locationName || '';
-        document.getElementById('adm-lat').value = b.lat || '';
-        document.getElementById('adm-lng').value = b.lng || '';
-        document.getElementById('adm-gen-asset').value = b.genId || '';
-        document.getElementById('adm-transformer').value = b.transformerInfo || '';
-        document.getElementById('adm-start-date').value = b.startDate || '';
-        document.getElementById('adm-end-date').value = b.endDate || '';
-        document.getElementById('adm-status').value = b.status || 'Active';
-        document.getElementById('adm-responsible').value = b.responsible || '';
-        
-        // Trigger select change to update size/hub fields visually
-        const event = new Event('change');
-        document.getElementById('adm-gen-asset').dispatchEvent(event);
-        
-        document.getElementById('btn-save-admin-booking').innerHTML = '💾 บันทึกการแก้ไข';
-        document.getElementById('admin-booking-modal').style.display = 'flex';
     };
 
 });

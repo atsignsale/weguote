@@ -1149,6 +1149,16 @@ input[readonly], select:disabled, textarea[disabled] {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
 }
+.btn-secondary {
+    background: var(--secondary);
+    color: white;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.25);
+}
+.btn-secondary:hover {
+    background: #2563EB;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+}
 .btn-green {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
     color: white;
@@ -1800,49 +1810,146 @@ input[readonly], select:disabled, textarea[disabled] {
         width: 100%;
         justify-content: center;
     }
-}
 
 /* -----------------------------
    13. PRINT RULES
    ----------------------------- */
 @media print {
-    * {
+    @page {
+        size: A4 portrait;
+        margin: 0;
+    }
+    *, *::before, *::after {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
     }
-    body {
+    html, body {
         background: #FFFFFF !important;
+        color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 210mm !important;
+        min-height: auto !important;
+        height: auto !important;
+        overflow: visible !important;
     }
-    .ynex-layout {
+
+    /* Hide everything on the webpage by default */
+    .ynex-layout,
+    .app-sidebar,
+    .app-header,
+    .main-content,
+    .tab-content,
+    .modal-overlay,
+    .apexcharts-canvas,
+    #sidebar-overlay,
+    .leaflet-container,
+    button,
+    nav {
         display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        top: -99999px !important;
+        left: -99999px !important;
     }
-    .modal-overlay {
+
+    /* Default: hide both print areas unless a print mode is active */
+    #print-area,
+    #gen-print-area {
         display: none !important;
     }
 
-    #print-area {
+    /* Generator Quotation Print Mode: ONLY gen-print-area pages 1 & 2 */
+    body.print-gen #print-area,
+    body.print-gen .modal-overlay,
+    body.print-gen .ynex-layout,
+    body.print-gen .modal-card {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+    /* Neutralize any dimension-taking rules from inline styles inside #print-area */
+    body.print-gen #print-area .q-page {
+        display: none !important;
+        min-height: 0 !important;
+        height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+    }
+    body.print-gen #gen-print-area {
+        display: block !important;
+        visibility: visible !important;
+        position: static !important;
+        width: 210mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #FFFFFF !important;
+    }
+    body.print-gen #gen-print-area .gp {
+        display: block !important;
+        visibility: visible !important;
+        width: 210mm !important;
+        min-height: 285mm !important;
+        max-height: 295mm !important;
+        height: 292mm !important;
+        padding: 10mm 16mm 8mm 20mm !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        background: #FFFFFF !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        overflow: hidden !important;
+    }
+    body.print-gen #gen-print-area .gp:last-child {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+    }
+
+    /* PEA Cover Print Mode: ONLY Page 1 and Page 2 */
+    body.print-pea #gen-print-area {
         display: none !important;
     }
     body.print-pea #print-area {
         display: block !important;
+        visibility: visible !important;
+        position: static !important;
+        width: 210mm !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        background: #FFFFFF !important;
     }
-    #print-area .q-page {
-        page-break-after: always;
-    }
-    #print-area .q-page:last-child {
-        page-break-after: avoid;
-    }
-
-    #gen-print-area {
-        display: none !important;
-    }
-    body.print-gen #gen-print-area {
+    body.print-pea #print-area .q-page {
         display: block !important;
+        visibility: visible !important;
+        width: 210mm !important;
+        min-height: 285mm !important;
+        max-height: 295mm !important;
+        height: 292mm !important;
+        padding: 12mm 18mm 10mm 22mm !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        background: #FFFFFF !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        overflow: hidden !important;
     }
-    #gen-print-area .gp {
-        page-break-after: always;
-    }
-    #gen-print-area .gp:last-child {
-        page-break-after: avoid;
+    body.print-pea #print-area .q-page:last-child {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
     }
 }
+
+
