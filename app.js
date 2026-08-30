@@ -198,7 +198,7 @@ let GENERATOR_FLEET = [
 // Supabase Initialization
 const supabaseUrl = 'https://zqgxufzvghzvdkoyiynw.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxZ3h1Znp2Z2h6dmRrb3lpeW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwNDYwOTUsImV4cCI6MjEwMzYyMjA5NX0.GKOnpHzWxdBe79TQUCHdK0O56psZVivN-mBYGptIydM';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 let fleetBookings = [];
 let quoteHistory = [];
@@ -206,9 +206,9 @@ let quoteHistory = [];
 async function initSupabaseData() {
     try {
         const [quotesRes, bookingsRes, fleetRes] = await Promise.all([
-            supabase.from('quote_history').select('*').order('created_at', { ascending: false }),
-            supabase.from('fleet_bookings').select('*').order('created_at', { ascending: false }),
-            supabase.from('generator_fleet').select('*')
+            db.from('quote_history').select('*').order('created_at', { ascending: false }),
+            db.from('fleet_bookings').select('*').order('created_at', { ascending: false }),
+            db.from('generator_fleet').select('*')
         ]);
 
         if (quotesRes.data) quoteHistory = quotesRes.data.map(q => q.data);
@@ -303,12 +303,12 @@ const saveHistory = (entry) => {
         }
         
         // Save to Supabase
-        supabase.from('fleet_bookings').upsert({ id: bookingId, data: bookingObj }).then();
+        db.from('fleet_bookings').upsert({ id: bookingId, data: bookingObj }).then();
     }
 
     quoteHistory.unshift(entryCopy);
     // Save to Supabase
-    supabase.from('quote_history').upsert({ id: entryCopy.id, type: entryCopy.type, data: entryCopy }).then();
+    db.from('quote_history').upsert({ id: entryCopy.id, type: entryCopy.type, data: entryCopy }).then();
     
     renderHistory();
 };
@@ -554,13 +554,13 @@ window.submitExtendRental = () => {
     q.grandTotal = newGrandTotal;
     
     quoteHistory[qIndex] = q;
-    supabase.from('quote_history').upsert({ id: q.id, type: q.type, data: q }).then();
+    db.from('quote_history').upsert({ id: q.id, type: q.type, data: q }).then();
     
     const fIdx = fleetBookings.findIndex(b => b.id === 'q_' + qId);
     if (fIdx > -1) {
         fleetBookings[fIdx].startDate = newStart;
         fleetBookings[fIdx].endDate = newEnd;
-        supabase.from('fleet_bookings').upsert({ id: fleetBookings[fIdx].id, data: fleetBookings[fIdx] }).then();
+        db.from('fleet_bookings').upsert({ id: fleetBookings[fIdx].id, data: fleetBookings[fIdx] }).then();
     }
     
     renderHistory();
@@ -574,10 +574,10 @@ window.submitExtendRental = () => {
 window.deleteQuote = (id) => {
     if (!confirm('ต้องการลบรายการนี้?')) return;
     quoteHistory = quoteHistory.filter(q => q.id !== id);
-    supabase.from('quote_history').delete().eq('id', id).then();
+    db.from('quote_history').delete().eq('id', id).then();
     
     fleetBookings = fleetBookings.filter(b => b.id !== 'q_' + id);
-    supabase.from('fleet_bookings').delete().eq('id', 'q_' + id).then();
+    db.from('fleet_bookings').delete().eq('id', 'q_' + id).then();
     
     renderHistory();
     if (typeof updateFleetStats === 'function') {
