@@ -303,12 +303,16 @@ const saveHistory = (entry) => {
         }
         
         // Save to Supabase
-        db.from('fleet_bookings').upsert({ id: bookingId, data: bookingObj }).then();
+        db.from('fleet_bookings').upsert({ id: bookingId, data: bookingObj }).then(res => {
+            if (res.error) console.error('Error saving fleet booking:', res.error);
+        });
     }
 
     quoteHistory.unshift(entryCopy);
     // Save to Supabase
-    db.from('quote_history').upsert({ id: entryCopy.id, type: entryCopy.type, data: entryCopy }).then();
+    db.from('quote_history').upsert({ id: entryCopy.id, type: entryCopy.type, data: entryCopy }).then(res => {
+        if (res.error) console.error('Error saving quote history:', res.error);
+    });
     
     renderHistory();
 };
@@ -2059,10 +2063,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window._extendingBookingId.startsWith('q_')) {
                     const oldQid = window._extendingBookingId.substring(2);
                     quoteHistory = quoteHistory.filter(q => String(q.id) !== String(oldQid));
-                    localStorage.setItem('coverQuoteHistory', JSON.stringify(quoteHistory));
+                    db.from('quote_history').delete().eq('id', oldQid).then();
                 }
                 fleetBookings = fleetBookings.filter(b => b.id !== window._extendingBookingId);
-                localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
+                db.from('fleet_bookings').delete().eq('id', window._extendingBookingId).then();
                 window._extendingBookingId = null;
             }
             
