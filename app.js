@@ -324,14 +324,23 @@ const saveHistory = (entry) => {
         }
 
         // Save to Supabase
-        db.from('fleet_bookings').upsert({ id: bookingId, data: bookingObj }).then(res => {
+        db.from('fleet_bookings').upsert({ 
+            id: bookingId, 
+            data: bookingObj, 
+            created_by: window.currentUserProfile ? window.currentUserProfile.id : null 
+        }).then(res => {
             if (res.error) alert('Error saving fleet booking: ' + res.error.message);
         });
     }
 
     quoteHistory.unshift(entryCopy);
     // Save to Supabase
-    db.from('quote_history').upsert({ id: entryCopy.id, type: entryCopy.type, data: entryCopy }).then(res => {
+    db.from('quote_history').upsert({ 
+        id: entryCopy.id, 
+        type: entryCopy.type, 
+        data: entryCopy,
+        created_by: window.currentUserProfile ? window.currentUserProfile.id : null
+    }).then(res => {
         if (res.error) alert('Error saving quote history: ' + res.error.message);
     });
 
@@ -400,7 +409,7 @@ window.renderHistory = () => {
             </div>
             <div class="history-item-actions">
                 <button class="btn btn-outline btn-xs" onclick="event.stopPropagation(); reprintQuote(${q.id})">พิมพ์</button>
-                <button class="btn btn-outline btn-xs" style="color:#e74c3c;border-color:#e74c3c;" onclick="event.stopPropagation(); deleteQuote(${q.id})">ลบข้อมูล</button>
+                ${(window.currentUserProfile && window.currentUserProfile.role === 'staff') ? '' : `<button class="btn btn-outline btn-xs btn-delete-quote" style="color:#e74c3c;border-color:#e74c3c;" onclick="event.stopPropagation(); deleteQuote(${q.id})">ลบข้อมูล</button>`}
             </div>
         </div>
         `;
@@ -1098,11 +1107,93 @@ const fetchRealTimeDieselPrice = (isManual = false) => {
 // DOM READY
 // ===========================
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Supabase Data First
-    initSupabaseData();
+    // ---- AUTHENTICATION LOGIC ----
+    window.currentUserProfile = null;
+    
+    const checkSession = async () => {
+        const { data: { session } } = await db.auth.getSession();
+        if (session) {
+            handleLoggedInUser(session.user);
+        } else {
+            document.getElementById('auth-overlay').style.display = 'flex';
+            // Hide loader if it's showing
+            const loader = document.getElementById('global-loader');
+            if (loader) loader.style.display = 'none';
+        }
+    };
 
-    // Initialize Signatories Sync and LocalStorage
-    initSignatoriesSync();
+    const handleLoggedInUser = async (user) => {
+        document.getElementById('auth-overlay').style.display = 'none';
+        // Fetch profile
+        const { data: profile } = await db.from('user_profiles').select('*').eq('id', user.id).single();
+        if (profile) {
+            window.currentUserProfile = profile;
+            applyRoleBasedUI(profile.role);
+        } else {
+            // Default fallback if profile trigger failed
+            window.currentUserProfile = { id: user.id, email: user.email, role: 'staff' };
+            applyRoleBasedUI('staff');
+        }
+        
+        // Initialize App Data now that user is verified
+        initSupabaseData();
+        initSignatoriesSync();
+    };
+
+    const applyRoleBasedUI = (role) => {
+        // Staff cannot delete quotes or manage fleet thoroughly
+        if (role === 'staff') {
+            document.querySelectorAll('.btn-delete-quote').forEach(el => el.style.display = 'none');
+            // Additional UI hiding logic can be added here
+        }
+        
+        // Optionally add a logout button to header (dynamic creation for now)
+        const headerActions = document.querySelector('.header-actions');
+        if (headerActions && !document.getElementById('btn-logout')) {
+            const logoutBtn = document.createElement('button');
+            logoutBtn.id = 'btn-logout';
+            logoutBtn.className = 'btn btn-outline btn-sm';
+            logoutBtn.innerHTML = 'ออกจากระบบ';
+            logoutBtn.onclick = async () => {
+                await db.auth.signOut();
+                window.location.reload();
+            };
+            headerActions.appendChild(logoutBtn);
+        }
+    };
+
+    // Login Form Submit
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('login-error');
+            const btn = document.getElementById('btn-login');
+            
+            btn.innerHTML = 'กำลังเข้าสู่ระบบ...';
+            btn.disabled = true;
+            errorDiv.style.display = 'none';
+
+            const { data, error } = await db.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = error.message.includes('Invalid') ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' : error.message;
+                btn.innerHTML = 'เข้าสู่ระบบ';
+                btn.disabled = false;
+            } else {
+                handleLoggedInUser(data.user);
+            }
+        });
+    }
+
+    // Start Session Check
+    checkSession();
 
     // Fetch and apply real-time diesel price
     fetchRealTimeDieselPrice(false);
