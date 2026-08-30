@@ -41,8 +41,8 @@ const getControlCost = (days) => 3200 * days;
 // Source: PEA Generator Fuel Consumption Chart
 const fuelTable = {
     // size: [25%, 50%, 75%, 100%]
-     60: [7,  11, 14, 18],
-     80: [9,  13, 17, 23],
+    60: [7, 11, 14, 18],
+    80: [9, 13, 17, 23],
     120: [11, 16, 22, 28],
     175: [16, 26, 37, 48],
     200: [18, 29, 42, 55],
@@ -64,7 +64,7 @@ const RENTAL_SIZES = [120, 300, 500, 800];
 // Uses the closest available size in fuelTable
 const getFuelRateForSize = (genSize, loadPct) => {
     // Find closest matching size in fuelTable
-    const sizes = Object.keys(fuelTable).map(Number).sort((a,b)=>a-b);
+    const sizes = Object.keys(fuelTable).map(Number).sort((a, b) => a - b);
     let closest = sizes[0];
     for (const s of sizes) { if (s <= genSize) closest = s; else break; }
     const r = fuelTable[closest];
@@ -93,8 +93,8 @@ const fmtDate = (dateStr) => {
     if (!dateStr) return '';
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr; // Safe fallback for already formatted range strings
-    const months = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
-                    'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
     return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543}`;
 };
 
@@ -109,90 +109,90 @@ const fmtDateRange = (startDateStr, endDateStr) => {
 // ===========================
 const DISTRICT_HUBS = [
     // สำนักงานการไฟฟ้าเขต
-    { id: 'hub_pea_r1',         name: 'กฟฉ.1 (อุดรธานี)',        lat: 17.4152, lng: 102.7833 },
+    { id: 'hub_pea_r1', name: 'กฟฉ.1 (อุดรธานี)', lat: 17.4152, lng: 102.7833 },
     // การไฟฟ้าจังหวัด
-    { id: 'hub_khonkaen',       name: 'กฟจ.ขอนแก่น',              lat: 16.4419, lng: 102.8359 },
-    { id: 'hub_chumphae',       name: 'กฟอ.ชุมแพ',                lat: 16.5411, lng: 102.0980 },
-    { id: 'hub_banphai',        name: 'กฟอ.บ้านไผ่',              lat: 16.0700, lng: 102.7236 },
-    { id: 'hub_nakhonphanom',   name: 'กฟจ.นครพนม',               lat: 17.4042, lng: 104.7818 },
-    { id: 'hub_nongkhai',       name: 'กฟจ.หนองคาย',              lat: 17.8783, lng: 102.7411 },
-    { id: 'hub_nongbualamphu',  name: 'กฟจ.หนองบัวลำภู',          lat: 17.2049, lng: 102.4379 },
-    { id: 'hub_buengkan',       name: 'กฟจ.บึงกาฬ',               lat: 18.3638, lng: 103.6548 },
-    { id: 'hub_udonthani1',     name: 'กฟจ.อุดรธานี 1',            lat: 17.4157, lng: 102.7900 },
-    { id: 'hub_udonthani2',     name: 'กฟจ.อุดรธานี 2',            lat: 17.3833, lng: 102.8167 },
-    { id: 'hub_loei',           name: 'กฟจ.เลย',                  lat: 17.4861, lng: 101.7223 },
-    { id: 'hub_sakonnakhon',    name: 'กฟจ.สกลนคร',               lat: 17.1455034, lng: 104.1069212 },
-    { id: 'hub_phangkhon',      name: 'กฟอ.พังโคน',               lat: 17.3836871, lng: 103.7130564 },
-    { id: 'hub_sawangdaendin',  name: 'กฟอ.สว่างแดนดิน',           lat: 17.4594606, lng: 103.4348865 },
-    { id: 'hub_khonkaen2',      name: 'กฟจ.ขอนแก่น 2',            lat: 16.4600, lng: 102.8200 },
+    { id: 'hub_khonkaen', name: 'กฟจ.ขอนแก่น', lat: 16.4419, lng: 102.8359 },
+    { id: 'hub_chumphae', name: 'กฟอ.ชุมแพ', lat: 16.5411, lng: 102.0980 },
+    { id: 'hub_banphai', name: 'กฟอ.บ้านไผ่', lat: 16.0700, lng: 102.7236 },
+    { id: 'hub_nakhonphanom', name: 'กฟจ.นครพนม', lat: 17.4042, lng: 104.7818 },
+    { id: 'hub_nongkhai', name: 'กฟจ.หนองคาย', lat: 17.8783, lng: 102.7411 },
+    { id: 'hub_nongbualamphu', name: 'กฟจ.หนองบัวลำภู', lat: 17.2049, lng: 102.4379 },
+    { id: 'hub_buengkan', name: 'กฟจ.บึงกาฬ', lat: 18.3638, lng: 103.6548 },
+    { id: 'hub_udonthani1', name: 'กฟจ.อุดรธานี 1', lat: 17.4157, lng: 102.7900 },
+    { id: 'hub_udonthani2', name: 'กฟจ.อุดรธานี 2', lat: 17.3833, lng: 102.8167 },
+    { id: 'hub_loei', name: 'กฟจ.เลย', lat: 17.4861, lng: 101.7223 },
+    { id: 'hub_sakonnakhon', name: 'กฟจ.สกลนคร', lat: 17.1455034, lng: 104.1069212 },
+    { id: 'hub_phangkhon', name: 'กฟอ.พังโคน', lat: 17.3836871, lng: 103.7130564 },
+    { id: 'hub_sawangdaendin', name: 'กฟอ.สว่างแดนดิน', lat: 17.4594606, lng: 103.4348865 },
+    { id: 'hub_khonkaen2', name: 'กฟจ.ขอนแก่น 2', lat: 16.4600, lng: 102.8200 },
     // การไฟฟ้าสาขา (เพิ่มใหม่)
-    { id: 'hub_kumphawapi',     name: 'กฟอ.กุมภวาปี',              lat: 17.1167, lng: 103.0059 },
-    { id: 'hub_wangsaphung',    name: 'กฟอ.วังสะพุง',              lat: 17.2981, lng: 101.7619 },
-    { id: 'hub_nonghan',        name: 'กฟอ.หนองหาน',              lat: 17.3624792, lng: 103.1240484 }
+    { id: 'hub_kumphawapi', name: 'กฟอ.กุมภวาปี', lat: 17.1167, lng: 103.0059 },
+    { id: 'hub_wangsaphung', name: 'กฟอ.วังสะพุง', lat: 17.2981, lng: 101.7619 },
+    { id: 'hub_nonghan', name: 'กฟอ.หนองหาน', lat: 17.3624792, lng: 103.1240484 }
 ];
 
 const TARGET_SITES = {
-    'udonthani':        { name: 'อ.เมืองอุดรธานี',         lat: 17.4152, lng: 102.7833 },
-    'khonkaen':         { name: 'อ.เมืองขอนแก่น',           lat: 16.4419, lng: 102.8359 },
-    'nongkhai':         { name: 'อ.เมืองหนองคาย',           lat: 17.8783, lng: 102.7411 },
-    'nakhonphanom':     { name: 'อ.เมืองนครพนม',            lat: 17.4042, lng: 104.7818 },
-    'sakonnakhon':      { name: 'อ.เมืองสกลนคร',            lat: 17.1636, lng: 104.1451 },
-    'buengkan':         { name: 'อ.เมืองบึงกาฬ',             lat: 18.3638, lng: 103.6548 },
-    'loei':             { name: 'อ.เมืองเลย',               lat: 17.4861, lng: 101.7223 },
-    'nongbualamphu':    { name: 'อ.เมืองหนองบัวลำภู',        lat: 17.2049, lng: 102.4379 },
-    'chumphae':         { name: 'อ.ชุมแพ',                  lat: 16.5411, lng: 102.0980 },
-    'banphai':          { name: 'อ.บ้านไผ่',                 lat: 16.0700, lng: 102.7236 },
-    'phangkhon':        { name: 'อ.พังโคน',                  lat: 17.3742, lng: 103.9614 },
-    'sawangdaendin':    { name: 'อ.สว่างแดนดิน',              lat: 17.4597, lng: 103.7161 },
-    'kumphawapi':       { name: 'อ.กุมภวาปี',                lat: 17.1167, lng: 103.0059 },
-    'wangsaphung':      { name: 'อ.วังสะพุง',                lat: 17.2981, lng: 101.7619 },
-    'nonghan':          { name: 'อ.หนองหาน',                 lat: 17.3481, lng: 103.1000 }
+    'udonthani': { name: 'อ.เมืองอุดรธานี', lat: 17.4152, lng: 102.7833 },
+    'khonkaen': { name: 'อ.เมืองขอนแก่น', lat: 16.4419, lng: 102.8359 },
+    'nongkhai': { name: 'อ.เมืองหนองคาย', lat: 17.8783, lng: 102.7411 },
+    'nakhonphanom': { name: 'อ.เมืองนครพนม', lat: 17.4042, lng: 104.7818 },
+    'sakonnakhon': { name: 'อ.เมืองสกลนคร', lat: 17.1636, lng: 104.1451 },
+    'buengkan': { name: 'อ.เมืองบึงกาฬ', lat: 18.3638, lng: 103.6548 },
+    'loei': { name: 'อ.เมืองเลย', lat: 17.4861, lng: 101.7223 },
+    'nongbualamphu': { name: 'อ.เมืองหนองบัวลำภู', lat: 17.2049, lng: 102.4379 },
+    'chumphae': { name: 'อ.ชุมแพ', lat: 16.5411, lng: 102.0980 },
+    'banphai': { name: 'อ.บ้านไผ่', lat: 16.0700, lng: 102.7236 },
+    'phangkhon': { name: 'อ.พังโคน', lat: 17.3742, lng: 103.9614 },
+    'sawangdaendin': { name: 'อ.สว่างแดนดิน', lat: 17.4597, lng: 103.7161 },
+    'kumphawapi': { name: 'อ.กุมภวาปี', lat: 17.1167, lng: 103.0059 },
+    'wangsaphung': { name: 'อ.วังสะพุง', lat: 17.2981, lng: 101.7619 },
+    'nonghan': { name: 'อ.หนองหาน', lat: 17.3481, lng: 103.1000 }
 };
 
 // ข้อมูลเครื่องกำเนิดไฟฟ้าจริง กฟฉ.1 — รวม 24 เครื่อง (รหัสตามเอกสารแผนงาน)
 let GENERATOR_FLEET = [
     // กฟฉ.1 (อุดรธานี) — 800 kW x1, 500 kW x2, 300 kW x2, 120 kW x2
-    { id: 'gen_r1_800_1',   name: 'NE1-GEN-800-01',  size: 800, hubId: 'hub_pea_r1',        status: 'Standby' },
-    { id: 'gen_r1_500_1',   name: 'NE1-GEN-500-01',  size: 500, hubId: 'hub_pea_r1',        status: 'Standby' },
-    { id: 'gen_r1_500_2',   name: 'NE1-GEN-500-02',  size: 500, hubId: 'hub_pea_r1',        status: 'Standby' },
-    { id: 'gen_r1_300_1',   name: 'NE1-GEN-300-01',  size: 300, hubId: 'hub_pea_r1',        status: 'Standby' },
-    { id: 'gen_r1_300_2',   name: 'NE1-GEN-300-02',  size: 300, hubId: 'hub_pea_r1',        status: 'Standby' },
-    { id: 'gen_r1_120_1',   name: 'NE1-GEN-120-01',  size: 120, hubId: 'hub_pea_r1',        status: 'Standby' },
-    { id: 'gen_r1_120_2',   name: 'NE1-GEN-120-02',  size: 120, hubId: 'hub_pea_r1',        status: 'Standby' },
+    { id: 'gen_r1_800_1', name: 'NE1-GEN-800-01', size: 800, hubId: 'hub_pea_r1', status: 'Standby' },
+    { id: 'gen_r1_500_1', name: 'NE1-GEN-500-01', size: 500, hubId: 'hub_pea_r1', status: 'Standby' },
+    { id: 'gen_r1_500_2', name: 'NE1-GEN-500-02', size: 500, hubId: 'hub_pea_r1', status: 'Standby' },
+    { id: 'gen_r1_300_1', name: 'NE1-GEN-300-01', size: 300, hubId: 'hub_pea_r1', status: 'Standby' },
+    { id: 'gen_r1_300_2', name: 'NE1-GEN-300-02', size: 300, hubId: 'hub_pea_r1', status: 'Standby' },
+    { id: 'gen_r1_120_1', name: 'NE1-GEN-120-01', size: 120, hubId: 'hub_pea_r1', status: 'Standby' },
+    { id: 'gen_r1_120_2', name: 'NE1-GEN-120-02', size: 120, hubId: 'hub_pea_r1', status: 'Standby' },
     // กฟจ.ขอนแก่น — 500 kW x1
-    { id: 'gen_kk_500_1',   name: 'KKN-GEN-500',     size: 500, hubId: 'hub_khonkaen',      status: 'Standby' },
+    { id: 'gen_kk_500_1', name: 'KKN-GEN-500', size: 500, hubId: 'hub_khonkaen', status: 'Standby' },
     // กฟอ.ชุมแพ — 60 kW x1
-    { id: 'gen_cp_60_1',    name: 'CMP-GEN-060',     size: 60,  hubId: 'hub_chumphae',      status: 'Standby' },
+    { id: 'gen_cp_60_1', name: 'CMP-GEN-060', size: 60, hubId: 'hub_chumphae', status: 'Standby' },
     // กฟอ.บ้านไผ่ — 60 kW x1
-    { id: 'gen_bp_60_1',    name: 'BPI-GEN-060',     size: 60,  hubId: 'hub_banphai',        status: 'Standby' },
+    { id: 'gen_bp_60_1', name: 'BPI-GEN-060', size: 60, hubId: 'hub_banphai', status: 'Standby' },
     // กฟจ.นครพนม — 500 kW x1
-    { id: 'gen_np_500_1',   name: 'NPN-GEN-500',     size: 500, hubId: 'hub_nakhonphanom',  status: 'Standby' },
+    { id: 'gen_np_500_1', name: 'NPN-GEN-500', size: 500, hubId: 'hub_nakhonphanom', status: 'Standby' },
     // กฟจ.หนองคาย — 500 kW x1
-    { id: 'gen_nk_500_1',   name: 'NKY-GEN-500',     size: 500, hubId: 'hub_nongkhai',      status: 'Standby' },
+    { id: 'gen_nk_500_1', name: 'NKY-GEN-500', size: 500, hubId: 'hub_nongkhai', status: 'Standby' },
     // กฟจ.หนองบัวลำภู — 500 kW x1
-    { id: 'gen_nbl_500_1',  name: 'NBP-GEN-500',     size: 500, hubId: 'hub_nongbualamphu', status: 'Standby' },
+    { id: 'gen_nbl_500_1', name: 'NBP-GEN-500', size: 500, hubId: 'hub_nongbualamphu', status: 'Standby' },
     // กฟจ.บึงกาฬ — 500 kW x1
-    { id: 'gen_bk_500_1',   name: 'BKA-GEN-500',     size: 500, hubId: 'hub_buengkan',      status: 'Standby' },
+    { id: 'gen_bk_500_1', name: 'BKA-GEN-500', size: 500, hubId: 'hub_buengkan', status: 'Standby' },
     // กฟจ.อุดรธานี 1 — 500 kW x1
-    { id: 'gen_ud1_500_1',  name: 'UDN-GEN-500',     size: 500, hubId: 'hub_udonthani1',    status: 'Standby' },
+    { id: 'gen_ud1_500_1', name: 'UDN-GEN-500', size: 500, hubId: 'hub_udonthani1', status: 'Standby' },
     // กฟจ.อุดรธานี 2 — 500 kW x1
-    { id: 'gen_ud2_500_1',  name: 'UD2-GEN-500',     size: 500, hubId: 'hub_udonthani2',    status: 'Standby' },
+    { id: 'gen_ud2_500_1', name: 'UD2-GEN-500', size: 500, hubId: 'hub_udonthani2', status: 'Standby' },
     // กฟจ.เลย — 500 kW x1
-    { id: 'gen_ly_500_1',   name: 'LOE-GEN-500',     size: 500, hubId: 'hub_loei',           status: 'Standby' },
+    { id: 'gen_ly_500_1', name: 'LOE-GEN-500', size: 500, hubId: 'hub_loei', status: 'Standby' },
     // กฟจ.สกลนคร — 500 kW x1
-    { id: 'gen_sk_500_1',   name: 'SKK-GEN-500',     size: 500, hubId: 'hub_sakonnakhon',   status: 'Standby' },
+    { id: 'gen_sk_500_1', name: 'SKK-GEN-500', size: 500, hubId: 'hub_sakonnakhon', status: 'Standby' },
     // กฟอ.พังโคน — 60 kW x1
-    { id: 'gen_pk_60_1',    name: 'PKN-GEN-060',     size: 60,  hubId: 'hub_phangkhon',     status: 'Standby' },
+    { id: 'gen_pk_60_1', name: 'PKN-GEN-060', size: 60, hubId: 'hub_phangkhon', status: 'Standby' },
     // กฟอ.สว่างแดนดิน — 60 kW x1
-    { id: 'gen_sd_60_1',    name: 'SDD-GEN-060',     size: 60,  hubId: 'hub_sawangdaendin', status: 'Standby' },
+    { id: 'gen_sd_60_1', name: 'SDD-GEN-060', size: 60, hubId: 'hub_sawangdaendin', status: 'Standby' },
     // กฟจ.ขอนแก่น 2 — 500 kW x1
-    { id: 'gen_kk2_500_1',  name: 'KK2-GEN-500',     size: 500, hubId: 'hub_khonkaen2',     status: 'Standby' },
+    { id: 'gen_kk2_500_1', name: 'KK2-GEN-500', size: 500, hubId: 'hub_khonkaen2', status: 'Standby' },
     // กฟอ.กุมภวาปี — 60 kW x1
-    { id: 'gen_kwp_60_1',   name: 'KWP-GEN-500',     size: 60,  hubId: 'hub_kumphawapi',    status: 'Standby' },
+    { id: 'gen_kwp_60_1', name: 'KWP-GEN-500', size: 60, hubId: 'hub_kumphawapi', status: 'Standby' },
     // กฟอ.วังสะพุง — 60 kW x1
-    { id: 'gen_wsp_60_1',   name: 'WSP-GEN-500',     size: 60,  hubId: 'hub_wangsaphung',   status: 'Standby' },
+    { id: 'gen_wsp_60_1', name: 'WSP-GEN-500', size: 60, hubId: 'hub_wangsaphung', status: 'Standby' },
     // กฟอ.หนองหาน — 60 kW x1
-    { id: 'gen_nhn_60_1',   name: 'NHN-GEN-500',     size: 60,  hubId: 'hub_nonghan',       status: 'Standby' }
+    { id: 'gen_nhn_60_1', name: 'NHN-GEN-500', size: 60, hubId: 'hub_nonghan', status: 'Standby' }
 ];
 
 // Supabase Initialization
@@ -220,10 +220,7 @@ async function initSupabaseData() {
         if (typeof updateMapMarkers === 'function') updateMapMarkers();
         if (typeof initDashboardMap === 'function') initDashboardMap();
         if (typeof renderRecentQuotesFeed === 'function') renderRecentQuotesFeed();
-        if (typeof renderDashboard === 'function') renderDashboard();
-        if (typeof renderCalendar === 'function') renderCalendar();
-        if (typeof renderScheduleList === 'function') renderScheduleList('');
-    } catch(e) {
+    } catch (e) {
         alert("ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาตรวจสอบว่าคุณได้รันคำสั่ง SQL สร้างตารางใน Supabase แล้วหรือไม่");
         console.error("Error loading data from Supabase", e);
     }
@@ -305,7 +302,7 @@ const saveHistory = (entry) => {
         } else {
             fleetBookings.unshift(bookingObj);
         }
-        
+
         // Save to Supabase
         db.from('fleet_bookings').upsert({ id: bookingId, data: bookingObj }).then(res => {
             if (res.error) alert('Error saving fleet booking: ' + res.error.message);
@@ -317,7 +314,7 @@ const saveHistory = (entry) => {
     db.from('quote_history').upsert({ id: entryCopy.id, type: entryCopy.type, data: entryCopy }).then(res => {
         if (res.error) alert('Error saving quote history: ' + res.error.message);
     });
-    
+
     renderHistory();
 };
 
@@ -349,12 +346,12 @@ window.renderHistory = () => {
         if (q.type === 'generator') {
             const grandTotal = q.grandTotal || (q.totalPea + (q.totalFuelCost || 0));
             details = `ขนาด ${q.genSize} kW | ${q.days} วัน (${q.hours} ชม./วัน) | ค่าบริการรวม ${fmt(grandTotal)} ฿`;
-            
+
             if (q.serviceDate) {
                 const parts = q.serviceDate.split(' - ');
                 const sDate = parts[0] || '';
                 const eDate = parts[1] || parts[0] || '';
-                
+
                 if (q.originalDays && q.originalDays !== q.days) {
                     extensionHTML = `
                     <div style="margin-top: 6px;">
@@ -396,7 +393,7 @@ window.inspectQuote = window.inspectQuoteDetails = (id) => {
         alert('ไม่พบข้อมูลใบเสนอราคารายการนี้');
         return;
     }
-    
+
     // Find matching booking in fleetBookings if available
     const booking = fleetBookings.find(b => b.id === 'q_' + q.id);
 
@@ -426,7 +423,7 @@ window.inspectQuote = window.inspectQuoteDetails = (id) => {
     document.getElementById('iq-type').value = q.type === 'generator' ? 'เช่าเครื่องกำเนิดไฟฟ้า' : 'เช่าอุปกรณ์ครอบฉนวน';
     document.getElementById('iq-purpose').value = q.purpose || (booking ? booking.projectName : '-');
     document.getElementById('iq-location').value = q.location || q.custAddress || (booking ? booking.locationName : '-');
-    
+
     if (q.type === 'generator') {
         document.getElementById('iq-gen-size').value = q.genSize ? `${q.genSize} kW` : (booking ? `${booking.genSize} kW` : '-');
     } else {
@@ -436,18 +433,18 @@ window.inspectQuote = window.inspectQuoteDetails = (id) => {
     document.getElementById('iq-days').value = q.days ? `${q.days} วัน` : '-';
     document.getElementById('iq-start-date').value = formatThaiDate(startDateRaw);
     document.getElementById('iq-end-date').value = formatThaiDate(endDateRaw);
-    
+
     if (q.createdAt) {
         const createDt = new Date(q.createdAt);
         document.getElementById('iq-created-at').value = isNaN(createDt.getTime()) ? q.createdAt : createDt.toLocaleString('th-TH');
     } else {
         document.getElementById('iq-created-at').value = '-';
     }
-    
+
     // Costs
     document.getElementById('iq-gen-costs').style.display = q.type === 'generator' ? 'block' : 'none';
     document.getElementById('iq-pea-costs').style.display = q.type !== 'generator' ? 'block' : 'none';
-    
+
     if (q.type === 'generator') {
         document.getElementById('iq-cost-rental').textContent = `${fmt(q.rentalCost || 0)} ฿`;
         document.getElementById('iq-cost-fuel').textContent = `${fmt(q.fuelCost || q.totalFuelCost || 0)} ฿`;
@@ -459,7 +456,7 @@ window.inspectQuote = window.inspectQuoteDetails = (id) => {
         document.getElementById('iq-pea-cost-rental').textContent = `${fmt(q.total || 0)} ฿`;
         document.getElementById('iq-cost-total').textContent = `${fmt(q.total || 0)} ฿`;
     }
-    
+
     document.getElementById('inspect-quote-modal').style.display = 'flex';
 };
 
@@ -472,11 +469,11 @@ window.extendQuote = (id) => {
     const q = quoteHistory.find(x => x.id === id);
     if (!q) return;
     window._currentExtendingQuoteId = id;
-    
+
     document.getElementById('ext-start-date').value = q.startDate;
     document.getElementById('ext-end-date').value = q.endDate;
     document.getElementById('ext-days').value = q.days;
-    
+
     // Add event listeners to auto-calculate days
     const recalcDays = () => {
         const s = document.getElementById('ext-start-date').value;
@@ -491,7 +488,7 @@ window.extendQuote = (id) => {
     };
     document.getElementById('ext-start-date').onchange = recalcDays;
     document.getElementById('ext-end-date').onchange = recalcDays;
-    
+
     document.getElementById('ext-days').oninput = () => {
         const s = document.getElementById('ext-start-date').value;
         const d = parseInt(document.getElementById('ext-days').value) || 0;
@@ -501,7 +498,7 @@ window.extendQuote = (id) => {
             document.getElementById('ext-end-date').value = start.toISOString().split('T')[0];
         }
     };
-    
+
     document.getElementById('extend-rental-modal').style.display = 'flex';
 };
 
@@ -512,17 +509,17 @@ window.closeExtendRentalModal = () => {
 
 window.submitExtendRental = () => {
     if (!window._currentExtendingQuoteId) return;
-    
+
     const qId = window._currentExtendingQuoteId;
     const qIndex = quoteHistory.findIndex(x => String(x.id) === String(qId));
     if (qIndex === -1) return;
-    
+
     const q = quoteHistory[qIndex];
-    
+
     const newStart = document.getElementById('ext-start-date').value;
     const newEnd = document.getElementById('ext-end-date').value;
     const newDays = parseInt(document.getElementById('ext-days').value) || 0;
-    
+
     if (!newStart || !newEnd || newDays <= 0) {
         alert('กรุณากรอกข้อมูลวันที่และระยะเวลาเช่าให้ครบถ้วน');
         return;
@@ -531,28 +528,28 @@ window.submitExtendRental = () => {
         alert('วันที่เริ่มต้นต้องไม่เกินวันที่สิ้นสุด');
         return;
     }
-    
+
     if (!q.originalDays) {
         q.originalDays = q.days;
     }
-    
+
     q.startDate = newStart;
     q.endDate = newEnd;
     q.days = newDays;
-    
+
     const typeKey = q.rawType === 'A_EXEMPT' ? 'A' : q.rawType;
     let newRentalCost = getRentalCost(typeKey, q.genSize, newDays);
     if (q.rawType === 'A_EXEMPT') newRentalCost = 0;
-    
+
     const newOpCost = getControlCost(newDays);
     const newSubtotalPea = newRentalCost + q.transportCost + newOpCost;
     const newVatPea = newSubtotalPea * VAT_RATE;
     const newTotalPea = newSubtotalPea + newVatPea;
-    
+
     const totalFuelLit = q.fuelRate * q.hours * newDays;
     const totalFuelCost = totalFuelLit * q.fuelPrice;
     const newGrandTotal = newTotalPea + totalFuelCost;
-    
+
     q.rentalCost = newRentalCost;
     q.opCost = newOpCost;
     q.subtotalPea = newSubtotalPea;
@@ -560,21 +557,21 @@ window.submitExtendRental = () => {
     q.totalPea = newTotalPea;
     q.totalFuelCost = totalFuelCost;
     q.grandTotal = newGrandTotal;
-    
+
     quoteHistory[qIndex] = q;
     db.from('quote_history').upsert({ id: q.id, type: q.type, data: q }).then();
-    
+
     const fIdx = fleetBookings.findIndex(b => b.id === 'q_' + qId);
     if (fIdx > -1) {
         fleetBookings[fIdx].startDate = newStart;
         fleetBookings[fIdx].endDate = newEnd;
         db.from('fleet_bookings').upsert({ id: fleetBookings[fIdx].id, data: fleetBookings[fIdx] }).then();
     }
-    
+
     renderHistory();
     if (typeof updateFleetStats === 'function') updateFleetStats();
     if (typeof updateMapMarkers === 'function') updateMapMarkers();
-    
+
     closeExtendRentalModal();
     alert('บันทึกการขยายระยะเวลาเช่าเรียบร้อยแล้ว และระบบได้คำนวณราคาใหม่ให้โดยอัตโนมัติ');
 };
@@ -585,12 +582,12 @@ window.deleteQuote = (id) => {
     db.from('quote_history').delete().eq('id', id).then(res => {
         if (res.error) alert('Delete Error (quote): ' + res.error.message);
     });
-    
+
     fleetBookings = fleetBookings.filter(b => b.id !== 'q_' + id);
     db.from('fleet_bookings').delete().eq('id', 'q_' + id).then(res => {
         if (res.error) alert('Delete Error (fleet): ' + res.error.message);
     });
-    
+
     renderHistory();
     if (typeof updateFleetStats === 'function') {
         const fDateEl = document.getElementById('filter-schedule-date');
@@ -626,11 +623,11 @@ const fmtParentheses = (name) => {
 
 const applySignatoriesToPDF = (data = {}) => {
     const estName = (data.estimatorName || document.getElementById('gen-estimator-name')?.value || document.getElementById('pea-estimator-name')?.value || 'นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง').trim();
-    const estPos  = (data.estimatorPos  || document.getElementById('gen-estimator-pos')?.value  || document.getElementById('pea-estimator-pos')?.value  || 'วิศวกร').trim();
+    const estPos = (data.estimatorPos || document.getElementById('gen-estimator-pos')?.value || document.getElementById('pea-estimator-pos')?.value || 'วิศวกร').trim();
     const estDept = (data.estimatorDept || document.getElementById('gen-estimator-dept')?.value || document.getElementById('pea-estimator-dept')?.value || 'แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า').trim();
-    const chkName = (data.checkerName   || document.getElementById('gen-checker-name')?.value   || document.getElementById('pea-checker-name')?.value   || 'นายปฐมทรรศน์ ชงัดเวช').trim();
-    const chkPos  = (data.checkerPos    || document.getElementById('gen-checker-pos')?.value    || document.getElementById('pea-checker-pos')?.value    || 'หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า').trim();
-    const chkDept = (data.checkerDept   || document.getElementById('gen-checker-dept')?.value   || document.getElementById('pea-checker-dept')?.value   || '').trim();
+    const chkName = (data.checkerName || document.getElementById('gen-checker-name')?.value || document.getElementById('pea-checker-name')?.value || 'นายปฐมทรรศน์ ชงัดเวช').trim();
+    const chkPos = (data.checkerPos || document.getElementById('gen-checker-pos')?.value || document.getElementById('pea-checker-pos')?.value || 'หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า').trim();
+    const chkDept = (data.checkerDept || document.getElementById('gen-checker-dept')?.value || document.getElementById('pea-checker-dept')?.value || '').trim();
 
     document.querySelectorAll('.sig-estimator-name').forEach(el => el.textContent = fmtParentheses(estName));
     document.querySelectorAll('.sig-estimator-pos').forEach(el => el.textContent = estPos);
@@ -681,13 +678,13 @@ const genExportPDF = async (data) => {
     set('gpr-total', fmt(d.totalPea || 0));
 
     // --- Page 2: Fuel Estimate ---
-    set('gpf-gen-size',   genSizeVal + '');
+    set('gpf-gen-size', genSizeVal + '');
     document.querySelectorAll('.gpf-gen-size-val').forEach(el => el.textContent = genSizeVal + '');
-    set('gpf-load-kw',    (d.loadKw != null ? d.loadKw.toFixed(1) : '0.0'));
-    set('gpf-fuel-rate',  (d.fuelRate != null ? d.fuelRate.toFixed(1) : '0.0'));
+    set('gpf-load-kw', (d.loadKw != null ? d.loadKw.toFixed(1) : '0.0'));
+    set('gpf-fuel-rate', (d.fuelRate != null ? d.fuelRate.toFixed(1) : '0.0'));
     set('gpf-fuel-price', (d.fuelPrice != null ? d.fuelPrice.toFixed(2) : '30.00'));
-    set('gpf-date',       d.startDate ? fmtDate(d.startDate) : (d.serviceDate || ''));
-    set('gpf-purpose',    d.purpose || '-');
+    set('gpf-date', d.startDate ? fmtDate(d.startDate) : (d.serviceDate || ''));
+    set('gpf-purpose', d.purpose || '-');
     set('gpf-service-date-line', d.serviceDate ? (typeof d.serviceDate === 'string' && d.serviceDate.includes(' - ') ? d.serviceDate : fmtDate(d.serviceDate)) : '-');
 
     // Update price header
@@ -702,7 +699,7 @@ const genExportPDF = async (data) => {
         tbody.innerHTML = '';
         for (let h = 1; h <= maxHours; h++) {
             const liters = (d.fuelRate || 0) * h;
-            const cost   = liters * fPrice;
+            const cost = liters * fPrice;
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${h}</td>
@@ -754,9 +751,9 @@ const genExportPDF = async (data) => {
     genClone.querySelectorAll('.gp-logo img').forEach(img => {
         img.removeAttribute('onerror');          // don't silently hide on error
         img.style.display = 'block';
-        img.style.height  = '20mm';
-        img.style.width   = 'auto';
-        img.style.margin  = '0 auto';
+        img.style.height = '20mm';
+        img.style.width = 'auto';
+        img.style.margin = '0 auto';
         if (logoDataUri) img.setAttribute('src', logoDataUri);
     });
 
@@ -904,11 +901,11 @@ const populateAndPrint = (data) => {
 const initSignatoriesSync = () => {
     const defaultSigs = {
         estimatorName: 'นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง',
-        estimatorPos:  'วิศวกร',
+        estimatorPos: 'วิศวกร',
         estimatorDept: 'แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า',
-        checkerName:   'นายปฐมทรรศน์ ชงัดเวช',
-        checkerPos:    'หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า',
-        checkerDept:   ''
+        checkerName: 'นายปฐมทรรศน์ ชงัดเวช',
+        checkerPos: 'หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า',
+        checkerDept: ''
     };
 
     let saved = {};
@@ -925,19 +922,19 @@ const initSignatoriesSync = () => {
 
     // Populate PEA Cover inputs
     setVal('pea-estimator-name', sigs.estimatorName);
-    setVal('pea-estimator-pos',  sigs.estimatorPos);
+    setVal('pea-estimator-pos', sigs.estimatorPos);
     setVal('pea-estimator-dept', sigs.estimatorDept);
-    setVal('pea-checker-name',   sigs.checkerName);
-    setVal('pea-checker-pos',    sigs.checkerPos);
-    setVal('pea-checker-dept',   sigs.checkerDept);
+    setVal('pea-checker-name', sigs.checkerName);
+    setVal('pea-checker-pos', sigs.checkerPos);
+    setVal('pea-checker-dept', sigs.checkerDept);
 
     // Populate Gen Rental inputs
     setVal('gen-estimator-name', sigs.estimatorName);
-    setVal('gen-estimator-pos',  sigs.estimatorPos);
+    setVal('gen-estimator-pos', sigs.estimatorPos);
     setVal('gen-estimator-dept', sigs.estimatorDept);
-    setVal('gen-checker-name',   sigs.checkerName);
-    setVal('gen-checker-pos',    sigs.checkerPos);
-    setVal('gen-checker-dept',   sigs.checkerDept);
+    setVal('gen-checker-name', sigs.checkerName);
+    setVal('gen-checker-pos', sigs.checkerPos);
+    setVal('gen-checker-dept', sigs.checkerDept);
 
     // Sync helper
     const handleSync = (srcId, targetId, key) => {
@@ -955,17 +952,17 @@ const initSignatoriesSync = () => {
 
     handleSync('gen-estimator-name', 'pea-estimator-name', 'estimatorName');
     handleSync('pea-estimator-name', 'gen-estimator-name', 'estimatorName');
-    handleSync('gen-estimator-pos',  'pea-estimator-pos',  'estimatorPos');
-    handleSync('pea-estimator-pos',  'gen-estimator-pos',  'estimatorPos');
+    handleSync('gen-estimator-pos', 'pea-estimator-pos', 'estimatorPos');
+    handleSync('pea-estimator-pos', 'gen-estimator-pos', 'estimatorPos');
     handleSync('gen-estimator-dept', 'pea-estimator-dept', 'estimatorDept');
     handleSync('pea-estimator-dept', 'gen-estimator-dept', 'estimatorDept');
 
-    handleSync('gen-checker-name',   'pea-checker-name',   'checkerName');
-    handleSync('pea-checker-name',   'gen-checker-name',   'checkerName');
-    handleSync('gen-checker-pos',    'pea-checker-pos',    'checkerPos');
-    handleSync('pea-checker-pos',    'gen-checker-pos',    'checkerPos');
-    handleSync('gen-checker-dept',   'pea-checker-dept',   'checkerDept');
-    handleSync('pea-checker-dept',   'gen-checker-dept',   'checkerDept');
+    handleSync('gen-checker-name', 'pea-checker-name', 'checkerName');
+    handleSync('pea-checker-name', 'gen-checker-name', 'checkerName');
+    handleSync('gen-checker-pos', 'pea-checker-pos', 'checkerPos');
+    handleSync('pea-checker-pos', 'gen-checker-pos', 'checkerPos');
+    handleSync('gen-checker-dept', 'pea-checker-dept', 'checkerDept');
+    handleSync('pea-checker-dept', 'gen-checker-dept', 'checkerDept');
 
     // Initial apply to PDF template
     applySignatoriesToPDF(sigs);
@@ -1014,9 +1011,9 @@ const fetchRealTimeDieselPrice = (isManual = false) => {
         .then(data => {
             if (data && data.status === 'success' && data.response && data.response.stations) {
                 const ptt = data.response.stations.ptt;
-                const bc  = data.response.stations.bangchak;
+                const bc = data.response.stations.bangchak;
                 const dieselData = (ptt && (ptt.diesel || ptt.diesel_b7 || ptt.diesel_b20)) ||
-                                   (bc && (bc.diesel || bc.diesel_b7 || bc.diesel_b20));
+                    (bc && (bc.diesel || bc.diesel_b7 || bc.diesel_b20));
                 if (dieselData && dieselData.price) {
                     const price = parseFloat(dieselData.price);
                     if (!isNaN(price) && price > 0) {
@@ -1099,7 +1096,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set default dates
     const todayStr = getLocalDateString();
-    
+
     // PEA Cover: Default 2 days (today and tomorrow)
     const custStartInput = document.getElementById('cust-start-date');
     const custEndInput = document.getElementById('cust-end-date');
@@ -1398,7 +1395,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderRecentQuotesFeed = () => {
         const tbody = document.getElementById('dash-recent-quotes-tbody');
         if (!tbody) return;
-        
+
         const history = quoteHistory;
         if (history.length === 0) {
             tbody.innerHTML = `
@@ -1449,7 +1446,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const initDashboardMap = () => {
         const mapContainer = document.getElementById('dashboard-map');
         if (!mapContainer) return;
-        
+
         if (!dashboardMap) {
             if (mapContainer.offsetHeight === 0) return; // Must be visible for FIRST initialization
             dashboardMap = L.map('dashboard-map').setView([17.6500, 103.2000], 8);
@@ -1496,7 +1493,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     popupAnchor: [1, -34],
                     shadowSize: [41, 41]
                 });
-                
+
                 const marker = L.marker([booking.lat, booking.lng], { icon: orangeIcon });
                 marker.bindPopup(`
                     <div style="font-family:'Prompt',sans-serif; min-width:200px;">
@@ -1510,7 +1507,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `);
-                 
+
                 marker.bindTooltip(`${booking.genSize} kW`, {
                     permanent: true,
                     direction: 'bottom',
@@ -1525,9 +1522,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderDashboard = () => {
         // Refresh data from localStorage to ensure we have the absolute latest state
-// removed localStorage fetch
-// removed localStorage fetch
-        
+        // removed localStorage fetch
+        // removed localStorage fetch
+
         // Generator Stats
         const total = GENERATOR_FLEET.length;
         const maint = GENERATOR_FLEET.filter(g => g.status === 'Maintenance').length;
@@ -1566,7 +1563,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 genRev += q.totalPea || 0;
             }
         });
-        
+
         const revPeaEl = document.getElementById('dash-rev-pea');
         const revGenEl = document.getElementById('dash-rev-gen');
         const revTotalEl = document.getElementById('dash-rev-total');
@@ -1574,7 +1571,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (revPeaEl) revPeaEl.textContent = fmt(peaRev) + ' ฿';
         if (revGenEl) revGenEl.textContent = fmt(genRev) + ' ฿';
         if (revTotalEl) revTotalEl.textContent = fmt(peaRev + genRev) + ' ฿';
-        
+
         // Render ApexCharts and Recent Activity
         initApexCharts(peaRev, genRev, standbyCnt, activeCnt, maint);
         renderRecentQuotesFeed();
@@ -1590,7 +1587,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
+
         const targetEl = document.getElementById(target);
         if (targetEl) targetEl.classList.add('active');
 
@@ -1601,7 +1598,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'tab-dashboard': ['Dashboard', 'ภาพรวมระบบและสถิติ'],
             'tab-pea': ['ครอบการ์ด', 'บริการฉนวนครอบสายไฟและลูกถ้วยแรงสูง'],
             'tab-gen': ['เช่าเครื่องกำเนิดไฟฟ้า', 'วิเคราะห์ขนาดและประมาณการค่าบริการ'],
-            'tab-fleet': ['คิวและแผนที่เครื่องกำเนิดไฟฟ้า', 'บริหารจัดการคิวและตำแหน่งติดตั้ง'],
+            'tab-fleet': ['คิวและแผนที่ Generator', 'บริหารจัดการคิวและตำแหน่งติดตั้ง'],
             'tab-history': ['ประวัติใบเสนอราคา', 'บันทึกข้อมูลและออกเอกสารย้อนหลัง']
         };
 
@@ -1631,7 +1628,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (target === 'tab-fleet') {
             setTimeout(() => {
-// removed localStorage fetch
+                // removed localStorage fetch
                 initFleetMap();
                 if (map) {
                     map.invalidateSize();
@@ -1719,7 +1716,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const historySearchType = document.getElementById('history-search-type');
     if (historySearchInput) historySearchInput.addEventListener('input', renderHistory);
     if (historySearchType) historySearchType.addEventListener('change', renderHistory);
-    
+
     // Initialize default tab (Dashboard)
     renderDashboard();
     setTimeout(() => {
@@ -1727,78 +1724,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 200);
 
     // ---- PEA Cover Calculation ----
-    const resetPeaResults = () => {
-        document.getElementById('out-wire-qty').textContent = '-';
-        document.getElementById('out-days').textContent     = '-';
-        document.getElementById('out-ins-qty').textContent  = '-';
-        document.getElementById('out-days2').textContent    = '-';
-        document.getElementById('out-wire-cost').textContent = '- ฿';
-        document.getElementById('out-ins-cost').textContent  = '- ฿';
-        document.getElementById('out-subtotal').textContent  = '- ฿';
-        document.getElementById('out-vat').textContent       = '- ฿';
-        document.getElementById('out-total').textContent     = '- ฿';
-        window._currentPeaData = null; // Clear PDF data
-
-        // Also reset save status
-        const badge = document.getElementById('pea-save-status');
-        if (badge) {
-            badge.textContent = 'ยังไม่บันทึก';
-            badge.style.background = '#F1F3F5';
-            badge.style.color = '#6B7280';
-        }
-    };
-
-    const peaInputsToWatch = ['pea-qty-wire', 'pea-qty-insulator', 'pea-days', 'cust-start-date', 'cust-end-date'];
-    peaInputsToWatch.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener('input', resetPeaResults);
-            el.addEventListener('change', resetPeaResults);
-        }
-    });
-
     document.getElementById('pea-calculate-btn').addEventListener('click', () => {
         const wireQty = parseInt(document.getElementById('pea-qty-wire').value) || 0;
-        const insQty  = parseInt(document.getElementById('pea-qty-insulator').value) || 0;
-        const days    = parseInt(document.getElementById('pea-days').value) || 0;
+        const insQty = parseInt(document.getElementById('pea-qty-insulator').value) || 0;
+        const days = parseInt(document.getElementById('pea-days').value) || 0;
 
         const wireCost = PEA_COVER_RATE * wireQty * days;
-        const insCost  = PEA_COVER_RATE * insQty  * days;
+        const insCost = PEA_COVER_RATE * insQty * days;
         const subtotal = wireCost + insCost + PEA_INSTALL_COST;
-        const vat      = subtotal * VAT_RATE;
-        const total    = subtotal + vat;
+        const vat = subtotal * VAT_RATE;
+        const total = subtotal + vat;
 
         // Update summary panel
         document.getElementById('out-wire-qty').textContent = wireQty;
-        document.getElementById('out-days').textContent     = days;
-        document.getElementById('out-ins-qty').textContent  = insQty;
-        document.getElementById('out-days2').textContent    = days;
+        document.getElementById('out-days').textContent = days;
+        document.getElementById('out-ins-qty').textContent = insQty;
+        document.getElementById('out-days2').textContent = days;
         document.getElementById('out-wire-cost').textContent = fmt(wireCost) + ' ฿';
-        document.getElementById('out-ins-cost').textContent  = fmt(insCost)  + ' ฿';
-        document.getElementById('out-subtotal').textContent  = fmt(subtotal) + ' ฿';
-        document.getElementById('out-vat').textContent       = fmt(vat)      + ' ฿';
-        document.getElementById('out-total').textContent     = fmt(total)    + ' ฿';
+        document.getElementById('out-ins-cost').textContent = fmt(insCost) + ' ฿';
+        document.getElementById('out-subtotal').textContent = fmt(subtotal) + ' ฿';
+        document.getElementById('out-vat').textContent = fmt(vat) + ' ฿';
+        document.getElementById('out-total').textContent = fmt(total) + ' ฿';
 
-         // Store for PDF
+        // Store for PDF
         window._currentPeaData = {
-            type:        'cover',
-            custId:      document.getElementById('cust-id').value,
-            custName:    document.getElementById('cust-name').value,
+            type: 'cover',
+            custId: document.getElementById('cust-id').value,
+            custName: document.getElementById('cust-name').value,
             custAddress: document.getElementById('cust-address').value,
-            startDate:   document.getElementById('cust-start-date').value,
-            endDate:     document.getElementById('cust-end-date').value,
+            startDate: document.getElementById('cust-start-date').value,
+            endDate: document.getElementById('cust-end-date').value,
             serviceDate: fmtDateRange(
                 document.getElementById('cust-start-date').value,
                 document.getElementById('cust-end-date').value
             ),
-            location:    document.getElementById('cust-location').value,
+            location: document.getElementById('cust-location').value,
             wireQty, insQty, days, wireCost, insCost, subtotal, vat, total,
             estimatorName: document.getElementById('pea-estimator-name')?.value || '',
-            estimatorPos:  document.getElementById('pea-estimator-pos')?.value || '',
+            estimatorPos: document.getElementById('pea-estimator-pos')?.value || '',
             estimatorDept: document.getElementById('pea-estimator-dept')?.value || '',
-            checkerName:   document.getElementById('pea-checker-name')?.value || '',
-            checkerPos:    document.getElementById('pea-checker-pos')?.value || '',
-            checkerDept:   document.getElementById('pea-checker-dept')?.value || ''
+            checkerName: document.getElementById('pea-checker-name')?.value || '',
+            checkerPos: document.getElementById('pea-checker-pos')?.value || '',
+            checkerDept: document.getElementById('pea-checker-dept')?.value || ''
         };
 
         const badge = document.getElementById('pea-save-status');
@@ -1838,11 +1805,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ---- Generator Amp input (Amp is user-editable; kW is fixed from machine selection) ----
     const updateAmpIndicator = () => {
-        const kw     = parseFloat(document.getElementById('gen-load-kw').value) || 0;
-        const amp    = parseFloat(document.getElementById('gen-load-amp').value) || 0;
+        const kw = parseFloat(document.getElementById('gen-load-kw').value) || 0;
+        const amp = parseFloat(document.getElementById('gen-load-amp').value) || 0;
         const maxAmp = Math.round(kw * 1.8);   // rated max current for selected gen
 
-        const pct    = maxAmp > 0 ? (amp / maxAmp) * 100 : 0;
+        const pct = maxAmp > 0 ? (amp / maxAmp) * 100 : 0;
         const pctClamped = Math.min(pct, 150);  // bar can show up to 150% (overload zone)
 
         // Color: green ≤70%, yellow 70–100%, red >100%
@@ -1850,11 +1817,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pct > 100) barColor = '#EF4444';
         else if (pct > 70) barColor = '#F59E0B';
 
-        document.getElementById('amp-load-bar').style.width  = Math.min(pctClamped, 100) + '%';
+        document.getElementById('amp-load-bar').style.width = Math.min(pctClamped, 100) + '%';
         document.getElementById('amp-load-bar').style.background = barColor;
         document.getElementById('amp-load-label').textContent = `โหลด: ${pct.toFixed(0)}%`;
-        document.getElementById('amp-max-label').textContent  = `สูงสุด: ${maxAmp} A`;
-        document.getElementById('amp-max-val').textContent    = maxAmp;
+        document.getElementById('amp-max-label').textContent = `สูงสุด: ${maxAmp} A`;
+        document.getElementById('amp-max-val').textContent = maxAmp;
 
         // Show/hide overload warning
         const warn = document.getElementById('amp-overload-warning');
@@ -1908,23 +1875,23 @@ document.addEventListener('DOMContentLoaded', () => {
         let rentalCost = getRentalCost(typeKey, selectedSize, days);
         if (type === 'A_EXEMPT') rentalCost = 0;
 
-        const transportCost  = getTransportCost(selectedSize, dist);
-        const opCost         = getControlCost(days);
-        const subtotalPea    = rentalCost + transportCost + opCost;
-        const vatPea         = subtotalPea * VAT_RATE;
-        const totalPea       = subtotalPea + vatPea;
+        const transportCost = getTransportCost(selectedSize, dist);
+        const opCost = getControlCost(days);
+        const subtotalPea = rentalCost + transportCost + opCost;
+        const vatPea = subtotalPea * VAT_RATE;
+        const totalPea = subtotalPea + vatPea;
 
-        const loadPct       = Math.min(loadKw / selectedSize, 1.0);
-        const fuelRate      = getFuelRate(selectedSize, loadPct);
-        const totalFuelLit  = fuelRate * hours * days;
+        const loadPct = Math.min(loadKw / selectedSize, 1.0);
+        const fuelRate = getFuelRate(selectedSize, loadPct);
+        const totalFuelLit = fuelRate * hours * days;
         const totalFuelCost = totalFuelLit * fuelPrice;
-        const grandTotal    = totalPea + totalFuelCost;
+        const grandTotal = totalPea + totalFuelCost;
 
         // Store current gen data for PDF
         window._currentGenData = {
-            type:        'generator',
-            rawType:     type,
-            genSize:     selectedSize,
+            type: 'generator',
+            rawType: type,
+            genSize: selectedSize,
             loadKw,
             fuelRate,
             fuelPrice,
@@ -1939,37 +1906,37 @@ document.addEventListener('DOMContentLoaded', () => {
             totalFuelLit,
             totalFuelCost,
             grandTotal,
-            startDate:   document.getElementById('gen-start-date').value,
-            endDate:     document.getElementById('gen-end-date').value,
+            startDate: document.getElementById('gen-start-date').value,
+            endDate: document.getElementById('gen-end-date').value,
             serviceDate: fmtDateRange(
                 document.getElementById('gen-start-date').value,
                 document.getElementById('gen-end-date').value
             ),
-            purpose:     document.getElementById('gen-purpose').value,
-            custId:      document.getElementById('gen-cust-id').value,
-            custName:    document.getElementById('gen-cust-name').value,
+            purpose: document.getElementById('gen-purpose').value,
+            custId: document.getElementById('gen-cust-id').value,
+            custName: document.getElementById('gen-cust-name').value,
             custAddress: document.getElementById('gen-cust-address').value,
-            location:    document.getElementById('gen-location').value,
+            location: document.getElementById('gen-location').value,
             estimatorName: document.getElementById('gen-estimator-name')?.value || '',
-            estimatorPos:  document.getElementById('gen-estimator-pos')?.value || '',
+            estimatorPos: document.getElementById('gen-estimator-pos')?.value || '',
             estimatorDept: document.getElementById('gen-estimator-dept')?.value || '',
-            checkerName:   document.getElementById('gen-checker-name')?.value || '',
-            checkerPos:    document.getElementById('gen-checker-pos')?.value || '',
-            checkerDept:   document.getElementById('gen-checker-dept')?.value || ''
+            checkerName: document.getElementById('gen-checker-name')?.value || '',
+            checkerPos: document.getElementById('gen-checker-pos')?.value || '',
+            checkerDept: document.getElementById('gen-checker-dept')?.value || ''
         };
         // Determine coordinates & generator/hub info
         let matchedHub = null;
         const locText = (document.getElementById('gen-location')?.value || '').trim();
         if (locText) {
-            matchedHub = DISTRICT_HUBS.find(h => 
-                locText.includes(h.name.replace('กฟจ.', '').replace('กฟส.', '')) || 
+            matchedHub = DISTRICT_HUBS.find(h =>
+                locText.includes(h.name.replace('กฟจ.', '').replace('กฟส.', '')) ||
                 locText.includes(h.name)
             );
         }
 
-        const matchedGen = GENERATOR_FLEET.find(g => g.size === selectedSize && g.status !== 'Maintenance') || 
-                           GENERATOR_FLEET.find(g => g.size === selectedSize) || 
-                           GENERATOR_FLEET[0];
+        const matchedGen = GENERATOR_FLEET.find(g => g.size === selectedSize && g.status !== 'Maintenance') ||
+            GENERATOR_FLEET.find(g => g.size === selectedSize) ||
+            GENERATOR_FLEET[0];
         if (!matchedHub && matchedGen) {
             matchedHub = DISTRICT_HUBS.find(h => h.id === matchedGen.hubId);
         }
@@ -2008,19 +1975,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     document.getElementById('gen-calculate-btn').addEventListener('click', () => {
-        const type      = document.getElementById('gen-type').value;
+        const type = document.getElementById('gen-type').value;
         // loadKw = actual electrical demand derived from Amp (amp ÷ 1.8)
         // kW field is locked to machine size and is NOT the load demand
-        const amp       = parseFloat(document.getElementById('gen-load-amp').value) || 0;
-        const loadKw    = amp / 1.8;
-        const dist      = parseFloat(document.getElementById('gen-distance').value) || 0;
-        const days      = parseInt(document.getElementById('gen-days').value) || 0;
-        const hours     = parseFloat(document.getElementById('gen-hours').value) || 0;
+        const amp = parseFloat(document.getElementById('gen-load-amp').value) || 0;
+        const loadKw = amp / 1.8;
+        const dist = parseFloat(document.getElementById('gen-distance').value) || 0;
+        const days = parseInt(document.getElementById('gen-days').value) || 0;
+        const hours = parseFloat(document.getElementById('gen-hours').value) || 0;
         const fuelPrice = parseFloat(document.getElementById('gen-fuel-price').value) || 0;
-        const params    = { type, loadKw, dist, days, hours, fuelPrice };
+        const params = { type, loadKw, dist, days, hours, fuelPrice };
 
-        const sizes  = [120, 300, 500, 800];
-        const reqKw  = loadKw / 0.7;
+        const sizes = [120, 300, 500, 800];
+        const reqKw = loadKw / 0.7;
         let bestSize = 800;
         if (window._forceGenSize) {
             bestSize = window._forceGenSize;
@@ -2041,10 +2008,10 @@ document.addEventListener('DOMContentLoaded', () => {
         sizes.forEach(size => {
             const loadPct = loadKw / size;
             let desc = '';
-            if (loadPct > 1)            desc = 'โหลดเกินขนาดเครื่อง — ห้ามใช้งาน';
-            else if (size === bestSize)  desc = `รองรับโหลดได้ ${(loadPct * 100).toFixed(0)}% — เหมาะสมที่สุด`;
-            else if (size < bestSize)    desc = `โหลด ${(loadPct * 100).toFixed(0)}% — เสี่ยงเกิน ไม่แนะนำ`;
-            else                         desc = `โหลด ${(loadPct * 100).toFixed(0)}% — ปลอดภัย แต่สิ้นเปลืองน้ำมันกว่า`;
+            if (loadPct > 1) desc = 'โหลดเกินขนาดเครื่อง — ห้ามใช้งาน';
+            else if (size === bestSize) desc = `รองรับโหลดได้ ${(loadPct * 100).toFixed(0)}% — เหมาะสมที่สุด`;
+            else if (size < bestSize) desc = `โหลด ${(loadPct * 100).toFixed(0)}% — เสี่ยงเกิน ไม่แนะนำ`;
+            else desc = `โหลด ${(loadPct * 100).toFixed(0)}% — ปลอดภัย แต่สิ้นเปลืองน้ำมันกว่า`;
 
             const dayRate = type === 'A_EXEMPT' ? 0 : getRentalCost(typeKey, size, 1);
             const isSelected = size === bestSize;
@@ -2093,7 +2060,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (calcBtn) calcBtn.click();
             }
             if (!window._currentGenData) { alert('กรุณาวิเคราะห์และคำนวณราคาก่อนบันทึกข้อมูลครับ'); return; }
-            
+
             if (window._extendingBookingId) {
                 if (window._extendingBookingId.startsWith('q_')) {
                     const oldQid = window._extendingBookingId.substring(2);
@@ -2104,9 +2071,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 db.from('fleet_bookings').delete().eq('id', window._extendingBookingId).then();
                 window._extendingBookingId = null;
             }
-            
+
             saveHistory(window._currentGenData);
-            
+
             const badge = document.getElementById('gen-save-status');
             if (badge) {
                 badge.textContent = 'บันทึกแล้ว ✓';
@@ -2114,7 +2081,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 badge.style.color = '#1F906A';
             }
             alert('บันทึกข้อมูลสำเร็จ! ระบบได้อัปเดตข้อมูลไปยัง Dashboard และตารางคิวงานเรียบร้อยแล้วครับ');
-            
+
             renderDashboard();
             initDashboardMap();
             updateMapMarkers();
@@ -2155,10 +2122,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const R = 6371; // Earth radius in km
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                  Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     };
 
@@ -2167,21 +2134,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!mapContainer) return;
 
         if (map) {
-            setTimeout(() => { 
-                map.invalidateSize(); 
+            setTimeout(() => {
+                map.invalidateSize();
                 updateMapMarkers();
             }, 50);
             return;
         }
-        
+
         if (mapContainer.offsetHeight === 0) return;
 
         map = L.map('fleet-map').setView([17.6500, 103.2000], 8);
-        
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
-        
+
         markersGroup = L.layerGroup().addTo(map);
         updateMapMarkers();
     };
@@ -2193,19 +2160,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         markersGroup.clearLayers();
 
-// removed localStorage fetch
-        
+        // removed localStorage fetch
+
         // 1. Render Hubs
         DISTRICT_HUBS.forEach(hub => {
             const standby = GENERATOR_FLEET.filter(g => g.hubId === hub.id && g.status === 'Standby').length;
             const active = GENERATOR_FLEET.filter(g => g.hubId === hub.id && g.status === 'Active').length;
             const maint = GENERATOR_FLEET.filter(g => g.hubId === hub.id && g.status === 'Maintenance').length;
-            
+
             const tooltipText = `<b>🏢 ${hub.name}</b><br>
                                  🟢 ว่าง: ${standby} เครื่อง<br>
                                  🟠 ปฏิบัติงาน: ${active} เครื่อง<br>
                                  🔴 ซ่อมบำรุง: ${maint} เครื่อง`;
-                                 
+
             const marker = L.circleMarker([hub.lat, hub.lng], {
                 radius: 8 + standby * 1.5,
                 fillColor: '#10B981',
@@ -2213,30 +2180,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 weight: 2.5,
                 fillOpacity: 0.85
             });
-            
+
             marker.bindPopup(tooltipText);
-            
+
             marker.bindTooltip(hub.name, {
                 permanent: true,
                 direction: 'top',
                 className: 'hub-marker-label',
                 offset: [0, -6]
             });
-            
+
             markersGroup.addLayer(marker);
         });
-        
+
         // 2. Render Active Bookings
         fleetBookings.forEach(booking => {
             if (booking.genSize === 0 || !booking.lat || !booking.lng) return;
-            
+
             const tooltipText = `<b>⚡ ${booking.projectName}</b><br>
                                  📍 สถานที่: ${booking.locationName}<br>
                                  ⚡ เครื่อง: ${booking.genName} (${booking.genSize} kW)<br>
                                  🏢 ต้นทาง: ${booking.hubName || '-'}<br>
                                  📅 วันสัญญา: ${fmtDateRange(booking.startDate, booking.endDate)}<br>
                                  👷 ผู้รับผิดชอบ: ${booking.responsible || '-'}`;
-                                 
+
             const marker = L.marker([booking.lat, booking.lng], {
                 icon: L.icon({
                     iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
@@ -2247,29 +2214,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     shadowSize: [41, 41]
                 })
             });
-            
+
             marker.bindPopup(tooltipText);
-            
+
             marker.bindTooltip(`${booking.genSize} kW`, {
                 permanent: true,
                 direction: 'bottom',
                 className: 'job-marker-label',
                 offset: [0, 5]
             });
-            
+
             markersGroup.addLayer(marker);
         });
-        
+
         // 3. Map Click Event: Select Destination Coordinate
         map.off('click');
         map.on('click', (e) => {
             const lat = e.latlng.lat;
             const lng = e.latlng.lng;
-            
+
             if (window._tempClickMarker) {
                 map.removeLayer(window._tempClickMarker);
             }
-            
+
             window._tempClickMarker = L.marker([lat, lng], {
                 icon: L.icon({
                     iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
@@ -2280,9 +2247,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     shadowSize: [41, 41]
                 })
             }).addTo(map);
-            
+
             window._tempClickMarker.bindPopup(`<b>📍 จุดติดตั้งปฏิบัติงานที่เลือก:</b><br>พิกัด: ${lat.toFixed(4)}, ${lng.toFixed(4)}`).openPopup();
-            
+
             const sel = document.getElementById('search-target-location');
             if (sel) {
                 sel.value = 'custom_click';
@@ -2301,9 +2268,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderScheduleList = (filterDate = '') => {
         const container = document.getElementById('schedule-timeline-container');
         if (!container) return;
-        
-// removed localStorage fetch
-// removed localStorage fetch
+
+        // removed localStorage fetch
+        // removed localStorage fetch
 
         let filtered = fleetBookings;
         if (filterDate) {
@@ -2311,7 +2278,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return b.startDate <= filterDate && b.endDate >= filterDate;
             });
         }
-        
+
         if (filtered.length === 0) {
             container.innerHTML = `
             <div class="empty-state" style="padding: 20px; text-align: center;">
@@ -2319,16 +2286,16 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
             return;
         }
-        
-        filtered.sort((a,b) => {
+
+        filtered.sort((a, b) => {
             const states = { 'Active': 1, 'Standby': 2, 'Pending': 3 };
             return (states[a.status] || 99) - (states[b.status] || 99);
         });
-        
+
         container.innerHTML = filtered.map((b, idx) => {
             let badgeClass = 'badge-active';
             let statusText = 'กำลังปฏิบัติงาน (Active)';
-            
+
             if (b.status === 'Standby') {
                 badgeClass = 'badge-standby';
                 statusText = 'สำรองจ่าย (Standby)';
@@ -2336,9 +2303,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 badgeClass = 'badge-maintenance';
                 statusText = 'รอประชุม (Pending)';
             }
-            
+
             const genText = b.genSize > 0 ? `${b.genName} (${b.genSize} kW)` : b.genName;
-            
+
             let extensionHTML = '';
             if (b.id && String(b.id).startsWith('q_')) {
                 const qId = parseInt(String(b.id).replace('q_', ''));
@@ -2346,7 +2313,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (q) {
                     const sDate = new Date(q.startDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
                     const eDate = new Date(q.endDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
-                    
+
                     if (q.originalDays && q.originalDays !== q.days) {
                         extensionHTML = `
                         <div style="margin-top: 6px; margin-bottom: 6px;">
@@ -2364,7 +2331,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             }
-            
+
             return `
             <div class="timeline-item">
                 <div class="timeline-item-header">
@@ -2397,7 +2364,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.useQueueForRental = (bookingId) => {
         const b = fleetBookings.find(x => x.id === bookingId);
         if (!b) return;
-        
+
         document.getElementById('ins-cust-id').value = '-'; // Default to hyphen
         document.getElementById('ins-project-name').value = b.projectName || '-';
         document.getElementById('ins-location-name').value = b.locationName || '-';
@@ -2406,12 +2373,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('ins-gen-info').value = b.genSize > 0 ? `${b.genName} (${b.genSize} kW)` : (b.genName || '-');
         document.getElementById('ins-hub-name').value = b.hubName || '-';
         document.getElementById('ins-responsible').value = b.responsible || '-';
-        
+
         // Find corresponding quote history to extract cost details
         let costData = {
             rentalCost: '-', transportCost: '-', opCost: '-', vatPea: '-', totalPea: '-'
         };
-        
+
         if (bookingId.startsWith('q_')) {
             const qId = parseInt(bookingId.replace('q_', ''));
             const q = quoteHistory.find(x => x.id === qId);
@@ -2426,13 +2393,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 costData.totalPea = (q.totalPea != null ? fmt(q.totalPea) : '-') + ' ฿';
             }
         }
-        
+
         document.getElementById('ins-cost-rental').textContent = costData.rentalCost;
         document.getElementById('ins-cost-transport').textContent = costData.transportCost;
         document.getElementById('ins-cost-op').textContent = costData.opCost;
         document.getElementById('ins-cost-vat').textContent = costData.vatPea;
         document.getElementById('ins-cost-total').textContent = costData.totalPea;
-        
+
         document.getElementById('inspect-booking-modal').style.display = 'flex';
     };
 
@@ -2446,29 +2413,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const reqSize = parseInt(document.getElementById('search-gen-size').value) || 60;
         const startDate = document.getElementById('search-start-date').value;
         const endDate = document.getElementById('search-end-date').value;
-        
+
         if (!targetVal) { alert('กรุณาคลิกเลือกจุดติดตั้งปฏิบัติงานบนแผนที่ด้านบนก่อนครับ'); return; }
         if (!startDate || !endDate) { alert('กรุณาระบุวันที่เริ่มและสิ้นสุดสัญญาเช่าด้วยครับ'); return; }
         if (startDate > endDate) { alert('วันที่เริ่มสัญญาต้องไม่เกินวันที่สิ้นสุดสัญญาครับ'); return; }
-        
+
         let targetLat, targetLng, targetName;
         if (targetVal === 'custom_click') {
             targetLat = parseFloat(sel.dataset.lat);
             targetLng = parseFloat(sel.dataset.lng);
             targetName = sel.dataset.name || 'พิกัดบนแผนที่';
         }
-        
+
         const bookedGenIds = fleetBookings
             .filter(b => !(b.endDate < startDate || b.startDate > endDate))
             .map(b => b.genId);
-            
+
         const availableGens = GENERATOR_FLEET.filter(g => {
             return g.size === reqSize && g.status !== 'Maintenance' && !bookedGenIds.includes(g.id);
         });
-        
+
         const resultsArea = document.getElementById('search-results-area');
         const resultsList = document.getElementById('search-results-list');
-        
+
         if (availableGens.length === 0) {
             resultsArea.style.display = 'block';
             resultsList.innerHTML = `
@@ -2477,7 +2444,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
             return;
         }
-        
+
         const ratedResults = availableGens.map(g => {
             const hub = DISTRICT_HUBS.find(h => h.id === g.hubId);
             const dist = haversineDistance(targetLat, targetLng, hub.lat, hub.lng);
@@ -2491,9 +2458,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 transportCost: transportCost
             };
         });
-        
-        ratedResults.sort((a,b) => a.distance - b.distance);
-        
+
+        ratedResults.sort((a, b) => a.distance - b.distance);
+
         resultsArea.style.display = 'block';
         resultsList.innerHTML = ratedResults.map(r => {
             return `
@@ -2523,7 +2490,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.useNearestGenForRental = (genId, targetName, lat, lng, roundTrip, genSize, start, end) => {
         const gen = GENERATOR_FLEET.find(g => g.id === genId);
         const hub = DISTRICT_HUBS.find(h => h.id === gen.hubId);
-        
+
         if (!confirm(`ยืนยันการเลือกจองเครื่องยนต์ ${gen.name} (${genSize} kW) หรือไม่?\n\n- กด "ตกลง" เพื่อบันทึกคิวและเริ่มทำใบเสนอราคา\n- กด "ยกเลิก" หากต้องการยกเลิกและค้นหาใหม่`)) {
             return;
         }
@@ -2533,45 +2500,45 @@ document.addEventListener('DOMContentLoaded', () => {
         window._forceGenSize = matchedSize;
 
         window._activeRentalData = { genId, targetName, lat, lng, roundTrip, hubName: hub.name };
-        
+
         document.querySelector('[data-target="tab-gen"]').click();
-        
+
         document.getElementById('gen-cust-name').value = `โครงการเช่าขยายผล - ${targetName}`;
         document.getElementById('gen-location').value = targetName;
         document.getElementById('gen-start-date').value = start;
         document.getElementById('gen-end-date').value = end;
         document.getElementById('gen-purpose').value = `จองเครื่อง ${gen.name} จาก ${hub.name}`;
-        
+
         const startDateObj = new Date(start);
         const endDateObj = new Date(end);
         const diffDays = Math.ceil((endDateObj - startDateObj) / (1000 * 60 * 60 * 24)) + 1;
         document.getElementById('gen-days').value = diffDays;
-        
+
         document.getElementById('gen-distance').value = roundTrip;
-        
+
         document.getElementById('gen-load-kw').value = genSize;
         document.getElementById('gen-load-amp').value = genSize;  // default Amp = kW
         document.getElementById('gen-hours').value = 12;
         updateAmpIndicator();  // refresh load bar for new generator size
-        
+
         document.getElementById('gen-calculate-btn').click();
-        
+
         alert(`เตรียมข้อมูลคิวเครื่องยนต์ ${gen.name} สำเร็จ!\nระบบได้ส่งข้อมูลไปยังใบเสนอราคาแล้ว:\n- คลังต้นทาง: ${hub.name}\n- ปลายทางปฏิบัติงาน: ${targetName}\n- ระยะทางไป-กลับ: ${roundTrip} กม.\n\n* ข้อมูลคิวจะถูกบันทึกลงปฏิทิน เมื่อคุณกดปุ่ม "บันทึกข้อมูล" ในหน้านี้`);
     };
 
     const updateFleetStats = () => {
-// removed localStorage fetch
+        // removed localStorage fetch
         const total = GENERATOR_FLEET.length;
         const maint = GENERATOR_FLEET.filter(g => g.status === 'Maintenance').length;
-        
+
         const todayStr = getLocalDateString();
         const activeGenIds = fleetBookings
             .filter(b => b.startDate <= todayStr && b.endDate >= todayStr && b.genSize > 0)
             .map(b => b.genId);
-            
+
         const activeCnt = GENERATOR_FLEET.filter(g => activeGenIds.includes(g.id)).length;
         const standbyCnt = total - activeCnt - maint;
-        
+
         const totalEl = document.getElementById('fleet-total-cnt');
         const standbyEl = document.getElementById('fleet-standby-cnt');
         const activeEl = document.getElementById('fleet-active-cnt');
@@ -2591,20 +2558,20 @@ document.addEventListener('DOMContentLoaded', () => {
         tomorrow.setDate(tomorrow.getDate() + 1);
         searchEndInput.value = tomorrow.toISOString().split('T')[0];
     }
-    
+
     // ===========================
     // INTERACTIVE FLEET CALENDAR
     // ===========================
-    let calYear  = new Date().getFullYear();
+    let calYear = new Date().getFullYear();
     let calMonth = new Date().getMonth(); // 0-indexed
     let calSelectedDate = null;
     let calStatusFilter = 'all';
 
     const THAI_MONTHS = [
-        'มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
-        'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'
+        'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
     ];
-    const THAI_DAYS_SHORT = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+    const THAI_DAYS_SHORT = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
 
     // Returns YYYY-MM-DD string for a day in the current calendar month
     const calDateStr = (day) => {
@@ -2615,7 +2582,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // How many bookings land on a date string?
     const getBookingsForDate = (dateStr) => {
-// removed localStorage fetch
+        // removed localStorage fetch
         return fleetBookings.filter(b => b.startDate <= dateStr && b.endDate >= dateStr);
     };
 
@@ -2629,7 +2596,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const grid = document.getElementById('cal-grid');
         if (!grid) return;
 
-// removed localStorage fetch
+        // removed localStorage fetch
 
         document.getElementById('cal-month-label').textContent =
             `${THAI_MONTHS[calMonth]} ${calYear + 543}`;
@@ -2656,17 +2623,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Build dots
             let dots = '';
-            const hasActive  = bookings.some(b => b.status === 'Active');
+            const hasActive = bookings.some(b => b.status === 'Active');
             const hasStandby = bookings.some(b => b.status === 'Standby');
             const hasPending = bookings.some(b => b.status === 'Pending');
-            const hasMaint   = GENERATOR_FLEET.some(g => g.status === 'Maintenance');
+            const hasMaint = GENERATOR_FLEET.some(g => g.status === 'Maintenance');
 
-            if (hasActive)  dots += `<span class="cal-dot cal-dot-active"></span>`;
+            if (hasActive) dots += `<span class="cal-dot cal-dot-active"></span>`;
             if (hasStandby) dots += `<span class="cal-dot cal-dot-standby"></span>`;
-            if (hasMaint)   dots += `<span class="cal-dot cal-dot-maint"></span>`;
+            if (hasMaint) dots += `<span class="cal-dot cal-dot-maint"></span>`;
 
             const cls = ['cal-day'];
-            if (isToday)    cls.push('today');
+            if (isToday) cls.push('today');
             if (isSelected) cls.push('selected');
 
             html += `<div class="${cls.join(' ')}" data-date="${ds}" onclick="calSelectDate('${ds}')">
@@ -2703,15 +2670,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render the detail panel for the selected date with status filter
     const renderCalDetail = () => {
         const container = document.getElementById('cal-detail-container');
-        const titleEl   = document.getElementById('cal-detail-title');
+        const titleEl = document.getElementById('cal-detail-title');
         if (!container || !calSelectedDate) return;
 
         const [y, m, d] = calSelectedDate.split('-');
         const thaiYear = parseInt(y) + 543;
-        titleEl.textContent = `คิวเครื่องกำเนิดไฟฟ้า — ${parseInt(d)} ${THAI_MONTHS[parseInt(m)-1]} ${thaiYear}`;
+        titleEl.textContent = `คิวเครื่องกำเนิดไฟฟ้า — ${parseInt(d)} ${THAI_MONTHS[parseInt(m) - 1]} ${thaiYear}`;
 
-        const bookedIds    = getBookedGenIds(calSelectedDate);
-        const bookings     = getBookingsForDate(calSelectedDate);
+        const bookedIds = getBookedGenIds(calSelectedDate);
+        const bookings = getBookingsForDate(calSelectedDate);
         const bookingByGen = {};
         bookings.forEach(b => { bookingByGen[b.genId] = b; });
 
@@ -2738,8 +2705,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Apply status filter
         const filtered = cards.filter(c => {
             if (calStatusFilter === 'all') return true;
-            if (calStatusFilter === 'booked')      return c.type === 'booked';
-            if (calStatusFilter === 'available')   return c.type === 'available';
+            if (calStatusFilter === 'booked') return c.type === 'booked';
+            if (calStatusFilter === 'available') return c.type === 'available';
             if (calStatusFilter === 'maintenance') return c.type === 'maintenance';
             return true;
         });
@@ -2753,7 +2720,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Sort: booked → available → maintenance
         const order = { booked: 1, available: 2, maintenance: 3 };
-        filtered.sort((a, b) => (order[a.type]||9) - (order[b.type]||9));
+        filtered.sort((a, b) => (order[a.type] || 9) - (order[b.type] || 9));
 
         container.innerHTML = filtered.map(c => {
             const g = c.gen;
@@ -2851,7 +2818,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===========================
     // FLEET MANAGER ADMIN LOGIC
     // ===========================
-    
+
     // Modal controls helpers
     window.closeAdminBookingModal = () => {
         document.getElementById('admin-booking-modal').style.display = 'none';
@@ -2859,11 +2826,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnSave = document.getElementById('btn-save-admin-booking');
         if (btnSave) btnSave.innerHTML = '💾 บันทึกคิวงาน';
     };
-    
+
     window.closeAdminImportModal = () => {
         document.getElementById('admin-import-modal').style.display = 'none';
     };
-    
+
     window.closeAdminInventoryModal = () => {
         document.getElementById('admin-inventory-modal').style.display = 'none';
     };
@@ -2886,7 +2853,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('adm-location-name').value = prefill.loc || prefill.locationName || '';
         document.getElementById('adm-lat').value = prefill.lat != null ? prefill.lat : '';
         document.getElementById('adm-lng').value = prefill.lng != null ? prefill.lng : '';
-        
+
         const todayStr = getLocalDateString();
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -2940,16 +2907,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const end = document.getElementById('adm-end-date').value;
         const status = document.getElementById('adm-status').value;
         const resp = document.getElementById('adm-responsible').value.trim();
-        
+
         if (!proj) { alert('กรุณาระบุชื่อโครงการครับ'); return; }
         if (!loc) { alert('กรุณาระบุสถานที่ติดตั้งปฏิบัติงานครับ'); return; }
         if (isNaN(lat) || isNaN(lng)) { alert('กรุณาระบุพิกัดละติจูดและลองจิจูดให้ถูกต้องครับ'); return; }
         if (!start || !end) { alert('กรุณาระบุวันที่เริ่มและสิ้นสุดสัญญาเช่าครับ'); return; }
         if (start > end) { alert('วันที่เริ่มปฏิบัติงานต้องไม่เกินวันที่สิ้นสุดสัญญาครับ'); return; }
-        
+
         const gen = GENERATOR_FLEET.find(g => g.id === genId);
         const hub = DISTRICT_HUBS.find(h => h.id === gen.hubId);
-        
+
         const newBooking = {
             id: window._editFleetBookingId || ('b_' + Date.now()),
             projectName: proj,
@@ -2965,40 +2932,40 @@ document.addEventListener('DOMContentLoaded', () => {
             status: status,
             responsible: resp || 'แผนกปฏิบัติการระบบไฟฟ้า'
         };
-        
+
         if (window._editFleetBookingId) {
             const idx = fleetBookings.findIndex(b => b.id === window._editFleetBookingId);
             if (idx > -1) fleetBookings[idx] = newBooking;
-            
+
             if (window._editFleetBookingId.startsWith('q_')) {
                 const qId = parseInt(window._editFleetBookingId.replace('q_', ''));
                 const qIdx = quoteHistory.findIndex(q => q.id === qId);
                 if (qIdx > -1) {
-                    quoteHistory[qIdx].purpose     = proj;
-                    quoteHistory[qIdx].location    = loc;
-                    quoteHistory[qIdx].lat         = lat;
-                    quoteHistory[qIdx].lng         = lng;
-                    quoteHistory[qIdx].genId       = genId;
-                    quoteHistory[qIdx].genName     = gen.name;
-                    quoteHistory[qIdx].genSize     = gen.size;
-                    quoteHistory[qIdx].hubName     = hub ? hub.name : '';
-                    quoteHistory[qIdx].startDate   = start;
-                    quoteHistory[qIdx].endDate     = end;
-                    quoteHistory[qIdx].custName    = resp;
-                    quoteHistory[qIdx].status      = status;
+                    quoteHistory[qIdx].purpose = proj;
+                    quoteHistory[qIdx].location = loc;
+                    quoteHistory[qIdx].lat = lat;
+                    quoteHistory[qIdx].lng = lng;
+                    quoteHistory[qIdx].genId = genId;
+                    quoteHistory[qIdx].genName = gen.name;
+                    quoteHistory[qIdx].genSize = gen.size;
+                    quoteHistory[qIdx].hubName = hub ? hub.name : '';
+                    quoteHistory[qIdx].startDate = start;
+                    quoteHistory[qIdx].endDate = end;
+                    quoteHistory[qIdx].custName = resp;
+                    quoteHistory[qIdx].status = status;
                     localStorage.setItem('coverQuoteHistory', JSON.stringify(quoteHistory));
                 }
             }
-            
+
             alert('อัปเดตข้อมูลคิวงานและพิกัดแผนที่เรียบร้อยแล้ว!');
             window._editFleetBookingId = null;
         } else {
             fleetBookings.push(newBooking);
             alert('บันทึกคิวงานและปักหมุดพิกัดแผนที่สำเร็จ!');
         }
-        
+
         localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
-        
+
         // Refresh all related UI
         updateFleetStats();
         updateMapMarkers();
@@ -3011,25 +2978,25 @@ document.addEventListener('DOMContentLoaded', () => {
         renderHistory();
         renderDashboard();
         initDashboardMap();
-        
+
         closeAdminBookingModal();
     });
-    
+
     // 2. Import/Export Modal Init
     document.getElementById('btn-admin-import-export').addEventListener('click', () => {
         document.getElementById('import-excel-paste').value = '';
         document.getElementById('admin-import-modal').style.display = 'flex';
     });
-    
+
     // Parse Excel clipboard paste (TSV)
     document.getElementById('btn-import-excel-submit').addEventListener('click', () => {
         const text = document.getElementById('import-excel-paste').value.trim();
         if (!text) { alert('กรุณาวางข้อมูลคิวงานที่คัดลอกมาจาก Excel ในช่องป้อนข้อมูลก่อนครับ'); return; }
-        
+
         const lines = text.split('\n');
         let parsedCnt = 0;
         let skipCnt = 0;
-        
+
         lines.forEach(line => {
             if (!line.trim()) return;
             const cols = line.split('\t');
@@ -3037,7 +3004,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 skipCnt++;
                 return;
             }
-            
+
             const projectName = cols[0].trim();
             const locationName = cols[1].trim();
             const lat = parseFloat(cols[2]);
@@ -3050,12 +3017,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const status = cols[9] ? cols[9].trim() : 'Active';
             const transformerInfo = cols[10] ? cols[10].trim() : '';
             const responsible = cols[11] ? cols[11].trim() : 'แผนกปฏิบัติการระบบไฟฟ้า';
-            
+
             if (!projectName || !locationName || isNaN(lat) || isNaN(lng) || !startDate || !endDate) {
                 skipCnt++;
                 return;
             }
-            
+
             let genId = 'grid_system';
             if (genSize > 0) {
                 const matchedGen = GENERATOR_FLEET.find(g => g.name.toLowerCase() === genName.toLowerCase());
@@ -3066,7 +3033,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     genId = fallback ? fallback.id : 'gen_60_1';
                 }
             }
-            
+
             fleetBookings.push({
                 id: 'b_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
                 projectName,
@@ -3085,30 +3052,30 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             parsedCnt++;
         });
-        
+
         localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
-        
+
         updateFleetStats();
         updateMapMarkers();
         const fDateEl = document.getElementById('filter-schedule-date');
         renderScheduleList(fDateEl ? fDateEl.value : '');
-        
+
         closeAdminImportModal();
         alert(`นำเข้าข้อมูลจาก Excel เสร็จสิ้น!\nนำเข้าสำเร็จ: ${parsedCnt} รายการ\nข้ามรายการไม่สมบูรณ์: ${skipCnt} รายการ`);
     });
-    
+
     // Import CSV File Uploader
     document.getElementById('import-csv-file').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        
+
         const reader = new FileReader();
         reader.onload = (evt) => {
             const text = evt.target.result;
             const lines = text.split('\n');
             let parsedCnt = 0;
             let skipCnt = 0;
-            
+
             lines.forEach((line, idx) => {
                 if (idx === 0) return; // skip header
                 if (!line.trim()) return;
@@ -3117,7 +3084,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     skipCnt++;
                     return;
                 }
-                
+
                 const projectName = cols[0];
                 const locationName = cols[1];
                 const lat = parseFloat(cols[2]);
@@ -3130,12 +3097,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const status = cols[9] || 'Active';
                 const transformerInfo = cols[10] || '';
                 const responsible = cols[11] || 'แผนกปฏิบัติการระบบไฟฟ้า';
-                
+
                 if (isNaN(lat) || isNaN(lng) || !startDate || !endDate) {
                     skipCnt++;
                     return;
                 }
-                
+
                 let genId = 'grid_system';
                 if (genSize > 0) {
                     const matchedGen = GENERATOR_FLEET.find(g => g.name.toLowerCase() === genName.toLowerCase());
@@ -3146,7 +3113,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         genId = fallback ? fallback.id : 'gen_60_1';
                     }
                 }
-                
+
                 fleetBookings.push({
                     id: 'b_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
                     projectName,
@@ -3165,28 +3132,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 parsedCnt++;
             });
-            
+
             localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
-            
+
             updateFleetStats();
             updateMapMarkers();
             const fDateEl = document.getElementById('filter-schedule-date');
             renderScheduleList(fDateEl ? fDateEl.value : '');
-            
+
             closeAdminImportModal();
             e.target.value = '';
             alert(`นำเข้าไฟล์ CSV เสร็จสิ้น!\nนำเข้าสำเร็จ: ${parsedCnt} รายการ\nข้ามรายการไม่สมบูรณ์: ${skipCnt} รายการ`);
         };
         reader.readAsText(file);
     });
-    
+
     // Download CSV template downloader
     document.getElementById('btn-download-csv-template').addEventListener('click', () => {
         const headers = 'ชื่อโครงการ,สถานที่ปฏิบัติงาน,ละติจูด,ลองจิจูด,รหัสเครื่องยนต์,ขนาดเครื่อง(kW),คลังต้นทาง,วันที่เริ่ม,วันที่สิ้นสุด,สถานะ,ข้อมูลหม้อแปลง,ผู้รับผิดชอบ\r\n';
         const rows = fleetBookings.map(b => {
             return `"${b.projectName}","${b.locationName}",${b.lat},${b.lng},"${b.genName}",${b.genSize},"${b.hubName}","${b.startDate}","${b.endDate}","${b.status}","${b.transformerInfo || ''}","${b.responsible || ''}"`;
         }).join('\r\n');
-        
+
         const blob = new Blob(['\uFEFF' + headers + rows], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -3196,14 +3163,14 @@ document.addEventListener('DOMContentLoaded', () => {
         link.click();
         document.body.removeChild(link);
     });
-    
+
     // Export CSV downloader
     document.getElementById('btn-export-fleet-csv').addEventListener('click', () => {
         const headers = 'ชื่อโครงการ,สถานที่ปฏิบัติงาน,ละติจูด,ลองจิจูด,รหัสเครื่องยนต์,ขนาดเครื่อง(kW),คลังต้นทาง,วันที่เริ่ม,วันที่สิ้นสุด,สถานะ,ข้อมูลหม้อแปลง,ผู้รับผิดชอบ\r\n';
         const rows = fleetBookings.map(b => {
             return `"${b.projectName}","${b.locationName}",${b.lat},${b.lng},"${b.genName}",${b.genSize},"${b.hubName}","${b.startDate}","${b.endDate}","${b.status}","${b.transformerInfo || ''}","${b.responsible || ''}"`;
         }).join('\r\n');
-        
+
         const blob = new Blob(['\uFEFF' + headers + rows], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -3231,11 +3198,11 @@ document.addEventListener('DOMContentLoaded', () => {
         renderInventoryModalList();
         document.getElementById('admin-inventory-modal').style.display = 'flex';
     });
-    
+
     const renderInventoryModalList = () => {
         const tbody = document.getElementById('inventory-table-body');
         if (!tbody) return;
-        
+
         tbody.innerHTML = GENERATOR_FLEET.map(g => {
             const hub = DISTRICT_HUBS.find(h => h.id === g.hubId);
             return `
@@ -3252,38 +3219,38 @@ document.addEventListener('DOMContentLoaded', () => {
             </tr>`;
         }).join('');
     };
-    
+
     window.toggleGeneratorStatus = (genId, newStatus) => {
         const gen = GENERATOR_FLEET.find(g => g.id === genId);
         if (gen) {
             gen.status = newStatus;
             localStorage.setItem('generatorFleet', JSON.stringify(GENERATOR_FLEET));
-            
+
             updateFleetStats();
             updateMapMarkers();
             renderInventoryModalList();
         }
     };
-    
+
     // 4. Booking Deletion timeline hook
     window.deleteBooking = (bookingId) => {
         if (!confirm('คุณต้องการลบคิวจัดสรรเครื่องยนต์กำเนิดไฟฟ้ารายการนี้ออกจากตารางปฏิบัติงานใช่หรือไม่ครับ?')) return;
-        
+
         const target = fleetBookings.find(b => b.id === bookingId);
         if (target) {
-            fleetBookings = fleetBookings.filter(b => 
-                b.id !== bookingId && 
-                !(b.genId === target.genId && 
-                  b.startDate === target.startDate && 
-                  b.endDate === target.endDate && 
-                  b.locationName === target.locationName)
+            fleetBookings = fleetBookings.filter(b =>
+                b.id !== bookingId &&
+                !(b.genId === target.genId &&
+                    b.startDate === target.startDate &&
+                    b.endDate === target.endDate &&
+                    b.locationName === target.locationName)
             );
         } else {
             fleetBookings = fleetBookings.filter(b => b.id !== bookingId);
         }
-        
+
         localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
-        
+
         updateFleetStats();
         updateMapMarkers();
         const fDateEl = document.getElementById('filter-schedule-date');
