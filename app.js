@@ -221,6 +221,7 @@ async function initSupabaseData() {
         if (typeof initDashboardMap === 'function') initDashboardMap();
         if (typeof renderRecentQuotesFeed === 'function') renderRecentQuotesFeed();
     } catch(e) {
+        alert("ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาตรวจสอบว่าคุณได้รันคำสั่ง SQL สร้างตารางใน Supabase แล้วหรือไม่");
         console.error("Error loading data from Supabase", e);
     }
 }
@@ -304,14 +305,14 @@ const saveHistory = (entry) => {
         
         // Save to Supabase
         db.from('fleet_bookings').upsert({ id: bookingId, data: bookingObj }).then(res => {
-            if (res.error) console.error('Error saving fleet booking:', res.error);
+            if (res.error) alert('Error saving fleet booking: ' + res.error.message);
         });
     }
 
     quoteHistory.unshift(entryCopy);
     // Save to Supabase
     db.from('quote_history').upsert({ id: entryCopy.id, type: entryCopy.type, data: entryCopy }).then(res => {
-        if (res.error) console.error('Error saving quote history:', res.error);
+        if (res.error) alert('Error saving quote history: ' + res.error.message);
     });
     
     renderHistory();
@@ -510,7 +511,7 @@ window.submitExtendRental = () => {
     if (!window._currentExtendingQuoteId) return;
     
     const qId = window._currentExtendingQuoteId;
-    const qIndex = quoteHistory.findIndex(x => x.id === qId);
+    const qIndex = quoteHistory.findIndex(x => String(x.id) === String(qId));
     if (qIndex === -1) return;
     
     const q = quoteHistory[qIndex];
@@ -577,11 +578,15 @@ window.submitExtendRental = () => {
 
 window.deleteQuote = (id) => {
     if (!confirm('ต้องการลบรายการนี้?')) return;
-    quoteHistory = quoteHistory.filter(q => q.id !== id);
-    db.from('quote_history').delete().eq('id', id).then();
+    quoteHistory = quoteHistory.filter(q => String(q.id) !== String(id));
+    db.from('quote_history').delete().eq('id', id).then(res => {
+        if (res.error) alert('Delete Error (quote): ' + res.error.message);
+    });
     
     fleetBookings = fleetBookings.filter(b => b.id !== 'q_' + id);
-    db.from('fleet_bookings').delete().eq('id', 'q_' + id).then();
+    db.from('fleet_bookings').delete().eq('id', 'q_' + id).then(res => {
+        if (res.error) alert('Delete Error (fleet): ' + res.error.message);
+    });
     
     renderHistory();
     if (typeof updateFleetStats === 'function') {
