@@ -1107,23 +1107,20 @@ const fetchRealTimeDieselPrice = (isManual = false) => {
 // DOM READY
 // ===========================
 document.addEventListener('DOMContentLoaded', () => {
-    // ---- AUTHENTICATION LOGIC ----
+    // ---- AUTHENTICATION LOGIC (NON-BLOCKING) ----
     window.currentUserProfile = null;
     
     const checkSession = async () => {
         const { data: { session } } = await db.auth.getSession();
         if (session) {
             handleLoggedInUser(session.user);
-        } else {
-            document.getElementById('auth-overlay').style.display = 'flex';
-            // Hide loader if it's showing
-            const loader = document.getElementById('global-loader');
-            if (loader) loader.style.display = 'none';
         }
     };
 
     const handleLoggedInUser = async (user) => {
-        document.getElementById('auth-overlay').style.display = 'none';
+        const authOverlay = document.getElementById('auth-overlay');
+        if (authOverlay) authOverlay.style.display = 'none';
+
         // Fetch profile
         const { data: profile } = await db.from('user_profiles').select('*').eq('id', user.id).single();
         if (profile) {
@@ -1134,17 +1131,12 @@ document.addEventListener('DOMContentLoaded', () => {
             window.currentUserProfile = { id: user.id, email: user.email, role: 'staff' };
             applyRoleBasedUI('staff');
         }
-        
-        // Initialize App Data now that user is verified
-        initSupabaseData();
-        initSignatoriesSync();
     };
 
     const applyRoleBasedUI = (role) => {
         // Staff cannot delete quotes or manage fleet thoroughly
         if (role === 'staff') {
             document.querySelectorAll('.btn-delete-quote').forEach(el => el.style.display = 'none');
-            // Additional UI hiding logic can be added here
         }
         
         // Optionally add a logout button to header (dynamic creation for now)
@@ -1162,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Login Form Submit
+    // Login Form Submit (If they open the modal manually)
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -1192,7 +1184,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Start Session Check
+    // Initialize Supabase Data First (Always runs, regardless of login)
+    initSupabaseData();
+    initSignatoriesSync();
+
+    // Start Session Check in background
     checkSession();
 
     // Fetch and apply real-time diesel price
