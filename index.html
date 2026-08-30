@@ -545,7 +545,7 @@
                                 <input type="text" id="pea-checker-dept" value="" placeholder="แผนก / สังกัด (ถ้ามี)">
                             </div>
 
-                            <button class="btn btn-outline btn-full" id="pea-calculate-btn" style="margin-top:10px;">คำนวณราคา</button>
+                            <button class="btn btn-green btn-full" id="pea-calculate-btn" style="margin-top:10px;">คำนวณราคา</button>
                         </div>
 
                         <!-- Right: Result -->
@@ -557,12 +557,12 @@
                             </div>
                             <div class="result-details">
                                 <div class="result-row">
-                                    <span>ฉนวนครอบสายไฟ (<span id="out-wire-qty">16</span> ชิ้น × <span id="out-days">2</span> วัน × 100 ฿)</span>
-                                    <span class="val" id="out-wire-cost">3,200.00 ฿</span>
+                                    <span>ฉนวนครอบสายไฟ (<span id="out-wire-qty">-</span> ชิ้น × <span id="out-days">-</span> วัน × 100 ฿)</span>
+                                    <span class="val" id="out-wire-cost">- ฿</span>
                                 </div>
                                 <div class="result-row">
-                                    <span>ฉนวนครอบลูกถ้วยแรงสูง (<span id="out-ins-qty">0</span> ชิ้น × <span id="out-days2">2</span> วัน × 100 ฿)</span>
-                                    <span class="val" id="out-ins-cost">0.00 ฿</span>
+                                    <span>ฉนวนครอบลูกถ้วยแรงสูง (<span id="out-ins-qty">-</span> ชิ้น × <span id="out-days2">-</span> วัน × 100 ฿)</span>
+                                    <span class="val" id="out-ins-cost">- ฿</span>
                                 </div>
                                 <div class="result-row">
                                     <span>ค่าบริการติดตั้ง-รื้อถอน (เหมาจ่าย)</span>
@@ -570,16 +570,16 @@
                                 </div>
                                 <div class="result-row">
                                     <span>รวมก่อน VAT</span>
-                                    <span class="val" id="out-subtotal">6,700.00 ฿</span>
+                                    <span class="val" id="out-subtotal">- ฿</span>
                                 </div>
                                 <div class="result-row">
                                     <span>ภาษีมูลค่าเพิ่ม 7%</span>
-                                    <span class="val" id="out-vat">469.00 ฿</span>
+                                    <span class="val" id="out-vat">- ฿</span>
                                 </div>
                                 <div class="divider"></div>
                                 <div class="result-row total">
                                     <span>ค่าใช้จ่ายรวมทั้งสิ้น</span>
-                                    <span class="val total-val" id="out-total">7,169.00 ฿</span>
+                                    <span class="val total-val" id="out-total">- ฿</span>
                                 </div>
                             </div>
 
@@ -1785,7 +1785,7 @@
     </div>
 
     <!-- Application Script -->
-    <script src="app.js?v=36"></script>
+    <script src="app.js?v=37"></script>
 </body>
 
 </html>

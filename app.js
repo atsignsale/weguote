@@ -1727,6 +1727,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 200);
 
     // ---- PEA Cover Calculation ----
+    const resetPeaResults = () => {
+        document.getElementById('out-wire-qty').textContent = '-';
+        document.getElementById('out-days').textContent     = '-';
+        document.getElementById('out-ins-qty').textContent  = '-';
+        document.getElementById('out-days2').textContent    = '-';
+        document.getElementById('out-wire-cost').textContent = '- ฿';
+        document.getElementById('out-ins-cost').textContent  = '- ฿';
+        document.getElementById('out-subtotal').textContent  = '- ฿';
+        document.getElementById('out-vat').textContent       = '- ฿';
+        document.getElementById('out-total').textContent     = '- ฿';
+        window._currentPeaData = null; // Clear PDF data
+
+        // Also reset save status
+        const badge = document.getElementById('pea-save-status');
+        if (badge) {
+            badge.textContent = 'ยังไม่บันทึก';
+            badge.style.background = '#F1F3F5';
+            badge.style.color = '#6B7280';
+        }
+    };
+
+    const peaInputsToWatch = ['pea-qty-wire', 'pea-qty-insulator', 'pea-days', 'cust-start-date', 'cust-end-date'];
+    peaInputsToWatch.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', resetPeaResults);
+            el.addEventListener('change', resetPeaResults);
+        }
+    });
+
     document.getElementById('pea-calculate-btn').addEventListener('click', () => {
         const wireQty = parseInt(document.getElementById('pea-qty-wire').value) || 0;
         const insQty  = parseInt(document.getElementById('pea-qty-insulator').value) || 0;
