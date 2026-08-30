@@ -1571,13 +1571,18 @@ document.addEventListener('DOMContentLoaded', () => {
             pwdInput.type = 'password';
             pwdInput.disabled = false;
             pwdInput.value = '';
+            pwdInput.setAttribute('value', '');
         }
         const emailInput = document.getElementById('login-email');
         if (emailInput) {
             emailInput.disabled = false;
             emailInput.value = '';
+            emailInput.setAttribute('value', '');
         }
     };
+
+    // Ensure login inputs start completely blank
+    activateLoginInputs();
 
     window._neutralizeAuthInputs = neutralizeAuthInputs;
     window._activateLoginInputs = activateLoginInputs;
