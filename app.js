@@ -233,6 +233,7 @@ async function initSupabaseData() {
         if (fleetRes.data && fleetRes.data.length > 0) GENERATOR_FLEET = fleetRes.data.map(f => f.data);
 
         renderHistory();
+        if (typeof renderDashboard === 'function') renderDashboard();
         if (typeof updateFleetStats === 'function') updateFleetStats();
         if (typeof updateMapMarkers === 'function') updateMapMarkers();
         if (typeof initDashboardMap === 'function') initDashboardMap();
