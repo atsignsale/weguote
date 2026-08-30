@@ -1812,6 +1812,64 @@ input[readonly], select:disabled, textarea[disabled] {
     }
 
 /* -----------------------------
+   GLOBAL LOADER (Lottie-like)
+   ----------------------------- */
+.global-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+.global-loader.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+.loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+.modern-spinner {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 4px solid var(--border-color);
+    border-top-color: var(--primary);
+    border-right-color: var(--secondary);
+    animation: spin-lottie 1s linear infinite, pulse-glow 2s ease-in-out infinite;
+}
+.loader-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    letter-spacing: 0.5px;
+    animation: pulse-text 1.5s ease-in-out infinite;
+}
+
+@keyframes spin-lottie {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 15px rgba(37, 99, 235, 0.2); }
+    50% { box-shadow: 0 0 30px rgba(37, 99, 235, 0.6); }
+}
+@keyframes pulse-text {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* -----------------------------
    13. PRINT RULES
    ----------------------------- */
 @media print {

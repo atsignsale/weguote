@@ -203,7 +203,24 @@ const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 let fleetBookings = [];
 let quoteHistory = [];
 
+window.showLoader = function() {
+    const loader = document.getElementById('global-loader');
+    if(loader) {
+        loader.style.display = 'flex';
+        loader.classList.remove('hide');
+    }
+};
+
+window.hideLoader = function() {
+    const loader = document.getElementById('global-loader');
+    if(loader) {
+        loader.classList.add('hide');
+        setTimeout(() => loader.style.display = 'none', 400);
+    }
+};
+
 async function initSupabaseData() {
+    window.showLoader();
     try {
         const [quotesRes, bookingsRes, fleetRes] = await Promise.all([
             db.from('quote_history').select('*').order('created_at', { ascending: false }),
@@ -223,6 +240,8 @@ async function initSupabaseData() {
     } catch (e) {
         alert("ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาตรวจสอบว่าคุณได้รันคำสั่ง SQL สร้างตารางใน Supabase แล้วหรือไม่");
         console.error("Error loading data from Supabase", e);
+    } finally {
+        window.hideLoader();
     }
 }
 
