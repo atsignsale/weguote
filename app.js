@@ -1522,8 +1522,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderDashboard = () => {
         // Refresh data from localStorage to ensure we have the absolute latest state
-        quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
-        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
+// removed localStorage fetch
+// removed localStorage fetch
         
         // Generator Stats
         const total = GENERATOR_FLEET.length;
@@ -1631,7 +1631,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (target === 'tab-fleet') {
             setTimeout(() => {
-                fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
+// removed localStorage fetch
                 initFleetMap();
                 if (map) {
                     map.invalidateSize();
@@ -2163,7 +2163,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         markersGroup.clearLayers();
 
-        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
+// removed localStorage fetch
         
         // 1. Render Hubs
         DISTRICT_HUBS.forEach(hub => {
@@ -2272,8 +2272,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('schedule-timeline-container');
         if (!container) return;
         
-        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
-        quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
+// removed localStorage fetch
+// removed localStorage fetch
 
         let filtered = fleetBookings;
         if (filterDate) {
@@ -2530,7 +2530,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateFleetStats = () => {
-        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
+// removed localStorage fetch
         const total = GENERATOR_FLEET.length;
         const maint = GENERATOR_FLEET.filter(g => g.status === 'Maintenance').length;
         
@@ -2585,7 +2585,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // How many bookings land on a date string?
     const getBookingsForDate = (dateStr) => {
-        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
+// removed localStorage fetch
         return fleetBookings.filter(b => b.startDate <= dateStr && b.endDate >= dateStr);
     };
 
@@ -2599,7 +2599,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const grid = document.getElementById('cal-grid');
         if (!grid) return;
 
-        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
+// removed localStorage fetch
 
         document.getElementById('cal-month-label').textContent =
             `${THAI_MONTHS[calMonth]} ${calYear + 543}`;
