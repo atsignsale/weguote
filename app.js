@@ -1548,10 +1548,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (maintGenEl) maintGenEl.textContent = maint;
         if (standbyPctEl) standbyPctEl.textContent = `${standbyPct}% พร้อมใช้งาน`;
 
-        const navFleetActiveBadge = document.getElementById('nav-badge-fleet-active');
-        if (navFleetActiveBadge) {
-            navFleetActiveBadge.textContent = activeCnt > 0 ? `${activeCnt} งานกำลังจ่ายไฟ` : `${standbyCnt} เครื่องพร้อมใช้งาน`;
-        }
+        // Removed navFleetActiveBadge update logic
 
         // Revenue Stats
         let peaRev = 0;
