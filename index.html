@@ -24,9 +24,8 @@
 
 <body>
     <!-- Login Overlay -->
-    <div id="auth-overlay" class="auth-overlay" style="display: none;">
-        <div class="auth-card" style="position: relative;">
-            <button onclick="document.getElementById('auth-overlay').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+    <div id="auth-overlay" class="auth-overlay">
+        <div class="auth-card">
             <div class="auth-header">
                 <h2>WeQuote PEA</h2>
                 <p>เข้าสู่ระบบเพื่อใช้งาน</p>
@@ -59,7 +58,7 @@
         </div>
     </div>
 
-    <div class="ynex-layout">
+    <div class="ynex-layout" id="main-layout" style="display: none;">
 
         <!-- ====== YNEX SIDEBAR ====== -->
         <aside class="ynex-sidebar" id="app-sidebar">
@@ -148,6 +147,19 @@
                             <span class="nav-text">ประวัติใบเสนอราคา</span>
                         </button>
                     </li>
+                    <li class="nav-item" id="nav-item-users" style="display: none;">
+                        <button class="tab-btn" data-target="tab-users">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                            </span>
+                            <span class="nav-text">เพิ่มผู้ใช้งาน</span>
+                        </button>
+                    </li>
                 </ul>
             </div>
 
@@ -208,18 +220,20 @@
                         </svg>
                     </button>
 
-                    <!-- Header Actions -->
-                    <div class="header-actions" style="display: flex; gap: 8px; margin-right: 15px;">
-                        <button class="btn btn-outline btn-sm" onclick="document.getElementById('auth-overlay').style.display='flex'">ล็อกอิน (จำลองสิทธิ์)</button>
-                    </div>
-
-                    <!-- User Profile Pill -->
-                    <div class="user-profile-widget" onclick="switchTab('tab-pea')" title="ข้อมูลผู้ใช้งาน">
-                        <div class="profile-info">
-                            <div class="profile-name">แผนกปฏิบัติการระบบไฟฟ้า</div>
-                            <div class="profile-role">กฟฉ.1 (อุดรธานี)</div>
+                    <!-- User Profile Pill & Dropdown -->
+                    <div class="user-profile-container" style="position: relative;">
+                        <div class="user-profile-widget" onclick="toggleProfileDropdown()" title="ข้อมูลผู้ใช้งาน">
+                            <div class="profile-info">
+                                <div class="profile-name" id="ui-profile-name">ผู้ใช้งาน</div>
+                                <div class="profile-role" id="ui-profile-role">PEA</div>
+                            </div>
+                            <div class="profile-avatar" id="ui-profile-avatar">PEA</div>
                         </div>
-                        <div class="profile-avatar">PEA</div>
+                        <div id="profile-dropdown" class="profile-dropdown" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 8px; background: white; border: 1px solid #E2E8F0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); width: 200px; z-index: 1000; flex-direction: column; overflow: hidden;">
+                            <button onclick="openEditProfileModal()" style="padding: 10px 15px; text-align: left; background: none; border: none; width: 100%; cursor: pointer; font-size: 0.875rem; color: #334155; display: flex; align-items: center; gap: 8px;">✏️ แก้ไขข้อมูล / รูปภาพ</button>
+                            <hr style="margin: 0; border: none; border-top: 1px solid #E2E8F0;">
+                            <button onclick="logoutUser()" style="padding: 10px 15px; text-align: left; background: none; border: none; width: 100%; cursor: pointer; font-size: 0.875rem; color: #EF4444; display: flex; align-items: center; gap: 8px;">🚪 ออกจากระบบ</button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -1054,6 +1068,43 @@
                     </div>
                 </section>
 
+                <!-- ==============================================
+                     TAB 5: USER MANAGEMENT (ADMIN ONLY)
+                     ============================================== -->
+                <section id="tab-users" class="tab-content">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <h3 style="font-size:1.2rem; font-weight:600;">จัดการผู้ใช้งานระบบ</h3>
+                        <div style="display:flex; gap: 8px;">
+                            <span class="badge" id="total-users-badge" style="background:#E2E8F0; color:#475569; padding:6px 12px; font-size:0.9rem;">ผู้ใช้งานทั้งหมด: 0</span>
+                            <button class="btn btn-primary" onclick="openAddUserModal()">+ เพิ่มผู้ใช้งานใหม่</button>
+                        </div>
+                    </div>
+                    
+                    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #E2E8F0; margin-bottom: 16px;">
+                        <label style="font-weight:600; font-size:0.9rem; margin-bottom: 8px; display:block; color:#b91c1c;">⚠️ สำหรับ Admin: กรุณากรอก Service Role Key เพื่อเปิดสิทธิ์การเพิ่ม/ลบผู้ใช้</label>
+                        <input type="password" id="admin-service-role-key" class="input-field" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." onchange="saveServiceRoleKey(this.value)">
+                        <small style="color:var(--text-muted); display:block; margin-top:4px;">ระบบจะเก็บคีย์นี้ไว้ในเครื่องของคุณเท่านั้น เพื่อใช้สำหรับการทำงานร่วมกับ Admin API (ไม่ต้องกรอกถ้าเข้ามาดูอย่างเดียว)</small>
+                    </div>
+
+                    <div class="history-card" style="padding:0;">
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>ชื่อ-สกุล (Display Name)</th>
+                                        <th>อีเมล (Email)</th>
+                                        <th>ระดับสิทธิ์ (Role)</th>
+                                        <th style="width: 100px; text-align:center;">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
             </main>
         </div>
     </div>
@@ -1821,6 +1872,73 @@
                     พิมพ์ใบเสนอราคา (PDF)
                 </button>
                 <button class="btn btn-outline" onclick="closeInspectQuoteModal()">ปิด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== NEW MODALS ====== -->
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="edit-profile-modal" style="display:none;">
+        <div class="modal-card" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>แก้ไขโปรไฟล์</h3>
+                <button class="modal-close" onclick="document.getElementById('edit-profile-modal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>ชื่อที่แสดง (Display Name)</label>
+                    <input type="text" id="profile-display-name" class="input-field" placeholder="เช่น กฟฉ.1">
+                </div>
+                <div class="form-group">
+                    <label>อัปโหลดรูปประจำตัว (Avatar)</label>
+                    <input type="file" id="profile-avatar-upload" accept="image/*" class="input-field" style="padding: 4px;">
+                    <small style="color:var(--text-muted); display:block; margin-top:4px;">เลือกไฟล์ภาพขนาดเล็ก (ระบบจะแปลงเป็นข้อความจำกัดขนาดอัตโนมัติ)</small>
+                </div>
+                <div id="profile-preview-container" style="display:flex; justify-content:center; margin-top: 10px;">
+                    <img id="profile-avatar-preview" src="" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; display: none; border: 2px solid #E2E8F0;">
+                </div>
+                <div id="profile-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 8px; display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="document.getElementById('edit-profile-modal').style.display='none'">ยกเลิก</button>
+                <button class="btn btn-primary" id="btn-save-profile" onclick="saveProfile()">บันทึกข้อมูล</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal-overlay" id="add-user-modal" style="display:none;">
+        <div class="modal-card" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>เพิ่มผู้ใช้งานระบบ</h3>
+                <button class="modal-close" onclick="document.getElementById('add-user-modal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>อีเมล (Email)</label>
+                    <input type="email" id="new-user-email" class="input-field" placeholder="เช่น test@pea.co.th">
+                </div>
+                <div class="form-group">
+                    <label>รหัสผ่าน (Password)</label>
+                    <input type="password" id="new-user-password" class="input-field" placeholder="อย่างน้อย 6 ตัวอักษร">
+                </div>
+                <div class="form-group">
+                    <label>ชื่อที่แสดง (Display Name)</label>
+                    <input type="text" id="new-user-name" class="input-field" placeholder="ชื่อผู้ใช้งาน">
+                </div>
+                <div class="form-group">
+                    <label>ระดับสิทธิ์ (Role)</label>
+                    <select id="new-user-role" class="input-field">
+                        <option value="staff">พนักงานทั่วไป (Staff)</option>
+                        <option value="manager">หัวหน้างาน (Manager)</option>
+                        <option value="admin">ผู้ดูแลระบบ (Admin)</option>
+                    </select>
+                </div>
+                <div id="add-user-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 8px; display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="document.getElementById('add-user-modal').style.display='none'">ยกเลิก</button>
+                <button class="btn btn-primary" id="btn-create-user" onclick="createNewUser()">สร้างผู้ใช้</button>
             </div>
         </div>
     </div>

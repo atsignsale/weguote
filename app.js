@@ -1103,6 +1103,33 @@ const fetchRealTimeDieselPrice = (isManual = false) => {
         });
 };
 
+window.logoutUser = async () => {
+    try {
+        await db.auth.signOut();
+        window.location.hash = '';
+        window.location.reload();
+    } catch (err) {
+        console.error('Logout error:', err);
+    }
+};
+
+window.toggleProfileDropdown = () => {
+    const dropdown = document.getElementById('profile-dropdown');
+    if (dropdown) {
+        dropdown.style.display = dropdown.style.display === 'none' ? 'flex' : 'none';
+    }
+};
+
+window.openEditProfileModal = () => {
+    const modal = document.getElementById('edit-profile-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        // Hide dropdown
+        const dropdown = document.getElementById('profile-dropdown');
+        if (dropdown) dropdown.style.display = 'none';
+    }
+};
+
 // ===========================
 // DOM READY
 // ===========================
@@ -1110,47 +1137,71 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- AUTHENTICATION LOGIC (NON-BLOCKING) ----
     window.currentUserProfile = null;
     
+    if (window.location.hash === '#/logout' || window.location.hash === '#logout' || window.location.pathname.endsWith('/logout')) {
+        window.logoutUser();
+        return;
+    }
+    
     const checkSession = async () => {
         const { data: { session } } = await db.auth.getSession();
         if (session) {
             handleLoggedInUser(session.user);
-        }
+        } else {
+            const authOverlay = document.getElementById('auth-overlay');
+            const mainLayout = document.getElementById('main-layout') || document.querySelector('.ynex-layout');
+            if (authOverlay) authOverlay.style.display = 'flex';
+            if (mainLayout) mainLayout.style.display = 'none';
+
     };
 
     const handleLoggedInUser = async (user) => {
         const authOverlay = document.getElementById('auth-overlay');
+        const mainLayout = document.getElementById('main-layout') || document.querySelector('.ynex-layout');
         if (authOverlay) authOverlay.style.display = 'none';
+        if (mainLayout) mainLayout.style.display = 'flex';
 
         // Fetch profile
         const { data: profile } = await db.from('user_profiles').select('*').eq('id', user.id).single();
         if (profile) {
             window.currentUserProfile = profile;
-            applyRoleBasedUI(profile.role);
+            applyRoleBasedUI(profile);
         } else {
             // Default fallback if profile trigger failed
             window.currentUserProfile = { id: user.id, email: user.email, role: 'staff' };
-            applyRoleBasedUI('staff');
+            applyRoleBasedUI(window.currentUserProfile);
         }
     };
 
-    const applyRoleBasedUI = (role) => {
+    const applyRoleBasedUI = (profile) => {
+        const role = profile.role || 'staff';
+        
+        const nameEl = document.getElementById('ui-profile-name');
+        const roleEl = document.getElementById('ui-profile-role');
+        const avatarEl = document.getElementById('ui-profile-avatar');
+        
+        if (nameEl) nameEl.textContent = profile.display_name || 'ผู้ใช้งาน';
+        if (roleEl) roleEl.textContent = role.toUpperCase();
+        if (avatarEl) {
+            if (profile.avatar_data) {
+                avatarEl.innerHTML = `<img src="${profile.avatar_data}" style="width:100%; height:100%; object-fit:cover;">`;
+            } else {
+                avatarEl.innerHTML = role.charAt(0).toUpperCase();
+            }
+        }
+
         // Staff cannot delete quotes or manage fleet thoroughly
         if (role === 'staff') {
             document.querySelectorAll('.btn-delete-quote').forEach(el => el.style.display = 'none');
         }
         
-        // Optionally add a logout button to header (dynamic creation for now)
-        const headerActions = document.querySelector('.header-actions');
-        if (headerActions && !document.getElementById('btn-logout')) {
-            const logoutBtn = document.createElement('button');
-            logoutBtn.id = 'btn-logout';
-            logoutBtn.className = 'btn btn-outline btn-sm';
-            logoutBtn.innerHTML = 'ออกจากระบบ';
-            logoutBtn.onclick = async () => {
-                await db.auth.signOut();
-                window.location.reload();
-            };
-            headerActions.appendChild(logoutBtn);
+        const navUsers = document.getElementById('nav-item-users');
+        if (role === 'admin') {
+            if (navUsers) navUsers.style.display = 'block';
+            if (typeof window.loadUsersTable === 'function') {
+                window.loadUsersTable(); // Load users immediately if admin
+            }
+        } else {
+            if (navUsers) navUsers.style.display = 'none';
         }
     };
 
