@@ -1287,27 +1287,38 @@
                      TAB 5: USER MANAGEMENT (ADMIN ONLY)
                      ============================================== -->
                 <section id="tab-users" class="tab-content">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                        <h3 style="font-size:1.2rem; font-weight:600;">จัดการผู้ใช้งานระบบ</h3>
-                        <div style="display:flex; gap: 8px;">
-                            <span class="badge" id="total-users-badge"
-                                style="background:#E2E8F0; color:#475569; padding:6px 12px; font-size:0.9rem;">ผู้ใช้งานทั้งหมด:
-                                0</span>
-                            <button class="btn btn-primary" onclick="openAddUserModal()">+ เพิ่มผู้ใช้งานใหม่</button>
+                    <div class="card" style="margin-bottom: 20px; border-radius: var(--radius-lg); padding: 22px 24px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                            <div>
+                                <h3 style="margin:0; font-size:1.25rem; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+                                    <span>👥</span> รายชื่อผู้ใช้งานและกำหนดสิทธิ์ระบบ
+                                </h3>
+                                <p style="margin:4px 0 0; font-size:0.85rem; color:var(--text-muted);">
+                                    จัดการบัญชีผู้ใช้งาน เพิ่มผู้ใช้ใหม่ และกำหนดระดับสิทธิ์เข้าถึง (Admin, Manager, Staff)
+                                </p>
+                            </div>
+                            <div style="display:flex; gap: 10px; align-items:center; flex-wrap:wrap;">
+                                <span class="badge" id="total-users-badge"
+                                    style="background:var(--bg-surface-soft); color:var(--text-main); border:1px solid var(--border-color); padding:8px 14px; font-size:0.88rem; font-weight:600; border-radius:var(--radius-full);">
+                                    ผู้ใช้งานทั้งหมด: 0
+                                </span>
+                                <button class="btn" onclick="openAddUserModal()" type="button"
+                                    style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); color: #ffffff; border: none; border-radius: var(--radius-md); padding: 9px 18px; font-family: 'Prompt', sans-serif; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3); transition: all 0.2s ease; cursor: pointer;">
+                                    <span>➕</span> เพิ่มผู้ใช้งานใหม่
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-
-
-                    <div class="history-card" style="padding:0;">
+                    <div class="history-card" style="padding:0; border-radius:var(--radius-lg); overflow:hidden; border:1px solid var(--border-color);">
                         <div style="overflow-x:auto;">
-                            <table class="data-table" style="width:100%;">
+                            <table class="data-table ynex-table" style="width:100%; margin:0;">
                                 <thead>
                                     <tr>
-                                        <th>ชื่อ - นามสกุล</th>
-                                        <th>อีเมล (Email)</th>
-                                        <th>ระดับสิทธิ์ (Role)</th>
-                                        <th style="width: 100px; text-align:center;">จัดการ</th>
+                                        <th style="padding:14px 18px; font-weight:600;">ชื่อ - นามสกุล</th>
+                                        <th style="padding:14px 18px; font-weight:600;">อีเมล (Email)</th>
+                                        <th style="padding:14px 18px; font-weight:600;">ระดับสิทธิ์ (Role)</th>
+                                        <th style="padding:14px 18px; font-weight:600; width: 110px; text-align:center;">จัดการ</th>
                                     </tr>
                                 </thead>
                                 <tbody id="users-table-body">
@@ -2416,42 +2427,95 @@
     </div>
 
     <!-- Add User Modal -->
-    <div class="modal-overlay" id="add-user-modal" style="display:none;">
-        <div class="modal-card" style="max-width: 400px;">
-            <div class="modal-header">
-                <h3>เพิ่มผู้ใช้งานระบบ</h3>
-                <button class="modal-close" onclick="closeAddUserModal()">&times;</button>
+    <div class="modal-overlay" id="add-user-modal" style="display:none;" onclick="if(event.target===this) closeAddUserModal()">
+        <div class="modal-card" style="max-width: 440px; padding: 24px; border-radius: 16px;">
+            <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:14px; margin-bottom:16px;">
+                <div>
+                    <h3 style="margin:0; font-size:1.2rem; font-weight:700; color:var(--text-main); font-family:'Prompt',sans-serif; display:flex; align-items:center; gap:8px;">
+                        <span>👤➕</span> เพิ่มผู้ใช้งานระบบใหม่
+                    </h3>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">กำหนดบัญชีและสิทธิ์การเข้าใช้งาน PEA WeQuote</span>
+                </div>
+                <button class="modal-close" onclick="closeAddUserModal()" type="button">&times;</button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="display:flex; flex-direction:column; gap:12px;">
                 <div class="form-group">
-                    <label>อีเมล (Email)</label>
+                    <label style="font-weight:600; font-size:0.85rem;">อีเมล (Email) *</label>
                     <input type="email" id="new-user-email" class="input-field" placeholder="เช่น test@pea.co.th"
-                        autocomplete="off">
+                        autocomplete="off" style="width:100%; box-sizing:border-box;">
                 </div>
                 <div class="form-group">
-                    <label>รหัสผ่าน (Password)</label>
+                    <label style="font-weight:600; font-size:0.85rem;">รหัสผ่าน (Password) *</label>
                     <input type="password" id="new-user-password" class="input-field" placeholder="อย่างน้อย 6 ตัวอักษร"
-                        autocomplete="new-password">
+                        autocomplete="new-password" style="width:100%; box-sizing:border-box;">
                 </div>
                 <div class="form-group">
-                    <label>ชื่อ - นามสกุล</label>
+                    <label style="font-weight:600; font-size:0.85rem;">ชื่อ - นามสกุล</label>
                     <input type="text" id="new-user-name" class="input-field" placeholder="เช่น สมชาย ใจดี"
-                        autocomplete="off">
+                        autocomplete="off" style="width:100%; box-sizing:border-box;">
                 </div>
                 <div class="form-group">
-                    <label>ระดับสิทธิ์ (Role)</label>
-                    <select id="new-user-role" class="input-field">
+                    <label style="font-weight:600; font-size:0.85rem;">ระดับสิทธิ์การใช้งาน (Role) *</label>
+                    <select id="new-user-role" class="input-field" style="width:100%; box-sizing:border-box;">
                         <option value="staff">พนักงานทั่วไป (Staff)</option>
                         <option value="manager">หัวหน้างาน (Manager)</option>
                         <option value="admin">ผู้ดูแลระบบ (Admin)</option>
                     </select>
                 </div>
-                <div id="add-user-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 8px; display: none;">
+                <div id="add-user-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 4px; display: none; padding:8px 12px; background:#fef2f2; border-radius:8px;">
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeAddUserModal()">ยกเลิก</button>
-                <button class="btn btn-primary" id="btn-create-user" onclick="createNewUser()">สร้างผู้ใช้</button>
+            <div class="modal-footer" style="margin-top:16px; display:flex; justify-content:flex-end; gap:8px;">
+                <button type="button" class="btn btn-outline" onclick="closeAddUserModal()">ยกเลิก</button>
+                <button type="button" class="btn" id="btn-create-user" onclick="createNewUser()" style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); border: none; color: white; border-radius: var(--radius-md); padding: 9px 18px; font-family: 'Prompt', sans-serif; font-weight: 600; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); cursor: pointer;">สร้างผู้ใช้ใหม่</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal-overlay" id="edit-user-modal" style="display:none;" onclick="if(event.target===this) closeEditUserModal()">
+        <div class="modal-card" style="max-width: 440px; padding: 24px; border-radius: 16px;">
+            <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:14px; margin-bottom:16px;">
+                <div>
+                    <h3 style="margin:0; font-size:1.2rem; font-weight:700; color:var(--text-main); font-family:'Prompt',sans-serif; display:flex; align-items:center; gap:8px;">
+                        <span>👤✏️</span> แก้ไขข้อมูลผู้ใช้งาน
+                    </h3>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">ปรับปรุงข้อมูลและสิทธิ์การเข้าใช้งาน PEA WeQuote</span>
+                </div>
+                <button class="modal-close" onclick="closeEditUserModal()" type="button">&times;</button>
+            </div>
+            <div class="modal-body" style="display:flex; flex-direction:column; gap:12px;">
+                <input type="hidden" id="edit-user-id">
+                <div class="form-group">
+                    <label style="font-weight:600; font-size:0.85rem;">อีเมล (Email) *</label>
+                    <input type="email" id="edit-user-email" class="input-field" placeholder="เช่น test@pea.co.th"
+                        autocomplete="off" style="width:100%; box-sizing:border-box;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight:600; font-size:0.85rem;">รหัสผ่านใหม่ (Password)</label>
+                    <input type="password" id="edit-user-password" class="input-field" placeholder="กรอกรหัสผ่านใหม่ (หากไม่เปลี่ยนให้เว้นว่างไว้)"
+                        autocomplete="new-password" style="width:100%; box-sizing:border-box;">
+                    <small style="color:var(--text-muted); font-size:0.75rem; margin-top:3px; display:block;">เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่านเดิม</small>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight:600; font-size:0.85rem;">ชื่อ - นามสกุล</label>
+                    <input type="text" id="edit-user-name" class="input-field" placeholder="เช่น สมชาย ใจดี"
+                        autocomplete="off" style="width:100%; box-sizing:border-box;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight:600; font-size:0.85rem;">ระดับสิทธิ์การใช้งาน (Role) *</label>
+                    <select id="edit-user-role" class="input-field" style="width:100%; box-sizing:border-box;">
+                        <option value="staff">พนักงานทั่วไป (Staff)</option>
+                        <option value="manager">หัวหน้างาน (Manager)</option>
+                        <option value="admin">ผู้ดูแลระบบ (Admin)</option>
+                    </select>
+                </div>
+                <div id="edit-user-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 4px; display: none; padding:8px 12px; background:#fef2f2; border-radius:8px;">
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top:16px; display:flex; justify-content:flex-end; gap:8px;">
+                <button type="button" class="btn btn-outline" onclick="closeEditUserModal()">ยกเลิก</button>
+                <button type="button" class="btn" id="btn-update-user" onclick="saveUserEdit()" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); border: none; color: white; border-radius: var(--radius-md); padding: 9px 18px; font-family: 'Prompt', sans-serif; font-weight: 600; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); cursor: pointer;">บันทึกการแก้ไข</button>
             </div>
         </div>
     </div>
@@ -2562,7 +2626,7 @@
     </div>
 
     <!-- Application Script -->
-    <script src="app.js?v=220"></script>
+    <script src="app.js?v=245"></script>
 </body>
 
 </html>

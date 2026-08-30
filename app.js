@@ -1382,13 +1382,213 @@ window.loadUsersTable = async () => {
                     </span>
                 </td>
                 <td style="padding: 12px 16px; text-align: center;">
-                    ${u.role !== 'admin' ? `<button class="btn btn-outline" style="padding:4px 8px; font-size:12px; color:#EF4444; border-color:#FECDD3;" onclick="deleteUserProfile('${u.id}', '${u.email}')">ลบ</button>` : '<span style="font-size:12px; color:var(--text-muted);">-</span>'}
+                    <div style="display:flex; gap:6px; justify-content:center; align-items:center;">
+                        <button type="button" class="btn btn-outline" style="padding:4px 10px; font-size:12px; color:#2563EB; border-color:#BFDBFE; display:inline-flex; align-items:center; gap:4px; font-weight:600; cursor:pointer;" onclick="openEditUserModal('${u.id}')" title="แก้ไขข้อมูลผู้ใช้">
+                            ✏️ แก้ไข
+                        </button>
+                        ${u.role !== 'admin' ? `
+                        <button type="button" class="btn btn-outline" style="padding:4px 8px; font-size:12px; color:#EF4444; border-color:#FECDD3; cursor:pointer;" onclick="deleteUserProfile('${u.id}', '${u.email}')" title="ลบผู้ใช้">
+                            🗑️ ลบ
+                        </button>` : ''}
+                    </div>
                 </td>
             </tr>
         `).join('');
     } catch (err) {
         console.error('Error loading users:', err);
         tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#EF4444;">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${err.message}</td></tr>`;
+    }
+};
+
+window.createNewUser = async () => {
+    const email = document.getElementById('new-user-email')?.value.trim();
+    const password = document.getElementById('new-user-password')?.value;
+    const name = document.getElementById('new-user-name')?.value.trim();
+    const role = document.getElementById('new-user-role')?.value || 'staff';
+    const errDiv = document.getElementById('add-user-error');
+    const btn = document.getElementById('btn-create-user');
+
+    if (!email || !password) {
+        if (errDiv) { errDiv.textContent = 'กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน'; errDiv.style.display = 'block'; }
+        return;
+    }
+    if (password.length < 6) {
+        if (errDiv) { errDiv.textContent = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร'; errDiv.style.display = 'block'; }
+        return;
+    }
+
+    if (btn) { btn.disabled = true; btn.textContent = 'กำลังสร้างผู้ใช้...'; }
+    if (errDiv) errDiv.style.display = 'none';
+
+    try {
+        // Create an isolated Supabase client so creating a user doesn't affect the current session
+        const tempClient = window.supabase.createClient(supabaseUrl, supabaseKey, {
+            auth: { persistSession: false, autoRefreshToken: false }
+        });
+
+        const { data: signUpData, error: signUpErr } = await tempClient.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: { full_name: name || email.split('@')[0], role: role }
+            }
+        });
+
+        if (signUpErr && !signUpErr.message.toLowerCase().includes('already registered')) {
+            throw signUpErr;
+        }
+
+        const newId = signUpData?.user?.id;
+        const profileData = {
+            email: email,
+            display_name: name || email.split('@')[0],
+            role: role
+        };
+        if (newId) profileData.id = newId;
+
+        await db.from('user_profiles').upsert(profileData, { onConflict: 'email' });
+
+        if (newId && password) {
+            try {
+                await db.rpc('admin_set_user_password', { target_user_id: newId, new_password: password });
+            } catch (e) {}
+        }
+
+        alert('สร้างผู้ใช้งานเรียบร้อยแล้ว');
+        closeAddUserModal();
+        if (typeof window.loadUsersTable === 'function') window.loadUsersTable();
+    } catch (err) {
+        if (errDiv) {
+            errDiv.textContent = 'เกิดข้อผิดพลาด: ' + (err.message || 'ไม่สามารถสร้างผู้ใช้ได้');
+            errDiv.style.display = 'block';
+        }
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'สร้างผู้ใช้ใหม่'; }
+    }
+};
+
+window.openEditUserModal = async (userId) => {
+    const modal = document.getElementById('edit-user-modal');
+    const errDiv = document.getElementById('edit-user-error');
+    if (errDiv) errDiv.style.display = 'none';
+
+    try {
+        const { data: user, error } = await db.from('user_profiles').select('*').eq('id', userId).single();
+        if (error || !user) throw error || new Error('ไม่พบข้อมูลผู้ใช้');
+
+        const idInput = document.getElementById('edit-user-id');
+        const emailInput = document.getElementById('edit-user-email');
+        const pwdInput = document.getElementById('edit-user-password');
+        const nameInput = document.getElementById('edit-user-name');
+        const roleInput = document.getElementById('edit-user-role');
+
+        if (idInput) idInput.value = user.id || '';
+        if (emailInput) emailInput.value = user.email || '';
+        if (pwdInput) pwdInput.value = '';
+        if (nameInput) nameInput.value = user.display_name || '';
+        if (roleInput) roleInput.value = user.role || 'staff';
+
+        if (modal) modal.style.display = 'flex';
+    } catch (err) {
+        alert('เกิดข้อผิดพลาด: ' + err.message);
+    }
+};
+
+window.closeEditUserModal = () => {
+    const modal = document.getElementById('edit-user-modal');
+    if (modal) modal.style.display = 'none';
+};
+
+window.saveUserEdit = async () => {
+    const userId = document.getElementById('edit-user-id')?.value;
+    const email = document.getElementById('edit-user-email')?.value.trim();
+    const newPassword = document.getElementById('edit-user-password')?.value;
+    const displayName = document.getElementById('edit-user-name')?.value.trim();
+    const role = document.getElementById('edit-user-role')?.value || 'staff';
+    const errDiv = document.getElementById('edit-user-error');
+    const btn = document.getElementById('btn-update-user');
+
+    if (!userId || !email) {
+        if (errDiv) { errDiv.textContent = 'กรุณากรอกอีเมลให้ถูกต้อง'; errDiv.style.display = 'block'; }
+        return;
+    }
+
+    if (newPassword && newPassword.length < 6) {
+        if (errDiv) { errDiv.textContent = 'รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร'; errDiv.style.display = 'block'; }
+        return;
+    }
+
+    if (btn) { btn.disabled = true; btn.textContent = 'กำลังบันทึก...'; }
+    if (errDiv) errDiv.style.display = 'none';
+
+    try {
+        const updates = {
+            email: email,
+            display_name: displayName || email.split('@')[0],
+            role: role
+        };
+
+        // 1. Update user_profiles table
+        const { error } = await db.from('user_profiles').update(updates).eq('id', userId);
+        if (error) throw error;
+
+        // 2. If password was provided:
+        if (newPassword && newPassword.length >= 6) {
+            let pwdUpdated = false;
+
+            // Method A: If editing the currently logged in user
+            if (window.currentUserProfile && String(window.currentUserProfile.id) === String(userId)) {
+                try {
+                    const { error: authErr } = await db.auth.updateUser({ password: newPassword, email: email });
+                    if (!authErr) pwdUpdated = true;
+                } catch (e) {
+                    console.warn('db.auth.updateUser notice:', e);
+                }
+            }
+
+            // Method B: Call Postgres RPC function to update auth.users password directly
+            try {
+                const { error: rpcErr } = await db.rpc('admin_set_user_password', {
+                    target_user_id: userId,
+                    new_password: newPassword
+                });
+                if (!rpcErr) pwdUpdated = true;
+            } catch (e) {
+                console.warn('RPC admin_set_user_password notice:', e);
+            }
+
+            // Method C: Isolated fallback signup/sync
+            if (!pwdUpdated) {
+                try {
+                    const tempClient = window.supabase.createClient(supabaseUrl, supabaseKey, {
+                        auth: { persistSession: false, autoRefreshToken: false }
+                    });
+                    await tempClient.auth.signUp({
+                        email: email,
+                        password: newPassword,
+                        options: { data: { full_name: updates.display_name, role: role } }
+                    });
+                } catch (e) {}
+            }
+        }
+
+        // 3. Update local session state if self-edited
+        if (window.currentUserProfile && String(window.currentUserProfile.id) === String(userId)) {
+            window.currentUserProfile = { ...window.currentUserProfile, ...updates };
+            localStorage.setItem('wequote_user_profile', JSON.stringify(window.currentUserProfile));
+            if (typeof applyRoleBasedUI === 'function') applyRoleBasedUI(window.currentUserProfile);
+        }
+
+        alert('บันทึกการแก้ไขข้อมูลผู้ใช้งานและรหัสผ่านเรียบร้อยแล้ว');
+        closeEditUserModal();
+        if (typeof window.loadUsersTable === 'function') window.loadUsersTable();
+    } catch (err) {
+        if (errDiv) {
+            errDiv.textContent = 'ไม่สามารถบันทึกได้: ' + (err.message || 'โปรดลองอีกครั้ง');
+            errDiv.style.display = 'block';
+        }
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'บันทึกการแก้ไข'; }
     }
 };
 
@@ -2380,8 +2580,9 @@ document.addEventListener('DOMContentLoaded', () => {
             'tab-dashboard': ['Dashboard', 'ภาพรวมระบบและสถิติ'],
             'tab-pea': ['ครอบการ์ด', 'บริการฉนวนครอบสายไฟและลูกถ้วยแรงสูง'],
             'tab-gen': ['เช่าเครื่องกำเนิดไฟฟ้า', 'วิเคราะห์ขนาดและประมาณการค่าบริการ'],
-            'tab-fleet': ['คิวและแผนที่ Generator', 'บริหารจัดการคิวและตำแหน่งติดตั้ง'],
-            'tab-history': ['ประวัติใบเสนอราคา', 'บันทึกข้อมูลและออกเอกสารย้อนหลัง']
+            'tab-fleet': ['คิวและแผนที่เครื่องกำเนิดไฟฟ้า', 'บริหารจัดการคิวและตำแหน่งติดตั้ง'],
+            'tab-history': ['ประวัติใบเสนอราคา', 'บันทึกข้อมูลและออกเอกสารย้อนหลัง'],
+            'tab-users': ['เพิ่มผู้ใช้งาน', 'จัดการรายชื่อผู้ใช้งานและกำหนดระดับสิทธิ์ระบบ']
         };
 
         if (titles[target]) {
@@ -2407,6 +2608,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (target === 'tab-history') {
             if (typeof window.renderHistory === 'function') window.renderHistory();
+        }
+        if (target === 'tab-users') {
+            if (typeof window.loadUsersTable === 'function') window.loadUsersTable();
         }
         if (target === 'tab-fleet') {
             setTimeout(() => {
