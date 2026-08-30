@@ -1599,70 +1599,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Global switchTab helper function
     window.switchTab = (target) => {
-        if (typeof window.showLoader === 'function') window.showLoader();
-
-        setTimeout(() => {
-            document.querySelectorAll('.tab-btn').forEach(b => {
-                if (b.getAttribute('data-target') === target) {
-                    b.classList.add('active');
-                } else {
-                    b.classList.remove('active');
-                }
-            });
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-            const targetEl = document.getElementById(target);
-            if (targetEl) targetEl.classList.add('active');
-
-            // Update Breadcrumb and Titles
-            const pageTitleEl = document.getElementById('current-page-title');
-            const breadcrumbEl = document.getElementById('current-breadcrumb');
-            const titles = {
-                'tab-dashboard': ['Dashboard', 'ภาพรวมระบบและสถิติ'],
-                'tab-pea': ['ครอบการ์ด', 'บริการฉนวนครอบสายไฟและลูกถ้วยแรงสูง'],
-                'tab-gen': ['เช่าเครื่องกำเนิดไฟฟ้า', 'วิเคราะห์ขนาดและประมาณการค่าบริการ'],
-                'tab-fleet': ['คิวและแผนที่ Generator', 'บริหารจัดการคิวและตำแหน่งติดตั้ง'],
-                'tab-history': ['ประวัติใบเสนอราคา', 'บันทึกข้อมูลและออกเอกสารย้อนหลัง']
-            };
-
-            if (titles[target]) {
-                if (pageTitleEl) pageTitleEl.textContent = titles[target][0];
-                if (breadcrumbEl) breadcrumbEl.textContent = titles[target][1];
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            if (b.getAttribute('data-target') === target) {
+                b.classList.add('active');
+            } else {
+                b.classList.remove('active');
             }
+        });
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-            // Close sidebar on mobile
-            const sidebar = document.getElementById('app-sidebar');
-            if (sidebar && window.innerWidth <= 992) {
-                sidebar.classList.remove('open');
-            }
+        const targetEl = document.getElementById(target);
+        if (targetEl) targetEl.classList.add('active');
 
-            if (target === 'tab-dashboard') {
-                if (typeof window.renderDashboard === 'function') window.renderDashboard();
-                setTimeout(() => {
-                    if (typeof window.initDashboardMap === 'function') window.initDashboardMap();
-                    // The map invalidation is handled inside initDashboardMap or via another timeout if needed
-                }, 100);
-            }
-            if (target === 'tab-history') {
-                if (typeof window.renderHistory === 'function') window.renderHistory();
-            }
-            if (target === 'tab-fleet') {
-                setTimeout(() => {
-                    if (typeof initFleetMap === 'function') initFleetMap();
-                    if (typeof updateMapMarkers === 'function') updateMapMarkers();
-                    const fDateEl = document.getElementById('filter-schedule-date');
-                    if (typeof renderScheduleList === 'function') renderScheduleList(fDateEl ? fDateEl.value : '');
-                    if (typeof renderCalendar === 'function') renderCalendar();
-                    if (typeof window.updateFleetStats === 'function') window.updateFleetStats();
-                }, 100);
-            }
+        // Update Breadcrumb and Titles
+        const pageTitleEl = document.getElementById('current-page-title');
+        const breadcrumbEl = document.getElementById('current-breadcrumb');
+        const titles = {
+            'tab-dashboard': ['Dashboard', 'ภาพรวมระบบและสถิติ'],
+            'tab-pea': ['ครอบการ์ด', 'บริการฉนวนครอบสายไฟและลูกถ้วยแรงสูง'],
+            'tab-gen': ['เช่าเครื่องกำเนิดไฟฟ้า', 'วิเคราะห์ขนาดและประมาณการค่าบริการ'],
+            'tab-fleet': ['คิวและแผนที่ Generator', 'บริหารจัดการคิวและตำแหน่งติดตั้ง'],
+            'tab-history': ['ประวัติใบเสนอราคา', 'บันทึกข้อมูลและออกเอกสารย้อนหลัง']
+        };
 
-            // Hide loader after a short delay for visual transition
+        if (titles[target]) {
+            if (pageTitleEl) pageTitleEl.textContent = titles[target][0];
+            if (breadcrumbEl) breadcrumbEl.textContent = titles[target][1];
+        }
+
+        // Close sidebar on mobile
+        const sidebar = document.getElementById('app-sidebar');
+        if (sidebar && window.innerWidth <= 992) {
+            sidebar.classList.remove('open');
+        }
+
+        if (target === 'tab-dashboard') {
+            if (typeof window.renderDashboard === 'function') window.renderDashboard();
             setTimeout(() => {
-                if (typeof window.hideLoader === 'function') window.hideLoader();
+                if (typeof window.initDashboardMap === 'function') window.initDashboardMap();
+                if (window.dashboardMap) window.dashboardMap.invalidateSize();
+            }, 100);
+            setTimeout(() => {
+                if (window.dashboardMap) window.dashboardMap.invalidateSize();
             }, 300);
-
-        }, 50); // Yield to browser to paint the loader
+        }
+        if (target === 'tab-history') {
+            if (typeof window.renderHistory === 'function') window.renderHistory();
+        }
+        if (target === 'tab-fleet') {
+            setTimeout(() => {
+                if (typeof initFleetMap === 'function') initFleetMap();
+                if (map) {
+                    map.invalidateSize();
+                    if (typeof window.updateMapMarkers === 'function') window.updateMapMarkers();
+                }
+                const fDateEl = document.getElementById('filter-schedule-date');
+                if (typeof renderScheduleList === 'function') renderScheduleList(fDateEl ? fDateEl.value : '');
+                if (typeof renderCalendar === 'function') renderCalendar();
+                if (typeof window.updateFleetStats === 'function') window.updateFleetStats();
+            }, 100);
+            setTimeout(() => {
+                if (map) map.invalidateSize();
+            }, 300);
+        }
     };
 
     // ---- Tab Switching Event Listeners ----
