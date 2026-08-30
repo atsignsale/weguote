@@ -1026,6 +1026,8 @@
                 @page { size: A4; margin: 0; }
                 body { background: #FFFFFF !important; }
                 html, body { background: #FFFFFF !important; }
+                body.print-pea .ynex-layout, body.print-pea #gen-print-area, body.print-pea .modal-overlay { display: none !important; }
+                body.print-pea #print-area { display: block !important; }
             }
             #print-area {
                 font-family: 'TH Sarabun PSK', 'TH Sarabun New', 'Sarabun', 'Prompt', sans-serif;
@@ -1777,7 +1779,7 @@
     </div>
 
     <!-- Application Script -->
-    <script src="app.js?v=41"></script>
+    <script src="app.js?v=42"></script>
 </body>
 
 </html>
