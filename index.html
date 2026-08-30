@@ -95,8 +95,7 @@
                         (Email)</label>
                     <input type="text" id="login-email" name="pea_auth_account" class="auth-input" required placeholder="กรอกอีเมลผู้ใช้งาน" value=""
                         autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                        data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other"
-                        readonly onfocus="this.removeAttribute('readonly');">
+                        data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other">
                 </div>
                 <div style="margin-bottom:1rem;">
                     <label for="login-password"
@@ -104,9 +103,8 @@
                         (Password)</label>
                     <div style="position:relative; display:flex; align-items:center;">
                         <input type="text" id="login-password" name="pea_auth_passkey" class="auth-input auth-password-masked" required placeholder="กรอกรหัสผ่าน" value=""
-                            autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"
+                            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                             data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other"
-                            readonly onfocus="this.removeAttribute('readonly');"
                             style="padding-right: 42px;">
                         <button type="button" id="btn-toggle-login-pwd" onclick="toggleLoginPasswordVisibility()"
                             style="position:absolute; right:10px; background:none; border:none; color:#94a3b8; cursor:pointer; padding:6px; display:flex; align-items:center; justify-content:center;" title="แสดง/ซ่อนรหัสผ่าน">
@@ -2560,7 +2558,7 @@
     </div>
 
     <!-- Application Script -->
-    <script src="app.js?v=210"></script>
+    <script src="app.js?v=215"></script>
 </body>
 
 </html>

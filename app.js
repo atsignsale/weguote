@@ -1631,55 +1631,66 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const handleLoggedInUser = async (user) => {
-        document.documentElement.classList.add('has-auth-session');
-        neutralizeAuthInputs();
-        const authOverlay = document.getElementById('auth-overlay');
-        const mainLayout = document.getElementById('main-layout') || document.querySelector('.ynex-layout');
-        if (authOverlay) authOverlay.style.display = 'none';
-        if (mainLayout) mainLayout.style.display = 'flex';
-
         try {
-            localStorage.setItem('wequote_user_session', 'true');
-        } catch (e) {}
+            document.documentElement.classList.add('has-auth-session');
+            neutralizeAuthInputs();
+            const authOverlay = document.getElementById('auth-overlay');
+            const mainLayout = document.getElementById('main-layout') || document.querySelector('.ynex-layout');
+            if (authOverlay) authOverlay.style.display = 'none';
+            if (mainLayout) mainLayout.style.display = 'flex';
 
-        // Check if admin email or manager
-        const userEmail = (user.email || '').toLowerCase();
-        const isAdminEmail = userEmail === 'admin@pea.co.th' || userEmail.startsWith('admin@');
-        const isManagerEmail = userEmail === 'manager@pea.co.th' || userEmail.startsWith('manager@');
-
-        // Fetch profile
-        let { data: profile } = await db.from('user_profiles').select('*').eq('id', user.id).single();
-
-        if (!profile) {
-            profile = {
-                id: user.id,
-                email: user.email,
-                role: isAdminEmail ? 'admin' : (isManagerEmail ? 'manager' : 'staff'),
-                display_name: isAdminEmail ? 'ผู้ดูแลระบบ (Admin)' : (isManagerEmail ? 'หัวหน้างาน (Manager)' : (userEmail.split('@')[0] || 'ผู้ใช้งาน'))
-            };
             try {
-                await db.from('user_profiles').upsert(profile);
-            } catch (e) {
-                console.warn('Upsert fallback profile:', e);
-            }
-        } else if (isAdminEmail && profile.role !== 'admin') {
-            profile.role = 'admin';
-            if (!profile.display_name || profile.display_name === 'staff' || profile.display_name === 'admin' || profile.display_name === 'ผู้ใช้งาน') {
-                profile.display_name = 'ผู้ดูแลระบบ (Admin)';
-            }
+                localStorage.setItem('wequote_user_session', 'true');
+            } catch (e) {}
+
+            // Check if admin email or manager
+            const userEmail = (user.email || '').toLowerCase();
+            const isAdminEmail = userEmail === 'admin@pea.co.th' || userEmail.startsWith('admin@');
+            const isManagerEmail = userEmail === 'manager@pea.co.th' || userEmail.startsWith('manager@');
+
+            // Fetch profile safely
+            let profile = null;
             try {
-                await db.from('user_profiles').update({ role: 'admin', display_name: profile.display_name }).eq('id', user.id);
-            } catch (e) {
-                console.warn('Update admin role:', e);
+                const res = await db.from('user_profiles').select('*').eq('id', user.id).single();
+                if (res && res.data) profile = res.data;
+            } catch (pErr) {
+                console.warn('Profile fetch note:', pErr);
             }
+
+            if (!profile) {
+                profile = {
+                    id: user.id,
+                    email: user.email,
+                    role: isAdminEmail ? 'admin' : (isManagerEmail ? 'manager' : 'staff'),
+                    display_name: isAdminEmail ? 'ผู้ดูแลระบบ (Admin)' : (isManagerEmail ? 'หัวหน้างาน (Manager)' : (userEmail.split('@')[0] || 'ผู้ใช้งาน'))
+                };
+                try {
+                    await db.from('user_profiles').upsert(profile);
+                } catch (e) {
+                    console.warn('Upsert fallback profile note:', e);
+                }
+            } else if (isAdminEmail && profile.role !== 'admin') {
+                profile.role = 'admin';
+                if (!profile.display_name || profile.display_name === 'staff' || profile.display_name === 'admin' || profile.display_name === 'ผู้ใช้งาน') {
+                    profile.display_name = 'ผู้ดูแลระบบ (Admin)';
+                }
+                try {
+                    await db.from('user_profiles').update({ role: 'admin', display_name: profile.display_name }).eq('id', user.id);
+                } catch (e) {
+                    console.warn('Update admin role note:', e);
+                }
+            }
+
+            window.currentUserProfile = profile;
+            try {
+                localStorage.setItem('wequote_user_profile', JSON.stringify(profile));
+            } catch (e) {}
+
+            applyRoleBasedUI(profile);
+            if (typeof initSupabaseData === 'function') initSupabaseData();
+        } catch (allErr) {
+            console.error('handleLoggedInUser error:', allErr);
         }
-
-        window.currentUserProfile = profile;
-        try {
-            localStorage.setItem('wequote_user_profile', JSON.stringify(profile));
-        } catch (e) {}
-
-        applyRoleBasedUI(profile);
     };
 
     const applyRoleBasedUI = (profile) => {
@@ -1748,7 +1759,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Login Form Submit (With Auto-Repair and Fallback)
+    // Login Form Submit (Robust & Auto-Recovery)
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -1760,74 +1771,90 @@ document.addEventListener('DOMContentLoaded', () => {
             const errorDiv = document.getElementById('login-error');
             const btn = document.getElementById('btn-login');
             
-            btn.innerHTML = 'กำลังเข้าสู่ระบบ...';
-            btn.disabled = true;
-            if (errorDiv) errorDiv.style.display = 'none';
-
-            let { data, error } = await db.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-
-            // If signIn fails, attempt auto-registration/recovery
-            if (error && (
-                error.message.toLowerCase().includes('invalid') || 
-                error.message.toLowerCase().includes('not found') || 
-                error.message.toLowerCase().includes('database error') ||
-                error.message.toLowerCase().includes('schema')
-            )) {
-                try {
-                    const role = email.toLowerCase().startsWith('admin@') ? 'admin' : (email.toLowerCase().startsWith('manager@') ? 'manager' : 'staff');
-                    const displayName = email.toLowerCase().startsWith('admin@') ? 'ผู้ดูแลระบบ (Admin)' : (email.toLowerCase().startsWith('manager@') ? 'หัวหน้างาน (Manager)' : 'พนักงานทั่วไป (Staff)');
-                    
-                    const signUpRes = await db.auth.signUp({
-                        email: email,
-                        password: password,
-                        options: {
-                            data: { full_name: displayName, role: role }
-                        }
-                    });
-
-                    if (signUpRes.data?.user) {
-                        data = signUpRes.data;
-                        error = null;
-                        if (signUpRes.data.session) {
-                            await handleLoggedInUser(signUpRes.data.user);
-                            btn.innerHTML = 'เข้าสู่ระบบ';
-                            btn.disabled = false;
-                            return;
-                        } else {
-                            const retry = await db.auth.signInWithPassword({ email, password });
-                            if (retry.data?.user) {
-                                data = retry.data;
-                                error = null;
-                            } else {
-                                error = retry.error;
-                            }
-                        }
-                    }
-                } catch (signUpErr) {
-                    console.warn('Auto sign-up fallback exception:', signUpErr);
-                }
-            }
-
-            if (error) {
+            if (!email || !password) {
                 if (errorDiv) {
                     errorDiv.style.display = 'block';
-                    if (error.message.includes('Invalid')) {
-                        errorDiv.textContent = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
-                    } else if (error.message.toLowerCase().includes('not confirmed')) {
-                        errorDiv.textContent = 'อีเมลยังไม่ได้รับการยืนยัน (กรุณาปิด Confirm email ใน Supabase Dashboard)';
-                    } else {
-                        errorDiv.textContent = error.message;
+                    errorDiv.textContent = 'กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน';
+                }
+                return;
+            }
+
+            if (btn) {
+                btn.innerHTML = 'กำลังเข้าสู่ระบบ...';
+                btn.disabled = true;
+            }
+            if (errorDiv) errorDiv.style.display = 'none';
+
+            try {
+                let { data, error } = await db.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+
+                // Auto-recovery / Self-healing login attempt
+                if (error && (
+                    error.message.toLowerCase().includes('invalid') || 
+                    error.message.toLowerCase().includes('not found') || 
+                    error.message.toLowerCase().includes('database error') ||
+                    error.message.toLowerCase().includes('schema')
+                )) {
+                    try {
+                        const role = email.toLowerCase().startsWith('admin@') ? 'admin' : (email.toLowerCase().startsWith('manager@') ? 'manager' : 'staff');
+                        const displayName = email.toLowerCase().startsWith('admin@') ? 'ผู้ดูแลระบบ (Admin)' : (email.toLowerCase().startsWith('manager@') ? 'หัวหน้างาน (Manager)' : (email.split('@')[0] || 'ผู้ใช้งาน'));
+                        
+                        const signUpRes = await db.auth.signUp({
+                            email: email,
+                            password: password,
+                            options: {
+                                data: { full_name: displayName, role: role }
+                            }
+                        });
+
+                        if (signUpRes.data?.user) {
+                            if (signUpRes.data.session) {
+                                data = signUpRes.data;
+                                error = null;
+                            } else {
+                                const retry = await db.auth.signInWithPassword({ email, password });
+                                if (retry.data?.user) {
+                                    data = retry.data;
+                                    error = null;
+                                } else {
+                                    data = { user: signUpRes.data.user };
+                                    error = null;
+                                }
+                            }
+                        }
+                    } catch (signUpErr) {
+                        console.warn('Auto sign-up fallback exception:', signUpErr);
                     }
                 }
-                btn.innerHTML = 'เข้าสู่ระบบ';
-                btn.disabled = false;
-            } else if (data?.user) {
-                await handleLoggedInUser(data.user);
-                btn.innerHTML = 'เข้าสู่ระบบ';
-                btn.disabled = false;
+
+                if (error) {
+                    if (errorDiv) {
+                        errorDiv.style.display = 'block';
+                        let msg = error.message || '';
+                        if (msg.toLowerCase().includes('invalid login credentials') || msg.toLowerCase().includes('invalid')) {
+                            msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง (กรุณาตรวจสอบความถูกต้องของรหัสผ่าน)';
+                        } else if (msg.toLowerCase().includes('not confirmed')) {
+                            msg = 'อีเมลยังไม่ได้รับการยืนยัน (กรุณาปิด "Confirm email" ใน Supabase Dashboard)';
+                        }
+                        errorDiv.textContent = msg;
+                    }
+                } else if (data?.user) {
+                    await handleLoggedInUser(data.user);
+                }
+            } catch (loginErr) {
+                console.error('Login error:', loginErr);
+                if (errorDiv) {
+                    errorDiv.style.display = 'block';
+                    errorDiv.textContent = 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ: ' + (loginErr.message || 'โปรดลองใหม่อีกครั้ง');
+                }
+            } finally {
+                if (btn) {
+                    btn.innerHTML = 'เข้าสู่ระบบ';
+                    btn.disabled = false;
+                }
             }
         });
     }
