@@ -8,8 +8,7 @@
     <!-- Google Fonts: Prompt (Thai Modern & Numbers) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <!-- Leaflet Map CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -19,34 +18,105 @@
     <!-- Supabase JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Application Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=25">
+
+    <!-- Immediate Zero-Flicker Session Check -->
+    <script>
+        (function () {
+            try {
+                var hasSession = false;
+                for (var i = 0; i < localStorage.length; i++) {
+                    var k = localStorage.key(i);
+                    if (k && (k.indexOf('-auth-token') !== -1 || k === 'wequote_user_session')) {
+                        var val = localStorage.getItem(k);
+                        if (val && (val.indexOf('"access_token"') !== -1 || val === 'true')) {
+                            hasSession = true;
+                            break;
+                        }
+                    }
+                }
+                if (hasSession) {
+                    document.documentElement.classList.add('has-auth-session');
+                }
+            } catch (e) { }
+        })();
+    </script>
+    <style>
+        /* Zero-Flicker Layout Control */
+        html.has-auth-session #auth-overlay {
+            display: none !important;
+        }
+
+        html.has-auth-session #main-layout {
+            display: flex !important;
+        }
+
+        html:not(.has-auth-session) #main-layout {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body>
     <!-- Login Overlay -->
-    <div id="auth-overlay" class="auth-overlay">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h2>WeQuote PEA</h2>
-                <p>เข้าสู่ระบบเพื่อใช้งาน</p>
+    <div id="auth-overlay" class="auth-overlay"
+        style="position:fixed; inset:0; width:100vw; height:100vh; display:none; justify-content:center; align-items:center; background:linear-gradient(135deg,#0f172a 0%,#0d2821 50%,#064e3b 100%); z-index:99999; padding:1rem; box-sizing:border-box;">
+        <div class="auth-card"
+            style="position:relative; background:#fff; width:100%; max-width:420px; padding:2.5rem 2.5rem 2rem; border-radius:20px; box-shadow:0 25px 50px rgba(0,0,0,0.35); margin:auto; animation:authSlideUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards;">
+
+            <!-- Logo Badge -->
+            <div style="display:flex; justify-content:center; margin-bottom:1.5rem;">
+                <div class="auth-logo-badge"
+                    style="display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg,#10B981,#059669); padding:10px 22px; border-radius:50px; color:white; font-weight:700; font-size:1.05rem; box-shadow:0 4px 16px rgba(16,185,129,0.35);">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                    WeQuote PEA
+                </div>
             </div>
-            <form id="login-form">
-                <div class="form-group">
-                    <label>อีเมล (Email)</label>
-                    <input type="email" id="login-email" class="input-control" required placeholder="admin@pea.co.th">
+
+            <!-- Header -->
+            <div style="text-align:center; margin-bottom:1.5rem;">
+                <h2 style="font-size:1.6rem; font-weight:700; color:#0f172a; margin:0 0 0.4rem; letter-spacing:-0.5px;">
+                    ยินดีต้อนรับ</h2>
+                <p style="color:#64748b; font-size:0.9rem; margin:0;">ระบบประมาณการค่าใช้จ่าย พัฒนาระบบ PEA บึงกาฬ</p>
+            </div>
+
+            <div
+                style="height:1px; background:linear-gradient(to right,transparent,#e2e8f0,transparent); margin-bottom:1.5rem;">
+            </div>
+
+            <!-- Form -->
+            <form id="login-form" autocomplete="off">
+                <div style="margin-bottom:1.25rem;">
+                    <label for="login-email"
+                        style="display:block; font-size:0.85rem; font-weight:600; color:#374151; margin-bottom:0.5rem;">อีเมล
+                        (Email)</label>
+                    <input type="email" id="login-email" class="auth-input" required placeholder="admin@pea.co.th"
+                        autocomplete="off">
                 </div>
-                <div class="form-group">
-                    <label>รหัสผ่าน (Password)</label>
-                    <input type="password" id="login-password" class="input-control" required placeholder="••••••••">
+                <div style="margin-bottom:1rem;">
+                    <label for="login-password"
+                        style="display:block; font-size:0.85rem; font-weight:600; color:#374151; margin-bottom:0.5rem;">รหัสผ่าน
+                        (Password)</label>
+                    <input type="password" id="login-password" class="auth-input" required placeholder="••••••••"
+                        autocomplete="new-password">
                 </div>
-                <div class="auth-actions">
-                    <button type="submit" id="btn-login" class="btn btn-primary" style="width:100%">เข้าสู่ระบบ</button>
-                    <!-- For simplicity, registration can be done via Supabase dashboard by admins -->
+                <div id="login-error"
+                    style="color:#ef4444; margin-bottom:0.75rem; font-size:13px; text-align:center; display:none; padding:0.5rem; background:#fef2f2; border-radius:8px;">
                 </div>
-                <div id="login-error" style="color:#ef4444; margin-top:10px; font-size:14px; text-align:center; display:none;">
-                    อีเมลหรือรหัสผ่านไม่ถูกต้อง
-                </div>
+                <button type="submit" id="btn-login" class="auth-submit-btn"
+                    style="width:100%; padding:0.85rem 1rem; background:linear-gradient(135deg,#10B981 0%,#059669 100%); color:white; border:none; border-radius:10px; font-size:1rem; font-weight:600; font-family:'Prompt',sans-serif; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.35); display:flex; align-items:center; justify-content:center; gap:8px;">
+                    เข้าสู่ระบบ
+                </button>
             </form>
+
+            <!-- Footer -->
+            <div style="margin-top:1.5rem; text-align:center; font-size:0.8rem; color:#94a3b8;">
+                ⚡ พัฒนาระบบ PEA บึงกาฬ
+            </div>
+
         </div>
     </div>
 
@@ -65,7 +135,8 @@
             <div class="sidebar-header">
                 <a class="sidebar-logo" href="#" onclick="switchTab('tab-dashboard'); return false;">
                     <div class="brand-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                         </svg>
                     </div>
@@ -83,7 +154,8 @@
                     <li class="nav-item">
                         <button class="tab-btn active" data-target="tab-dashboard">
                             <span class="nav-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
                                     <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
                                     <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
@@ -93,15 +165,11 @@
                             <span class="nav-text">Dashboard</span>
                         </button>
                     </li>
-                </ul>
-
-                <!-- Category 2: Services & Fleet -->
-                <div class="nav-category">SERVICES & FLEET</div>
-                <ul class="nav-menu">
                     <li class="nav-item">
                         <button class="tab-btn" data-target="tab-pea">
                             <span class="nav-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                                 </svg>
                             </span>
@@ -111,7 +179,8 @@
                     <li class="nav-item">
                         <button class="tab-btn" data-target="tab-fleet">
                             <span class="nav-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
                                     <line x1="8" y1="2" x2="8" y2="18"></line>
                                     <line x1="16" y1="6" x2="16" y2="22"></line>
@@ -123,7 +192,8 @@
                     <li class="nav-item">
                         <button class="tab-btn" data-target="tab-gen">
                             <span class="nav-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
                                     <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                                 </svg>
@@ -131,15 +201,11 @@
                             <span class="nav-text">เช่าเครื่องกำเนิดไฟฟ้า</span>
                         </button>
                     </li>
-                </ul>
-
-                <!-- Category 3: Reports & Archives -->
-                <div class="nav-category">REPORTS & ARCHIVES</div>
-                <ul class="nav-menu">
                     <li class="nav-item">
                         <button class="tab-btn" data-target="tab-history">
                             <span class="nav-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
@@ -150,7 +216,8 @@
                     <li class="nav-item" id="nav-item-users" style="display: none;">
                         <button class="tab-btn" data-target="tab-users">
                             <span class="nav-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="9" cy="7" r="4"></circle>
                                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -161,12 +228,31 @@
                         </button>
                     </li>
                 </ul>
+
+                <!-- Category 2: Support & About -->
+                <div class="nav-category">SUPPORT & HELP</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <button class="tab-btn" onclick="openContactModal()" type="button">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                    </path>
+                                </svg>
+                            </span>
+                            <span class="nav-text">ติดต่อเรา</span>
+                            <span class="nav-badge" style="background:#ECFDF5; color:#059669; font-size:10px; padding:2px 6px; border-radius:10px; margin-left:auto; border:1px solid #A7F3D0;">ช่วยเหลือ</span>
+                        </button>
+                    </li>
+                </ul>
             </div>
 
-            <div class="sidebar-footer">
+            <div class="sidebar-footer" onclick="openContactModal()" style="cursor:pointer;" title="คลิกเพื่อดูข้อมูลผู้พัฒนาระบบและการติดต่อ">
                 <div class="sidebar-pea-info">
-                    <span class="pea-pill">PEA เขต 1</span>
-                    <span class="pea-subtext">กฟฉ.1 (อุดรธานี)</span>
+                    <span class="pea-pill">PEA บึงกาฬ</span>
+                    <span class="pea-subtext">©2569 OMG Innovation</span>
                 </div>
             </div>
         </aside>
@@ -178,7 +264,8 @@
             <header class="ynex-header">
                 <div class="header-left">
                     <button class="sidebar-toggle-btn" id="btn-sidebar-toggle" title="ยุบ/ขยายแถบเมนู">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
                             <line x1="3" y1="12" x2="21" y2="12"></line>
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -186,12 +273,15 @@
                     </button>
                     <div class="header-search">
                         <span class="search-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
                         </span>
-                        <input type="text" id="global-header-search" placeholder="ค้นหาหมายเลขผู้ใช้ไฟ (CA), สถานที่, หรือเมนู...">
+                        <input type="search" id="global-header-search" name="wequote_search_query" autocomplete="off"
+                            autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true"
+                            data-form-type="other" placeholder="ค้นหาหมายเลขผู้ใช้ไฟ (CA), สถานที่">
                     </div>
                 </div>
 
@@ -204,10 +294,12 @@
 
                     <!-- Theme Toggle (Eye-Care Mode) -->
                     <button class="theme-toggle-btn" id="btn-theme-toggle" title="สลับโหมดถนอมสายตา / Dark Mode">
-                        <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                         </svg>
-                        <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                        <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" style="display:none;">
                             <circle cx="12" cy="12" r="5"></circle>
                             <line x1="12" y1="1" x2="12" y2="3"></line>
                             <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -224,15 +316,39 @@
                     <div class="user-profile-container" style="position: relative;">
                         <div class="user-profile-widget" onclick="toggleProfileDropdown()" title="ข้อมูลผู้ใช้งาน">
                             <div class="profile-info">
-                                <div class="profile-name" id="ui-profile-name">ผู้ใช้งาน</div>
-                                <div class="profile-role" id="ui-profile-role">PEA</div>
+                                <div class="profile-name" id="ui-profile-name"></div>
+                                <div class="profile-role" id="ui-profile-role"></div>
                             </div>
-                            <div class="profile-avatar" id="ui-profile-avatar">PEA</div>
+                            <div class="profile-avatar" id="ui-profile-avatar"></div>
                         </div>
-                        <div id="profile-dropdown" class="profile-dropdown" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 8px; background: white; border: 1px solid #E2E8F0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); width: 200px; z-index: 1000; flex-direction: column; overflow: hidden;">
-                            <button onclick="openEditProfileModal()" style="padding: 10px 15px; text-align: left; background: none; border: none; width: 100%; cursor: pointer; font-size: 0.875rem; color: #334155; display: flex; align-items: center; gap: 8px;">✏️ แก้ไขข้อมูล / รูปภาพ</button>
-                            <hr style="margin: 0; border: none; border-top: 1px solid #E2E8F0;">
-                            <button onclick="logoutUser()" style="padding: 10px 15px; text-align: left; background: none; border: none; width: 100%; cursor: pointer; font-size: 0.875rem; color: #EF4444; display: flex; align-items: center; gap: 8px;">🚪 ออกจากระบบ</button>
+                        <div id="profile-dropdown" class="profile-dropdown">
+                            <button class="profile-dropdown-btn" onclick="openEditProfileModal()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                แก้ไขข้อมูล / รูปภาพ
+                            </button>
+                            <button class="profile-dropdown-btn" onclick="openContactModal()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                    </path>
+                                </svg>
+                                ติดต่อเรา / ผู้พัฒนา
+                            </button>
+                            <div class="profile-dropdown-divider"></div>
+                            <button class="profile-dropdown-btn danger" onclick="logoutUser()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                ออกจากระบบ
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -267,19 +383,22 @@
                                 <span style="font-size: 1.1rem; opacity: 0.9;">⚡</span>
                             </h2>
                             <p>
-                                ระบบประมาณการค่าใช้จ่ายและบริหารคิวจัดสรรเครื่องยนต์กำเนิดไฟฟ้าเคลื่อนที่ (Mobile Generator) 
+                                ระบบประมาณการค่าใช้จ่ายและบริหารคิวจัดสรรเครื่องยนต์กำเนิดไฟฟ้าเคลื่อนที่ (Mobile
+                                Generator)
                                 และงานฉนวนครอบสายไฟแรงสูงตามมาตรฐานการไฟฟ้าส่วนภูมิภาค
                             </p>
                         </div>
                         <div class="hero-actions">
                             <button class="btn-hero btn-hero-primary" onclick="switchTab('tab-pea')">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2">
                                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                                 </svg>
                                 คำนวณครอบการ์ด
                             </button>
                             <button class="btn-hero btn-hero-secondary" onclick="switchTab('tab-gen')">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2">
                                     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                                 </svg>
                                 เช่าเครื่อง Gen
@@ -301,7 +420,8 @@
                                 </div>
                             </div>
                             <div class="kpi-body">
-                                <div class="kpi-value"><span id="dash-total-gen">24</span><span class="kpi-unit">เครื่อง</span></div>
+                                <div class="kpi-value"><span id="dash-total-gen">24</span><span
+                                        class="kpi-unit">เครื่อง</span></div>
                             </div>
                             <div class="kpi-footer">
                                 <span class="kpi-pill success">ครอบคลุม 17 จุดรวมงาน</span>
@@ -321,7 +441,8 @@
                                 </div>
                             </div>
                             <div class="kpi-body">
-                                <div class="kpi-value"><span id="dash-standby-gen">24</span><span class="kpi-unit">เครื่อง</span></div>
+                                <div class="kpi-value"><span id="dash-standby-gen">24</span><span
+                                        class="kpi-unit">เครื่อง</span></div>
                             </div>
                             <div class="kpi-footer">
                                 <span class="kpi-pill info">พร้อมจ่ายไฟทันที</span>
@@ -340,7 +461,8 @@
                                 </div>
                             </div>
                             <div class="kpi-body">
-                                <div class="kpi-value"><span id="dash-active-gen">0</span><span class="kpi-unit">เครื่อง</span></div>
+                                <div class="kpi-value"><span id="dash-active-gen">0</span><span
+                                        class="kpi-unit">เครื่อง</span></div>
                             </div>
                             <div class="kpi-footer">
                                 <span class="kpi-pill warning">ปฏิบัติงานในพื้นที่</span>
@@ -354,12 +476,15 @@
                                 <span class="kpi-title">ซ่อมบำรุง / ตรวจเช็ค</span>
                                 <div class="kpi-icon-badge rose">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                                        <path
+                                            d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+                                        </path>
                                     </svg>
                                 </div>
                             </div>
                             <div class="kpi-body">
-                                <div class="kpi-value"><span id="dash-maint-gen">0</span><span class="kpi-unit">เครื่อง</span></div>
+                                <div class="kpi-value"><span id="dash-maint-gen">0</span><span
+                                        class="kpi-unit">เครื่อง</span></div>
                             </div>
                             <div class="kpi-footer">
                                 <span class="kpi-pill danger">ระงับจ่ายงานชั่วคราว</span>
@@ -370,10 +495,10 @@
 
                     <!-- Middle Row: 3 Revenue Metric Cards -->
                     <div class="kpi-grid-revenue">
-                        <!-- PEA Cover Revenue -->
-                        <div class="kpi-card">
+                        <!-- PEA Cover Revenue (Light Blue Theme) -->
+                        <div class="kpi-card revenue-card-pea">
                             <div class="kpi-header">
-                                <span class="kpi-title">รายได้: ครอบการ์ด</span>
+                                <span class="kpi-title" style="color:var(--secondary); font-weight:700;">รายได้: ครอบการ์ด</span>
                                 <div class="kpi-icon-badge blue">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -381,7 +506,7 @@
                                 </div>
                             </div>
                             <div class="kpi-body">
-                                <div class="kpi-value" id="dash-rev-pea">0 ฿</div>
+                                <div class="kpi-value" id="dash-rev-pea" style="color:var(--secondary);">0 ฿</div>
                             </div>
                             <div class="kpi-footer">
                                 <span class="kpi-pill info">ฉนวนครอบสายและลูกถ้วย</span>
@@ -389,10 +514,10 @@
                             </div>
                         </div>
 
-                        <!-- Gen Rental Revenue -->
-                        <div class="kpi-card">
+                        <!-- Gen Rental Revenue (Light Purple Theme) -->
+                        <div class="kpi-card revenue-card-gen">
                             <div class="kpi-header">
-                                <span class="kpi-title">รายได้: เช่าเครื่องกำเนิดไฟฟ้า</span>
+                                <span class="kpi-title" style="color:var(--accent-purple); font-weight:700;">รายได้: เช่าเครื่องกำเนิดไฟฟ้า</span>
                                 <div class="kpi-icon-badge purple">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="12" y1="1" x2="12" y2="23"></line>
@@ -401,10 +526,10 @@
                                 </div>
                             </div>
                             <div class="kpi-body">
-                                <div class="kpi-value" id="dash-rev-gen">0 ฿</div>
+                                <div class="kpi-value" id="dash-rev-gen" style="color:var(--accent-purple);">0 ฿</div>
                             </div>
                             <div class="kpi-footer">
-                                <span class="kpi-pill warning">ค่าเช่า + ค่าขนส่ง + คุมงาน</span>
+                                <span class="kpi-pill warning" style="background:var(--accent-purple-light); color:var(--accent-purple); border:1px solid var(--accent-purple-border);">ค่าเช่า + ค่าขนส่ง + คุมงาน</span>
                                 <span>ตามระเบียบ กฟภ.</span>
                             </div>
                         </div>
@@ -412,7 +537,8 @@
                         <!-- Grand Total Revenue -->
                         <div class="kpi-card revenue-card-total">
                             <div class="kpi-header">
-                                <span class="kpi-title" style="color:var(--primary); font-weight:700;">รวมประมาณการรายได้สุทธิ</span>
+                                <span class="kpi-title"
+                                    style="color:var(--primary); font-weight:700;">รวมประมาณการรายได้สุทธิ</span>
                                 <div class="kpi-icon-badge emerald">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <circle cx="12" cy="12" r="10"></circle>
@@ -467,8 +593,10 @@
                                     <p>แสดงจุดรวมงานเขต 17 แห่ง และคิวงานที่กำลังจ่ายไฟจริง</p>
                                 </div>
                                 <div class="map-status-chips">
-                                    <span class="chip active"><span class="chip-dot" style="background:#3B82F6;"></span> จุดรวมงาน</span>
-                                    <span class="chip active"><span class="chip-dot" style="background:#F59E0B;"></span> งานปฏิบัติการ</span>
+                                    <span class="chip active"><span class="chip-dot" style="background:#3B82F6;"></span>
+                                        จุดรวมงาน</span>
+                                    <span class="chip active"><span class="chip-dot" style="background:#F59E0B;"></span>
+                                        งานปฏิบัติการ</span>
                                 </div>
                             </div>
                             <div id="dashboard-map"></div>
@@ -481,7 +609,8 @@
                                     <h3>📋 รายการใบเสนอราคาล่าสุด</h3>
                                     <p>ข้อมูลใบเสนอราคาที่ถูกบันทึกล่าสุดในระบบ</p>
                                 </div>
-                                <button class="btn btn-xs btn-outline" onclick="switchTab('tab-history')">ดูทั้งหมด</button>
+                                <button class="btn btn-xs btn-outline"
+                                    onclick="switchTab('tab-history')">ดูทั้งหมด</button>
                             </div>
                             <div class="ynex-table-wrapper">
                                 <table class="ynex-table">
@@ -564,13 +693,15 @@
 
                             <!-- Signatories for PEA Cover -->
                             <div class="section-divider"><span>ข้อมูลผู้ลงนามในเอกสาร (ใบเสนอราคา)</span></div>
-                            <div style="font-weight:600; font-size:0.88rem; margin-bottom:6px; color:var(--primary); display:flex; align-items:center; gap:6px;">
+                            <div
+                                style="font-weight:600; font-size:0.88rem; margin-bottom:6px; color:var(--primary); display:flex; align-items:center; gap:6px;">
                                 <span>✍️ ผู้ประมาณการ</span>
                             </div>
                             <div class="form-row">
                                 <div class="form-group half">
                                     <label>ชื่อ-นามสกุล</label>
-                                    <input type="text" id="pea-estimator-name" value="นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง" placeholder="ชื่อ-นามสกุล ผู้ประมาณการ">
+                                    <input type="text" id="pea-estimator-name" value="นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง"
+                                        placeholder="ชื่อ-นามสกุล ผู้ประมาณการ">
                                 </div>
                                 <div class="form-group half">
                                     <label>ตำแหน่ง</label>
@@ -579,20 +710,24 @@
                             </div>
                             <div class="form-group">
                                 <label>แผนก / สังกัด</label>
-                                <input type="text" id="pea-estimator-dept" value="แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า" placeholder="แผนก / สังกัด">
+                                <input type="text" id="pea-estimator-dept" value="แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า"
+                                    placeholder="แผนก / สังกัด">
                             </div>
 
-                            <div style="font-weight:600; font-size:0.88rem; margin-top:8px; margin-bottom:6px; color:var(--primary); display:flex; align-items:center; gap:6px;">
+                            <div
+                                style="font-weight:600; font-size:0.88rem; margin-top:8px; margin-bottom:6px; color:var(--primary); display:flex; align-items:center; gap:6px;">
                                 <span>🔍 ผู้ตรวจสอบ</span>
                             </div>
                             <div class="form-row">
                                 <div class="form-group half">
                                     <label>ชื่อ-นามสกุล</label>
-                                    <input type="text" id="pea-checker-name" value="นายปฐมทรรศน์ ชงัดเวช" placeholder="ชื่อ-นามสกุล ผู้ตรวจสอบ">
+                                    <input type="text" id="pea-checker-name" value="นายปฐมทรรศน์ ชงัดเวช"
+                                        placeholder="ชื่อ-นามสกุล ผู้ตรวจสอบ">
                                 </div>
                                 <div class="form-group half">
                                     <label>ตำแหน่ง</label>
-                                    <input type="text" id="pea-checker-pos" value="หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า" placeholder="ตำแหน่ง">
+                                    <input type="text" id="pea-checker-pos"
+                                        value="หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า" placeholder="ตำแหน่ง">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -600,7 +735,8 @@
                                 <input type="text" id="pea-checker-dept" value="" placeholder="แผนก / สังกัด (ถ้ามี)">
                             </div>
 
-                            <button class="btn btn-green btn-full" id="pea-calculate-btn" style="margin-top:10px;">คำนวณราคา</button>
+                            <button class="btn btn-green btn-full" id="pea-calculate-btn"
+                                style="margin-top:10px;">คำนวณราคา</button>
                         </div>
 
                         <!-- Right: Result -->
@@ -612,11 +748,13 @@
                             </div>
                             <div class="result-details">
                                 <div class="result-row">
-                                    <span>ฉนวนครอบสายไฟ (<span id="out-wire-qty">-</span> ชิ้น × <span id="out-days">-</span> วัน × 100 ฿)</span>
+                                    <span>ฉนวนครอบสายไฟ (<span id="out-wire-qty">-</span> ชิ้น × <span
+                                            id="out-days">-</span> วัน × 100 ฿)</span>
                                     <span class="val" id="out-wire-cost">- ฿</span>
                                 </div>
                                 <div class="result-row">
-                                    <span>ฉนวนครอบลูกถ้วยแรงสูง (<span id="out-ins-qty">-</span> ชิ้น × <span id="out-days2">-</span> วัน × 100 ฿)</span>
+                                    <span>ฉนวนครอบลูกถ้วยแรงสูง (<span id="out-ins-qty">-</span> ชิ้น × <span
+                                            id="out-days2">-</span> วัน × 100 ฿)</span>
                                     <span class="val" id="out-ins-cost">- ฿</span>
                                 </div>
                                 <div class="result-row">
@@ -650,8 +788,10 @@
                             </div>
 
                             <div class="action-buttons">
-                                <button class="btn btn-outline btn-full" id="pea-export-pdf" style="background-color: var(--primary-light); color: var(--primary); border-color: var(--primary-border);">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <button type="button" class="btn btn-outline btn-full" id="pea-export-pdf"
+                                    style="background-color: var(--primary-light); color: var(--primary); border-color: var(--primary-border);">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                         <polyline points="14 2 14 8 20 8"></polyline>
                                         <line x1="9" y1="13" x2="15" y2="13"></line>
@@ -659,7 +799,8 @@
                                     </svg>
                                     ออกใบเสนอราคา PDF
                                 </button>
-                                <button class="btn btn-green btn-full" id="pea-save-data" style="margin-top: 8px;">
+                                <button type="button" class="btn btn-green btn-full" id="pea-save-data"
+                                    style="margin-top: 8px;">
                                     💾 บันทึกข้อมูล (อัปเดต Dashboard)
                                 </button>
                             </div>
@@ -725,25 +866,33 @@
 
                             <div class="form-row">
                                 <div class="form-group half">
-                                    <label>โหลดไฟฟ้า (Amp) <small style="color:var(--text-muted);">(แก้ไขได้)</small></label>
+                                    <label>โหลดไฟฟ้า (Amp) <small
+                                            style="color:var(--text-muted);">(แก้ไขได้)</small></label>
                                     <input type="number" id="gen-load-amp" value="180" min="1">
                                     <div id="amp-load-indicator" style="margin-top:6px;">
-                                        <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-muted); margin-bottom:3px;">
+                                        <div
+                                            style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-muted); margin-bottom:3px;">
                                             <span id="amp-load-label">โหลด: 100%</span>
                                             <span id="amp-max-label">สูงสุด: 180 A</span>
                                         </div>
-                                        <div style="background:var(--bg-surface-soft); border-radius:4px; height:6px; overflow:hidden;">
-                                            <div id="amp-load-bar" style="height:100%; width:100%; background:var(--primary); border-radius:4px; transition:width 0.3s, background 0.3s;"></div>
+                                        <div
+                                            style="background:var(--bg-surface-soft); border-radius:4px; height:6px; overflow:hidden;">
+                                            <div id="amp-load-bar"
+                                                style="height:100%; width:100%; background:var(--primary); border-radius:4px; transition:width 0.3s, background 0.3s;">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div id="amp-overload-warning" style="display:none; margin-top:5px; font-size:0.74rem; color:var(--accent-rose); font-weight:600; background:var(--accent-rose-light); border:1px solid var(--accent-rose-border); border-radius:6px; padding:4px 8px; line-height:1.4;">
+                                    <div id="amp-overload-warning"
+                                        style="display:none; margin-top:5px; font-size:0.74rem; color:var(--accent-rose); font-weight:600; background:var(--accent-rose-light); border:1px solid var(--accent-rose-border); border-radius:6px; padding:4px 8px; line-height:1.4;">
                                         ⚠️ กระแสเกินขีดจำกัด Gen ที่เลือก (<span id="amp-max-val">180</span> A)
                                     </div>
                                 </div>
                                 <div class="form-group half">
                                     <label>เทียบเท่า (kW)</label>
-                                    <input type="number" id="gen-load-kw" value="180" readonly style="background:var(--bg-surface-soft); font-weight:bold;">
-                                    <div style="font-size:0.72rem; color:var(--text-muted); margin-top:5px; line-height:1.4;">
+                                    <input type="number" id="gen-load-kw" value="180" readonly
+                                        style="background:var(--bg-surface-soft); font-weight:bold;">
+                                    <div
+                                        style="font-size:0.72rem; color:var(--text-muted); margin-top:5px; line-height:1.4;">
                                         💡 ขนาดจากเครื่องที่เลือก<br>Amp สูงสุด = kW × 1.8
                                     </div>
                                 </div>
@@ -762,7 +911,8 @@
                                 <div class="form-group half">
                                     <label>ชั่วโมงใช้งาน/วัน</label>
                                     <input type="number" id="gen-hours" value="12" min="1" max="24">
-                                    <div id="gen-hours-warning" style="display:none; color:var(--accent-rose); font-size:0.75rem; margin-top:4px;">
+                                    <div id="gen-hours-warning"
+                                        style="display:none; color:var(--accent-rose); font-size:0.75rem; margin-top:4px;">
                                         ⚠️ จำกัดไม่เกิน 12 ชม./วัน ตามระเบียบ กฟภ.
                                     </div>
                                 </div>
@@ -771,20 +921,25 @@
                             <div class="form-group">
                                 <label style="display:flex; justify-content:space-between; align-items:center;">
                                     <span>ราคาน้ำมันดีเซล (฿/ลิตร)</span>
-                                    <button type="button" class="btn btn-xs btn-outline" id="btn-fetch-fuel-price" style="font-size:0.75rem; padding:2px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:4px; cursor:pointer;">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                                    <button type="button" class="btn btn-xs btn-outline" id="btn-fetch-fuel-price"
+                                        style="font-size:0.75rem; padding:2px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:4px; cursor:pointer;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
                                         </svg>
                                         ดึงราคาน้ำมันล่าสุด
                                     </button>
                                 </label>
                                 <div style="display:flex; gap:8px;">
                                     <input type="number" id="gen-fuel-price" value="38.39" step="0.01" style="flex:1;">
-                                    <button type="button" class="btn btn-outline" id="btn-fetch-fuel-price-addon" title="ดึงราคาปัจจุบันจาก API" style="padding:0 12px; white-space:nowrap; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                                    <button type="button" class="btn btn-outline" id="btn-fetch-fuel-price-addon"
+                                        title="ดึงราคาปัจจุบันจาก API"
+                                        style="padding:0 12px; white-space:nowrap; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
                                         🔄 ดึงราคา API
                                     </button>
                                 </div>
-                                <div id="fuel-price-source-info" style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
+                                <div id="fuel-price-source-info"
+                                    style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
                                     กำลังเชื่อมต่อฐานข้อมูลราคาน้ำมันดีเซลจริง...
                                 </div>
                             </div>
@@ -793,13 +948,15 @@
                             <div class="section-divider"><span>ข้อมูลผู้ลงนามในเอกสาร (ใบเสนอราคา)</span></div>
 
                             <!-- ผู้ประมาณการ -->
-                            <div style="font-weight:600; font-size:0.88rem; margin-bottom:6px; color:var(--primary); display:flex; align-items:center; gap:6px;">
+                            <div
+                                style="font-weight:600; font-size:0.88rem; margin-bottom:6px; color:var(--primary); display:flex; align-items:center; gap:6px;">
                                 <span>✍️ ผู้ประมาณการ</span>
                             </div>
                             <div class="form-row">
                                 <div class="form-group half">
                                     <label>ชื่อ-นามสกุล</label>
-                                    <input type="text" id="gen-estimator-name" value="นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง" placeholder="ชื่อ-นามสกุล ผู้ประมาณการ">
+                                    <input type="text" id="gen-estimator-name" value="นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง"
+                                        placeholder="ชื่อ-นามสกุล ผู้ประมาณการ">
                                 </div>
                                 <div class="form-group half">
                                     <label>ตำแหน่ง</label>
@@ -808,21 +965,25 @@
                             </div>
                             <div class="form-group">
                                 <label>แผนก / สังกัด</label>
-                                <input type="text" id="gen-estimator-dept" value="แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า" placeholder="แผนก / สังกัด">
+                                <input type="text" id="gen-estimator-dept" value="แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า"
+                                    placeholder="แผนก / สังกัด">
                             </div>
 
                             <!-- ผู้ตรวจสอบ -->
-                            <div style="font-weight:600; font-size:0.88rem; margin-top:8px; margin-bottom:6px; color:var(--primary); display:flex; align-items:center; gap:6px;">
+                            <div
+                                style="font-weight:600; font-size:0.88rem; margin-top:8px; margin-bottom:6px; color:var(--primary); display:flex; align-items:center; gap:6px;">
                                 <span>🔍 ผู้ตรวจสอบ</span>
                             </div>
                             <div class="form-row">
                                 <div class="form-group half">
                                     <label>ชื่อ-นามสกุล</label>
-                                    <input type="text" id="gen-checker-name" value="นายปฐมทรรศน์ ชงัดเวช" placeholder="ชื่อ-นามสกุล ผู้ตรวจสอบ">
+                                    <input type="text" id="gen-checker-name" value="นายปฐมทรรศน์ ชงัดเวช"
+                                        placeholder="ชื่อ-นามสกุล ผู้ตรวจสอบ">
                                 </div>
                                 <div class="form-group half">
                                     <label>ตำแหน่ง</label>
-                                    <input type="text" id="gen-checker-pos" value="หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า" placeholder="ตำแหน่ง">
+                                    <input type="text" id="gen-checker-pos"
+                                        value="หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า" placeholder="ตำแหน่ง">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -830,7 +991,8 @@
                                 <input type="text" id="gen-checker-dept" value="" placeholder="แผนก/สังกัด (ถ้ามี)">
                             </div>
 
-                            <button class="btn btn-primary btn-full" id="gen-calculate-btn" style="margin-top:10px;">⚡ วิเคราะห์และคำนวณ</button>
+                            <button class="btn btn-primary btn-full" id="gen-calculate-btn" style="margin-top:10px;">⚡
+                                วิเคราะห์และคำนวณ</button>
                         </div>
 
                         <!-- Right: Result & Recommendations -->
@@ -848,7 +1010,8 @@
 
                             <div class="fuel-forecast" id="fuel-forecast-container" style="display:none;">
                                 <label class="section-label" id="forecast-title">รายละเอียดค่าใช้จ่ายบริการ</label>
-                                <div class="result-details" style="background:var(--bg-surface-soft); border:1px solid var(--border-color);">
+                                <div class="result-details"
+                                    style="background:var(--bg-surface-soft); border:1px solid var(--border-color);">
                                     <div class="result-row">
                                         <span>ค่าเช่าเครื่องกำเนิดไฟฟ้า (<span id="disp-gen-days"></span> วัน)</span>
                                         <span class="val" id="cost-rental">0 ฿</span>
@@ -868,7 +1031,8 @@
                                     <div class="divider" style="background:var(--border-color);"></div>
                                     <div class="result-row total">
                                         <span>ค่าบริการ กฟภ. (สุทธิ)</span>
-                                        <span class="val total-val" id="cost-pea-total" style="color:var(--accent-orange);">0 ฿</span>
+                                        <span class="val total-val" id="cost-pea-total"
+                                            style="color:var(--accent-orange);">0 ฿</span>
                                     </div>
                                 </div>
 
@@ -897,11 +1061,20 @@
                             </div>
 
                             <div class="action-buttons">
-                                <button class="btn btn-outline btn-full" id="gen-export-pdf" style="background-color: var(--accent-orange-light); color: var(--accent-orange); border-color: var(--accent-orange-border); display:flex; align-items:center; justify-content:center; gap:8px; font-weight:600; font-size:0.95rem;">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                                <button type="button" class="btn btn-outline btn-full" id="gen-export-pdf"
+                                    style="background-color: var(--accent-orange-light); color: var(--accent-orange); border-color: var(--accent-orange-border); display:flex; align-items:center; justify-content:center; gap:8px; font-weight:600; font-size:0.95rem;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                        <path
+                                            d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2">
+                                        </path>
+                                        <rect x="6" y="14" width="12" height="8"></rect>
+                                    </svg>
                                     พิมพ์ใบเสนอราคา (PDF)
                                 </button>
-                                <button class="btn btn-primary btn-full" id="gen-save-data" style="margin-top: 8px;">
+                                <button type="button" class="btn btn-primary btn-full" id="gen-save-data"
+                                    style="margin-top: 8px;">
                                     💾 บันทึกข้อมูล (อัปเดต Dashboard)
                                 </button>
                             </div>
@@ -921,15 +1094,18 @@
                         </div>
                         <div class="kpi-card">
                             <span class="kpi-title" style="color:var(--primary);">ว่าง / สแตนด์บาย</span>
-                            <div class="kpi-value" id="fleet-standby-cnt" style="color:var(--primary);">24 <small class="kpi-unit">เครื่อง</small></div>
+                            <div class="kpi-value" id="fleet-standby-cnt" style="color:var(--primary);">24 <small
+                                    class="kpi-unit">เครื่อง</small></div>
                         </div>
                         <div class="kpi-card">
                             <span class="kpi-title" style="color:var(--accent-orange);">กำลังปฏิบัติงาน</span>
-                            <div class="kpi-value" id="fleet-active-cnt" style="color:var(--accent-orange);">0 <small class="kpi-unit">เครื่อง</small></div>
+                            <div class="kpi-value" id="fleet-active-cnt" style="color:var(--accent-orange);">0 <small
+                                    class="kpi-unit">เครื่อง</small></div>
                         </div>
                         <div class="kpi-card">
                             <span class="kpi-title" style="color:var(--accent-rose);">ซ่อมบำรุง</span>
-                            <div class="kpi-value" id="fleet-maint-cnt" style="color:var(--accent-rose);">0 <small class="kpi-unit">เครื่อง</small></div>
+                            <div class="kpi-value" id="fleet-maint-cnt" style="color:var(--accent-rose);">0 <small
+                                    class="kpi-unit">เครื่อง</small></div>
                         </div>
                     </div>
 
@@ -949,12 +1125,16 @@
 
                             <div class="form-row">
                                 <div class="form-group half">
-                                    <label>จุดติดตั้งปฏิบัติงาน<br><span style="font-size:0.75rem; color:var(--text-muted);">(คลิกเลือกจุดบนแผนที่ด้านบน)</span></label>
-                                    <input type="text" id="search-target-display" value="-- กรุณาคลิกเลือกจุดบนแผนที่ --" readonly style="background:var(--bg-surface-soft);">
+                                    <label>จุดติดตั้งปฏิบัติงาน<br><span
+                                            style="font-size:0.75rem; color:var(--text-muted);">(คลิกเลือกจุดบนแผนที่ด้านบน)</span></label>
+                                    <input type="text" id="search-target-display"
+                                        value="-- กรุณาคลิกเลือกจุดบนแผนที่ --" readonly
+                                        style="background:var(--bg-surface-soft);">
                                     <input type="hidden" id="search-target-location" value="">
                                 </div>
                                 <div class="form-group half">
-                                    <label>ขนาดเครื่องยนต์ที่ต้องการ<br><span style="font-size:0.75rem; visibility:hidden;">&nbsp;</span></label>
+                                    <label>ขนาดเครื่องยนต์ที่ต้องการ<br><span
+                                            style="font-size:0.75rem; visibility:hidden;">&nbsp;</span></label>
                                     <select id="search-gen-size">
                                         <option value="60">60 kW</option>
                                         <option value="120">120 kW</option>
@@ -976,25 +1156,33 @@
                                 </div>
                             </div>
 
-                            <button class="btn btn-green btn-full" id="btn-search-nearest">⚡ ค้นหาเครื่องยนต์ที่ว่างจากจุดที่ใกล้ที่สุด</button>
+                            <button class="btn btn-green btn-full" id="btn-search-nearest">⚡
+                                ค้นหาเครื่องยนต์ที่ว่างจากจุดที่ใกล้ที่สุด</button>
 
-                            <div id="search-results-area" style="display:none; padding:12px; background:var(--primary-light); border-radius:var(--radius-md); border:1px solid var(--primary-border);">
-                                <h4 style="color:var(--primary); font-size:0.9rem; margin-bottom:8px;">📍 ผลการจัดสรรเครื่องยนต์ที่ว่าง:</h4>
-                                <div id="search-results-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+                            <div id="search-results-area"
+                                style="display:none; padding:12px; background:var(--primary-light); border-radius:var(--radius-md); border:1px solid var(--primary-border);">
+                                <h4 style="color:var(--primary); font-size:0.9rem; margin-bottom:8px;">📍
+                                    ผลการจัดสรรเครื่องยนต์ที่ว่าง:</h4>
+                                <div id="search-results-list" style="display:flex; flex-direction:column; gap:8px;">
+                                </div>
                             </div>
                         </div>
 
                         <!-- Right: Queue Timeline & Calendar -->
                         <div class="card timeline-card" style="display:flex; flex-direction:column; gap:16px;">
-                            <div class="card-header" style="margin-bottom:0; padding-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                            <div class="card-header"
+                                style="margin-bottom:0; padding-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                                 <div style="display:flex; align-items:center; gap:8px;">
                                     <span class="dot green"></span>
                                     <h2>ตารางการเดินเครื่องและจัดสรรคิวงาน</h2>
                                 </div>
                                 <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                                    <button class="btn btn-xs btn-green" id="btn-add-fleet-booking" onclick="openAdminBookingModal()">➕ ระบุคิว & พิกัด</button>
-                                    <button class="btn btn-xs btn-outline" id="btn-admin-import-export">📥 นำเข้า/ส่งออก</button>
-                                    <button class="btn btn-xs btn-outline" id="btn-admin-inventory">⚙️ สถานะเครื่อง</button>
+                                    <button class="btn btn-xs btn-green" id="btn-add-fleet-booking"
+                                        onclick="openAdminBookingModal()">➕ ระบุคิว & พิกัด</button>
+                                    <button class="btn btn-xs btn-outline" id="btn-admin-import-export">📥
+                                        นำเข้า/ส่งออก</button>
+                                    <button class="btn btn-xs btn-outline" id="btn-admin-inventory">⚙️
+                                        สถานะเครื่อง</button>
                                 </div>
                             </div>
 
@@ -1012,25 +1200,32 @@
 
                             <!-- Detail panel for selected date -->
                             <div id="cal-detail-panel" style="display:none; margin-top:4px;">
-                                <div class="section-divider" style="margin: 0 0 8px; display:flex; justify-content:space-between; align-items:center;">
+                                <div class="section-divider"
+                                    style="margin: 0 0 8px; display:flex; justify-content:space-between; align-items:center;">
                                     <span id="cal-detail-title">รายการคิวเครื่องวันที่เลือก</span>
-                                    <button class="btn btn-xs btn-outline" onclick="calShowAllBookings()" style="font-size:0.75rem; padding:2px 8px; cursor:pointer;">📋 ดูคิวทั้งหมด</button>
+                                    <button class="btn btn-xs btn-outline" onclick="calShowAllBookings()"
+                                        style="font-size:0.75rem; padding:2px 8px; cursor:pointer;">📋
+                                        ดูคิวทั้งหมด</button>
                                 </div>
-                                <div id="cal-status-filters" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                                <div id="cal-status-filters"
+                                    style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
                                     <button class="cal-filter-btn active" data-filter="all">ทั้งหมด</button>
                                     <button class="cal-filter-btn" data-filter="booked">🔸 กำลังใช้งาน</button>
                                     <button class="cal-filter-btn" data-filter="available">🟢 ว่าง/Standby</button>
                                     <button class="cal-filter-btn" data-filter="maintenance">🔴 ซ่อมบำรุง</button>
                                 </div>
-                                <div id="cal-detail-container" style="overflow-y:auto; max-height:380px; display:flex; flex-direction:column; gap:8px;">
+                                <div id="cal-detail-container"
+                                    style="overflow-y:auto; max-height:380px; display:flex; flex-direction:column; gap:8px;">
                                     <!-- rendered by JS -->
                                 </div>
                             </div>
 
                             <!-- Fallback: show all bookings list -->
                             <div id="cal-all-list-panel" style="margin-top:4px;">
-                                <div class="section-divider" style="margin: 0 0 8px;"><span>คิวทั้งหมด (เลือกวันในปฏิทินเพื่อดูรายละเอียด)</span></div>
-                                <div id="schedule-timeline-container" style="overflow-y:auto; max-height:400px; display:flex; flex-direction:column; gap:10px;">
+                                <div class="section-divider" style="margin: 0 0 8px;"><span>คิวทั้งหมด
+                                        (เลือกวันในปฏิทินเพื่อดูรายละเอียด)</span></div>
+                                <div id="schedule-timeline-container"
+                                    style="overflow-y:auto; max-height:400px; display:flex; flex-direction:column; gap:10px;">
                                     <!-- rendered by JS -->
                                 </div>
                             </div>
@@ -1043,7 +1238,8 @@
                      ============================================== -->
                 <section id="tab-history" class="tab-content">
                     <div class="history-card">
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
                             <h2 style="margin:0; font-size:1.15rem; color:var(--text-main);">ประวัติใบเสนอราคา</h2>
                             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                                 <label style="font-size:0.85rem; color:var(--text-muted);">ค้นหาตาม:</label>
@@ -1052,13 +1248,16 @@
                                     <option value="custId">หมายเลขผู้ใช้ไฟ (CA)</option>
                                     <option value="genSize">ขนาดเครื่องยนต์ (kW)</option>
                                 </select>
-                                <input type="text" id="history-search-input" placeholder="พิมพ์คำค้นหา..." style="width:auto; min-width:220px; padding:6px 12px;">
+                                <input type="text" id="history-search-input" placeholder="พิมพ์คำค้นหา..."
+                                    style="width:auto; min-width:220px; padding:6px 12px;" autocomplete="off"
+                                    autocorrect="off" autocapitalize="off" spellcheck="false">
                             </div>
                         </div>
                         <div class="divider" style="margin-top:0; background:var(--border-color);"></div>
                         <div id="history-list" class="history-list">
                             <div class="empty-state">
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                     <polyline points="14 2 14 8 20 8"></polyline>
                                 </svg>
@@ -1075,23 +1274,21 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                         <h3 style="font-size:1.2rem; font-weight:600;">จัดการผู้ใช้งานระบบ</h3>
                         <div style="display:flex; gap: 8px;">
-                            <span class="badge" id="total-users-badge" style="background:#E2E8F0; color:#475569; padding:6px 12px; font-size:0.9rem;">ผู้ใช้งานทั้งหมด: 0</span>
+                            <span class="badge" id="total-users-badge"
+                                style="background:#E2E8F0; color:#475569; padding:6px 12px; font-size:0.9rem;">ผู้ใช้งานทั้งหมด:
+                                0</span>
                             <button class="btn btn-primary" onclick="openAddUserModal()">+ เพิ่มผู้ใช้งานใหม่</button>
                         </div>
                     </div>
-                    
-                    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #E2E8F0; margin-bottom: 16px;">
-                        <label style="font-weight:600; font-size:0.9rem; margin-bottom: 8px; display:block; color:#b91c1c;">⚠️ สำหรับ Admin: กรุณากรอก Service Role Key เพื่อเปิดสิทธิ์การเพิ่ม/ลบผู้ใช้</label>
-                        <input type="password" id="admin-service-role-key" class="input-field" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." onchange="saveServiceRoleKey(this.value)">
-                        <small style="color:var(--text-muted); display:block; margin-top:4px;">ระบบจะเก็บคีย์นี้ไว้ในเครื่องของคุณเท่านั้น เพื่อใช้สำหรับการทำงานร่วมกับ Admin API (ไม่ต้องกรอกถ้าเข้ามาดูอย่างเดียว)</small>
-                    </div>
+
+
 
                     <div class="history-card" style="padding:0;">
                         <div style="overflow-x:auto;">
                             <table class="data-table" style="width:100%;">
                                 <thead>
                                     <tr>
-                                        <th>ชื่อ-สกุล (Display Name)</th>
+                                        <th>ชื่อ - นามสกุล</th>
                                         <th>อีเมล (Email)</th>
                                         <th>ระดับสิทธิ์ (Role)</th>
                                         <th style="width: 100px; text-align:center;">จัดการ</th>
@@ -1115,64 +1312,224 @@
     <div id="print-area" style="display:none;">
         <style>
             @media print {
-                @page { size: A4; margin: 0; }
-                body { background: #FFFFFF !important; }
-                html, body { background: #FFFFFF !important; }
-                body.print-pea .ynex-layout, body.print-pea #gen-print-area, body.print-pea .modal-overlay { display: none !important; }
-                body.print-pea #print-area { display: block !important; }
+                @page {
+                    size: A4;
+                    margin: 0;
+                }
+
+                body {
+                    background: #FFFFFF !important;
+                }
+
+                html,
+                body {
+                    background: #FFFFFF !important;
+                }
+
+                body.print-pea .ynex-layout,
+                body.print-pea #gen-print-area,
+                body.print-pea .modal-overlay {
+                    display: none !important;
+                }
+
+                body.print-pea #print-area {
+                    display: block !important;
+                }
             }
+
             #print-area {
-                font-family: 'TH Sarabun PSK', 'TH Sarabun New', 'Sarabun', 'Prompt', sans-serif;
-                font-size: 14.5pt;
-                color: #000;
-                line-height: 1.3;
+                font-family: 'Prompt', sans-serif;
+                font-size: 10pt;
+                color: #0f172a;
+                line-height: 1.35;
                 background: #FFFFFF;
             }
-            #print-area * { font-family: 'TH Sarabun PSK', 'TH Sarabun New', 'Sarabun', 'Prompt', sans-serif; }
-            #print-area .q-page {
-                width: 210mm; min-height: 297mm; padding: 8mm 15mm 8mm 15mm; box-sizing: border-box; position: relative; background: #FFFFFF;
+
+            #print-area * {
+                font-family: 'Prompt', sans-serif;
             }
-            #print-area .q-page-num { position: absolute; top: 10mm; right: 18mm; font-size: 13.5pt; }
-            #print-area .q-logo-area { text-align: center; margin-bottom: 1mm; }
-            #print-area .q-logo-area img.pea-logo { height: 18mm; width: auto; display: block; margin: 0 auto; }
-            #print-area .q-title { text-align: center; font-size: 14.5pt; font-weight: 700; margin-bottom: 1mm; }
-            #print-area .q-subtitle { text-align: center; font-size: 13.5pt; margin-bottom: 3mm; }
-            #print-area .q-info-table { width: 100%; margin-bottom: 2mm; border-collapse: collapse; }
-            #print-area .q-info-table td { padding: 0.5mm 0; vertical-align: bottom; font-size: 13.5pt; }
-            #print-area .q-info-table .label { white-space: nowrap; padding-right: 4mm; font-weight: 600; width: 40mm; }
-            #print-area .q-info-table .val-line { border-bottom: 1px solid #000; width: 100%; display: block; min-height: 4.5mm; padding-left: 2mm; }
-            #print-area .q-items-table { width: 100%; border-collapse: collapse; margin-bottom: 1mm; }
-            #print-area .q-items-table th, #print-area .q-items-table td { border: 1px solid #333; padding: 1mm 1.5mm; text-align: center; font-size: 13.5pt; }
-            #print-area .q-items-table th { background: #f5f5f5; font-weight: 700; }
-            #print-area .q-items-table td.left { text-align: left; }
-            #print-area .q-items-table td.right { text-align: right; }
-            #print-area .q-total-row td { font-weight: 700; background: #f5f5f5; }
-            #print-area .q-grand-total td { font-weight: 700; font-size: 14pt; }
-            #print-area .q-notes { margin-top: 2mm; }
-            #print-area .q-notes-title { font-weight: 700; margin-bottom: 1mm; font-size: 13.5pt; }
-            #print-area .q-notes ol { padding-left: 5mm; margin: 0; }
-            #print-area .q-notes li { margin-bottom: 1mm; font-size: 13pt; line-height: 1.25; }
-            #print-area .q-sig-section { margin-top: 15mm; }
-            #print-area .q-sig-block { margin-bottom: 10mm; text-align: center; font-size: 13.5pt; }
-            #print-area .q-sig-line { border-bottom: 1px dotted #333; width: 90mm; display: inline-block; margin-bottom: 2mm; }
+
+            #print-area .q-page {
+                width: 210mm;
+                min-height: 297mm;
+                padding: 10mm 16mm 8mm 18mm;
+                box-sizing: border-box;
+                position: relative;
+                background: #FFFFFF;
+            }
+
+            #print-area .q-page-num {
+                position: absolute;
+                top: 10mm;
+                right: 18mm;
+                font-size: 9.5pt;
+                color: #64748b;
+            }
+
+            #print-area .q-logo-area {
+                text-align: center;
+                margin-bottom: 2mm;
+            }
+
+            #print-area .q-logo-area img.pea-logo {
+                height: 18mm;
+                width: auto;
+                display: block;
+                margin: 0 auto;
+            }
+
+            #print-area .q-title {
+                text-align: center;
+                font-size: 14pt;
+                font-weight: 700;
+                color: #0f172a;
+                margin-top: 1mm;
+                margin-bottom: 1mm;
+            }
+
+            #print-area .q-subtitle {
+                text-align: center;
+                font-size: 11pt;
+                font-weight: 500;
+                color: #475569;
+                margin-bottom: 3mm;
+            }
+
+            #print-area .q-info-table {
+                width: 100%;
+                margin-bottom: 2mm;
+                border-collapse: collapse;
+            }
+
+            #print-area .q-info-table td {
+                padding: 0.5mm 0;
+                vertical-align: bottom;
+                font-size: 13.5pt;
+            }
+
+            #print-area .q-info-table .label {
+                white-space: nowrap;
+                padding-right: 4mm;
+                font-weight: 600;
+                width: 40mm;
+            }
+
+            #print-area .q-info-table .val-line {
+                border-bottom: 1px solid #000;
+                width: 100%;
+                display: block;
+                min-height: 4.5mm;
+                padding-left: 2mm;
+            }
+
+            #print-area .q-items-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 1mm;
+            }
+
+            #print-area .q-items-table th,
+            #print-area .q-items-table td {
+                border: 1px solid #333;
+                padding: 1mm 1.5mm;
+                text-align: center;
+                font-size: 13.5pt;
+            }
+
+            #print-area .q-items-table th {
+                background: #f5f5f5;
+                font-weight: 700;
+            }
+
+            #print-area .q-items-table td.left {
+                text-align: left;
+            }
+
+            #print-area .q-items-table td.right {
+                text-align: right;
+            }
+
+            #print-area .q-total-row td {
+                font-weight: 700;
+                background: #f5f5f5;
+            }
+
+            #print-area .q-grand-total td {
+                font-weight: 700;
+                font-size: 14pt;
+            }
+
+            #print-area .q-notes {
+                margin-top: 2mm;
+            }
+
+            #print-area .q-notes-title {
+                font-weight: 700;
+                margin-bottom: 1mm;
+                font-size: 13.5pt;
+            }
+
+            #print-area .q-notes ol {
+                padding-left: 5mm;
+                margin: 0;
+            }
+
+            #print-area .q-notes li {
+                margin-bottom: 1mm;
+                font-size: 13pt;
+                line-height: 1.25;
+            }
+
+            #print-area .q-sig-section {
+                margin-top: 15mm;
+            }
+
+            #print-area .q-sig-block {
+                margin-bottom: 10mm;
+                text-align: center;
+                font-size: 13.5pt;
+            }
+
+            #print-area .q-sig-line {
+                border-bottom: 1px dotted #333;
+                width: 90mm;
+                display: inline-block;
+                margin-bottom: 2mm;
+            }
         </style>
 
         <div class="q-page" id="q-page1">
             <div class="q-page-num">1</div>
-            
+
             <div class="q-logo-area">
-                <img class="pea-logo" src="pea_logo.jpg.jpg" alt="ตราการไฟฟ้าส่วนภูมิภาค" onerror="this.style.display='none';">
+                <img class="pea-logo" src="pea_logo.jpg.jpg" alt="การไฟฟ้าส่วนภูมิภาค"
+                    onerror="this.style.display='none';">
             </div>
 
             <div class="q-title">ประมาณการค่าใช้จ่ายเช่าฉนวนครอบสายไฟและลูกถ้วยแรงสูง</div>
             <div class="q-subtitle">(ใบเสนอราคา)</div>
 
             <table class="q-info-table">
-                <tr><td class="label">หมายเลขผู้ใช้ไฟ</td><td><span class="val-line" id="q-cust-id"></span></td></tr>
-                <tr><td class="label">ชื่อผู้ใช้บริการ</td><td><span class="val-line" id="q-cust-name"></span></td></tr>
-                <tr><td class="label">ที่อยู่</td><td><span class="val-line" id="q-cust-address"></span></td></tr>
-                <tr><td class="label">วันที่ใช้บริการ</td><td><span class="val-line" id="q-service-date"></span></td></tr>
-                <tr><td class="label">สถานที่รับบริการ</td><td><span class="val-line" id="q-location"></span></td></tr>
+                <tr>
+                    <td class="label">หมายเลขผู้ใช้ไฟ</td>
+                    <td><span class="val-line" id="q-cust-id"></span></td>
+                </tr>
+                <tr>
+                    <td class="label">ชื่อผู้ใช้บริการ</td>
+                    <td><span class="val-line" id="q-cust-name"></span></td>
+                </tr>
+                <tr>
+                    <td class="label">ที่อยู่</td>
+                    <td><span class="val-line" id="q-cust-address"></span></td>
+                </tr>
+                <tr>
+                    <td class="label">วันที่ใช้บริการ</td>
+                    <td><span class="val-line" id="q-service-date"></span></td>
+                </tr>
+                <tr>
+                    <td class="label">สถานที่รับบริการ</td>
+                    <td><span class="val-line" id="q-location"></span></td>
+                </tr>
             </table>
 
             <table class="q-items-table">
@@ -1226,37 +1583,42 @@
             <div class="q-notes">
                 <div class="q-notes-title">หมายเหตุ</div>
                 <ol>
-                    <li>ให้หลักเกณฑ์การคิดค่าใช้จ่ายในการให้บริการฉนวนครอบสายไฟแรงสูง และฉนวนครอบลูกถ้วยแรงสูง ฉบับปี พ.ศ. 2566 ในการคิดค่าใช้จ่าย</li>
-                    <li>หากต้องการขยายระยะเวลาการติดตั้งฉนวนครอบฯ เพิ่มเติม ให้ชำระค่าเช่าในอัตรา 100 บาท/ชิ้น/วัน สำหรับจำนวนชิ้นที่เพิ่มขึ้น โดยกรณีที่ยังไม่ได้นำฉนวนครอบฯ ลงจากเสาไฟฟ้า ไม่ต้องชำระค่าบริการติดตั้ง-รื้อถอนเพิ่ม (3,500.00 บาท) แต่กรณีนำฉนวนครอบฯ ลงจากเสาแล้วและต้องการติดตั้งใหม่ จะต้องชำระค่าบริการติดตั้ง-รื้อถอนใหม่ 3,500.00 บาท</li>
+                    <li>ให้หลักเกณฑ์การคิดค่าใช้จ่ายในการให้บริการฉนวนครอบสายไฟแรงสูง และฉนวนครอบลูกถ้วยแรงสูง ฉบับปี
+                        พ.ศ. 2566 ในการคิดค่าใช้จ่าย</li>
+                    <li>หากต้องการขยายระยะเวลาการติดตั้งฉนวนครอบฯ เพิ่มเติม ให้ชำระค่าเช่าในอัตรา 100 บาท/ชิ้น/วัน
+                        สำหรับจำนวนชิ้นที่เพิ่มขึ้น โดยกรณีที่ยังไม่ได้นำฉนวนครอบฯ ลงจากเสาไฟฟ้า
+                        ไม่ต้องชำระค่าบริการติดตั้ง-รื้อถอนเพิ่ม (3,500.00 บาท) แต่กรณีนำฉนวนครอบฯ
+                        ลงจากเสาแล้วและต้องการติดตั้งใหม่ จะต้องชำระค่าบริการติดตั้ง-รื้อถอนใหม่ 3,500.00 บาท</li>
                 </ol>
             </div>
 
-            <!-- Signatures (Merged into Page 1) -->
-            <div style="padding-top:0mm; padding-left:20mm; font-size:14pt; font-family:'TH Sarabun PSK','TH Sarabun New','Sarabun',sans-serif;">
-                <div style="margin-bottom:6mm;">
-                    <table style="width:100%; border-collapse:collapse; margin-bottom:2mm;">
-                        <tr>
-                            <td style="white-space:nowrap; padding-right:3mm; vertical-align:bottom; font-size:14pt; width:1%;">(ลงชื่อ)</td>
-                            <td style="vertical-align:bottom; border-bottom:1px dotted #222; padding-bottom:1mm; font-size:14pt;"></td>
-                            <td style="white-space:nowrap; padding-left:3mm; vertical-align:bottom; font-size:14pt; width:1%;">ผู้ประมาณการ</td>
-                        </tr>
-                    </table>
-                    <div style="text-align:center; font-size:14pt; margin-bottom:1mm;" id="pea-sig-estimator-name" class="sig-estimator-name">(นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง)</div>
-                    <div style="text-align:center; font-size:14pt; margin-bottom:1mm;" id="pea-sig-estimator-pos" class="sig-estimator-pos">วิศวกร</div>
-                    <div style="text-align:center; font-size:14pt;" id="pea-sig-estimator-dept" class="sig-estimator-dept">แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
-                </div>
-                <div>
-                    <table style="width:100%; border-collapse:collapse; margin-bottom:2mm;">
-                        <tr>
-                            <td style="white-space:nowrap; padding-right:3mm; vertical-align:bottom; font-size:14pt; width:1%;">(ลงชื่อ)</td>
-                            <td style="vertical-align:bottom; border-bottom:1px dotted #222; padding-bottom:1mm; font-size:14pt;"></td>
-                            <td style="white-space:nowrap; padding-left:3mm; vertical-align:bottom; font-size:14pt; width:1%;">ผู้ตรวจสอบ</td>
-                        </tr>
-                    </table>
-                    <div style="text-align:center; font-size:14pt; margin-bottom:1mm;" id="pea-sig-checker-name" class="sig-checker-name">(นายปฐมทรรศน์ ชงัดเวช)</div>
-                    <div style="text-align:center; font-size:14pt;" id="pea-sig-checker-pos" class="sig-checker-pos">หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
-                    <div style="text-align:center; font-size:14pt;" id="pea-sig-checker-dept" class="sig-checker-dept"></div>
-                </div>
+            <!-- Signatures (2 Columns: Left Estimator, Right Checker) -->
+            <div class="q-sig-section" style="margin-top: 8mm;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td
+                            style="width: 50%; text-align: center; vertical-align: top; padding-right: 6mm; font-size: 9.5pt;">
+                            <div style="margin-bottom: 2mm;">(ลงชื่อ) ........................................
+                                ผู้ประมาณการ</div>
+                            <div style="font-weight: 600; margin-bottom: 1mm;" id="pea-sig-estimator-name"
+                                class="sig-estimator-name">(นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง)</div>
+                            <div style="margin-bottom: 1mm;" id="pea-sig-estimator-pos" class="sig-estimator-pos">วิศวกร
+                            </div>
+                            <div id="pea-sig-estimator-dept" class="sig-estimator-dept">
+                                แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
+                        </td>
+                        <td
+                            style="width: 50%; text-align: center; vertical-align: top; padding-left: 6mm; font-size: 9.5pt;">
+                            <div style="margin-bottom: 2mm;">(ลงชื่อ) ........................................
+                                ผู้ตรวจสอบ</div>
+                            <div style="font-weight: 600; margin-bottom: 1mm;" id="pea-sig-checker-name"
+                                class="sig-checker-name">(นายปฐมทรรศน์ ชงัดเวช)</div>
+                            <div style="margin-bottom: 1mm;" id="pea-sig-checker-pos" class="sig-checker-pos">
+                                หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
+                            <div id="pea-sig-checker-dept" class="sig-checker-dept"></div>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
@@ -1273,10 +1635,12 @@
                 line-height: 1.25;
                 background: #fff;
             }
+
             #gen-print-area * {
                 font-family: 'TH Sarabun PSK', 'TH Sarabun New', 'Sarabun', 'Prompt', sans-serif;
                 box-sizing: border-box;
             }
+
             #gen-print-area .gp {
                 width: 210mm;
                 min-height: 297mm;
@@ -1285,49 +1649,47 @@
                 position: relative;
                 background: #fff;
             }
+
             #gen-print-area .gp-num {
                 position: absolute;
                 top: 8mm;
                 right: 16mm;
                 font-size: 14pt;
             }
-            #gen-print-area .gp-logo {
-                text-align: center;
-                margin-bottom: 2mm;
-            }
-            #gen-print-area .gp-logo img {
-                height: 20mm;
-                width: auto;
-                display: block;
-                margin: 0 auto;
-            }
+
             #gen-print-area .gp-title {
                 text-align: center;
                 font-size: 15.5pt;
                 font-weight: 700;
+                margin-top: 4mm;
                 margin-bottom: 1mm;
             }
+
             #gen-print-area .gp-subtitle {
                 text-align: center;
                 font-size: 14pt;
                 margin-bottom: 3mm;
             }
+
             #gen-print-area .gp-info-table {
                 width: 100%;
                 margin-bottom: 3mm;
                 border-collapse: collapse;
             }
+
             #gen-print-area .gp-info-table td {
                 padding: 1mm 0;
                 vertical-align: bottom;
                 font-size: 14pt;
             }
+
             #gen-print-area .gp-info-table .label {
                 white-space: nowrap;
                 padding-right: 3mm;
                 width: 38mm;
                 font-weight: 600;
             }
+
             #gen-print-area .gp-info-table .val-line {
                 border-bottom: 1px solid #000;
                 width: 100%;
@@ -1335,57 +1697,71 @@
                 min-height: 5.5mm;
                 padding-left: 2mm;
             }
+
             #gen-print-area .gp-table {
                 width: 100%;
                 border-collapse: collapse;
                 margin: 3mm 0;
                 font-size: 14.5pt;
             }
-            #gen-print-area .gp-table th, #gen-print-area .gp-table td {
+
+            #gen-print-area .gp-table th,
+            #gen-print-area .gp-table td {
                 border: 1px solid #333;
                 padding: 1.5mm 2.5mm;
                 text-align: center;
                 font-size: 13.5pt;
             }
+
             #gen-print-area .gp-table th {
                 background: #f5f5f5;
                 font-weight: 700;
             }
+
             #gen-print-area .gp-table td.left {
                 text-align: left;
             }
+
             #gen-print-area .gp-table td.right {
                 text-align: right;
             }
+
             #gen-print-area .gp-page-break {
                 page-break-before: always;
             }
+
             #gen-print-area .gp-notes {
                 margin-top: 3.5mm;
                 font-size: 13pt;
                 line-height: 1.32;
             }
+
             #gen-print-area .gp-notes-title {
                 font-weight: 700;
                 margin-bottom: 1mm;
                 font-size: 14pt;
             }
+
             #gen-print-area .gp-notes-list {
                 padding-left: 0;
                 margin: 0;
                 list-style: none;
             }
+
             #gen-print-area .gp-notes-list li {
                 margin-bottom: 1mm;
                 text-align: justify;
             }
+
             #gen-print-area .gp-sig-section {
                 margin-top: 6mm;
             }
+
             #gen-print-area .gp-sig-table {
                 width: 100%;
                 border-collapse: collapse;
             }
+
             #gen-print-area .gp-sig-cell {
                 width: 50%;
                 text-align: center;
@@ -1395,33 +1771,87 @@
             }
 
             /* --- Specific Overrides to ensure both pages fit perfectly --- */
-            #gen-print-area .gp-title { font-size: 14.5pt; margin-bottom: 0.5mm; }
-            #gen-print-area .gp-subtitle { font-size: 13.5pt; margin-bottom: 2mm; }
-            #gen-print-area .gp-info-table { margin-bottom: 2mm; }
-            #gen-print-area .gp-info-table td { font-size: 13pt; padding: 0.5mm 0; }
-            #gen-print-area .gp-table { margin: 2mm 0; }
-            #gen-print-area .gp-table th, #gen-print-area .gp-table td { font-size: 12.5pt; padding: 1mm 1.5mm; }
-            #gen-print-area .gp-notes { font-size: 12.5pt; margin-top: 2.5mm; }
-            #gen-print-area .gp-notes-title { font-size: 13pt; margin-bottom: 0.5mm; }
-            #gen-print-area .gp-sig-section { margin-top: 4mm; }
-            #gen-print-area .gp-sig-cell { font-size: 12.5pt; }
+            #gen-print-area .gp-title {
+                font-size: 14.5pt;
+                margin-bottom: 0.5mm;
+            }
+
+            #gen-print-area .gp-subtitle {
+                font-size: 13.5pt;
+                margin-bottom: 2mm;
+            }
+
+            #gen-print-area .gp-info-table {
+                margin-bottom: 2mm;
+            }
+
+            #gen-print-area .gp-info-table td {
+                font-size: 13pt;
+                padding: 0.5mm 0;
+            }
+
+            #gen-print-area .gp-table {
+                margin: 2mm 0;
+            }
+
+            #gen-print-area .gp-table th,
+            #gen-print-area .gp-table td {
+                font-size: 12.5pt;
+                padding: 1mm 1.5mm;
+            }
+
+            #gen-print-area .gp-notes {
+                font-size: 12.5pt;
+                margin-top: 2.5mm;
+            }
+
+            #gen-print-area .gp-notes-title {
+                font-size: 13pt;
+                margin-bottom: 0.5mm;
+            }
+
+            #gen-print-area .gp-sig-section {
+                margin-top: 4mm;
+            }
+
+            #gen-print-area .gp-sig-cell {
+                font-size: 12.5pt;
+            }
         </style>
 
         <!-- Gen Print Page 1: Rental Estimate -->
         <div class="gp" id="gp-rental-page">
             <div class="gp-num">1</div>
-            <div class="gp-logo">
-                <img src="pea_logo.jpg.jpg" alt="PEA" onerror="this.style.display='none';">
+            <div class="gp-logo" style="text-align: center; margin-bottom: 2mm;">
+                <img class="pea-logo" src="pea_logo.jpg.jpg" alt="การไฟฟ้าส่วนภูมิภาค"
+                    onerror="this.style.display='none';"
+                    style="height: 18mm; width: auto; display: block; margin: 0 auto;">
             </div>
-            <div class="gp-title">ประมาณการค่าใช้จ่ายเช่าเครื่องกำเนิดไฟฟ้า ขนาด <span id="gpr-gen-size" class="gpr-gen-size-val">300</span> kW</div>
+            <div class="gp-title">ประมาณการค่าใช้จ่ายเช่าเครื่องกำเนิดไฟฟ้า ขนาด <span id="gpr-gen-size"
+                    class="gpr-gen-size-val">300</span> kW</div>
             <div class="gp-subtitle">(ใบเสนอราคา)</div>
 
             <table class="gp-info-table">
-                <tr><td class="label">หมายเลขผู้ใช้ไฟ</td><td><span class="val-line" id="gpr-cust-id"></span></td></tr>
-                <tr><td class="label">ชื่อผู้เช่า/หน่วยงาน</td><td><span class="val-line" id="gpr-cust-name"></span></td></tr>
-                <tr><td class="label">วัตถุประสงค์การใช้งาน</td><td><span class="val-line" id="gpr-purpose"></span></td></tr>
-                <tr><td class="label">วันที่ใช้งาน</td><td><span class="val-line" id="gpr-service-date"></span></td></tr>
-                <tr><td class="label">สถานที่ใช้งาน</td><td><span class="val-line" id="gpr-location"></span></td></tr>
+                <tr>
+                    <td class="label">หมายเลขผู้ใช้ไฟ</td>
+                    <td><span class="val-line" id="gpr-cust-id"></span></td>
+                </tr>
+                <tr>
+                    <td class="label">ชื่อผู้เช่า/หน่วยงาน</td>
+                    <td><span class="val-line" id="gpr-cust-name"></span></td>
+                </tr>
+                <tr>
+                    <td class="label">วัตถุประสงค์การใช้งาน</td>
+                    <td><span class="val-line" id="gpr-purpose"></span></td>
+                </tr>
+                <tr>
+                    <td class="label">วันที่ใช้งาน</td>
+                    <td><span class="val-line" id="gpr-service-date"></span></td>
+                </tr>
+                <tr>
+                    <td class="label">สถานที่ใช้งาน</td>
+                    <td><span class="val-line" id="gpr-location"></span></td>
+                </tr>
             </table>
 
             <table class="gp-table">
@@ -1471,10 +1901,16 @@
             <div class="gp-notes">
                 <div class="gp-notes-title">หมายเหตุ</div>
                 <ul class="gp-notes-list">
-                    <li>1. ใช้ระเบียบการไฟฟ้าส่วนภูมิภาค ว่าด้วย การเช่าชุดเครื่องยนต์กำเนิดไฟฟ้า พ.ศ. 2559 และระเบียบการไฟฟ้าส่วนภูมิภาค ว่าด้วย การนำชุดเครื่องยนต์กำเนิดไฟฟ้าไปสำรองจ่าย พ.ศ. 2559 ในการคิดค่าใช้จ่าย</li>
-                    <li>2. น้ำมันเชื้อเพลิงของชุดเครื่องยนต์กำเนิดไฟฟ้า ขนาด <span class="gpr-gen-size-val">300</span> กิโลวัตต์ ผู้เช่าเป็นผู้จัดหา</li>
-                    <li>3. เงื่อนไขการขอขยายสัญญาเช่า: หากต้องการขยายระยะเวลาเช่าเพิ่มเติม จะต้องแจ้งเป็นลายลักษณ์อักษรให้ กฟภ. ทราบล่วงหน้าอย่างน้อย 2 วันก่อนถึงวันสิ้นสุดสัญญาเช่าเดิม</li>
-                    <li>4. ข้อจำกัดชั่วโมงการใช้งาน: จำกัดเวลาการใช้งานชุดเครื่องยนต์กำเนิดไฟฟ้าสูงสุดไม่เกินวันละ 12 ชั่วโมง</li>
+                    <li>1. ใช้ระเบียบการไฟฟ้าส่วนภูมิภาค ว่าด้วย การเช่าชุดเครื่องยนต์กำเนิดไฟฟ้า พ.ศ. 2559
+                        และระเบียบการไฟฟ้าส่วนภูมิภาค ว่าด้วย การนำชุดเครื่องยนต์กำเนิดไฟฟ้าไปสำรองจ่าย พ.ศ. 2559
+                        ในการคิดค่าใช้จ่าย</li>
+                    <li>2. น้ำมันเชื้อเพลิงของชุดเครื่องยนต์กำเนิดไฟฟ้า ขนาด <span class="gpr-gen-size-val">300</span>
+                        กิโลวัตต์ ผู้เช่าเป็นผู้จัดหา</li>
+                    <li>3. เงื่อนไขการขอขยายสัญญาเช่า: หากต้องการขยายระยะเวลาเช่าเพิ่มเติม
+                        จะต้องแจ้งเป็นลายลักษณ์อักษรให้ กฟภ. ทราบล่วงหน้าอย่างน้อย 2 วันก่อนถึงวันสิ้นสุดสัญญาเช่าเดิม
+                    </li>
+                    <li>4. ข้อจำกัดชั่วโมงการใช้งาน: จำกัดเวลาการใช้งานชุดเครื่องยนต์กำเนิดไฟฟ้าสูงสุดไม่เกินวันละ 12
+                        ชั่วโมง</li>
                 </ul>
             </div>
 
@@ -1484,14 +1920,18 @@
                     <tr>
                         <td class="gp-sig-cell" style="padding-right:6mm;">
                             <div>(ลงชื่อ) ........................................ ผู้ประมาณการ</div>
-                            <div style="font-weight:600;" id="gpr-sig-estimator-name" class="sig-estimator-name">(นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง)</div>
+                            <div style="font-weight:600;" id="gpr-sig-estimator-name" class="sig-estimator-name">
+                                (นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง)</div>
                             <div id="gpr-sig-estimator-pos" class="sig-estimator-pos">วิศวกร</div>
-                            <div id="gpr-sig-estimator-dept" class="sig-estimator-dept">แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
+                            <div id="gpr-sig-estimator-dept" class="sig-estimator-dept">
+                                แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
                         </td>
                         <td class="gp-sig-cell" style="padding-left:6mm;">
                             <div>(ลงชื่อ) ........................................ ผู้ตรวจสอบ</div>
-                            <div style="font-weight:600;" id="gpr-sig-checker-name" class="sig-checker-name">(นายปฐมทรรศน์ ชงัดเวช)</div>
-                            <div id="gpr-sig-checker-pos" class="sig-checker-pos">หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
+                            <div style="font-weight:600;" id="gpr-sig-checker-name" class="sig-checker-name">
+                                (นายปฐมทรรศน์ ชงัดเวช)</div>
+                            <div id="gpr-sig-checker-pos" class="sig-checker-pos">
+                                หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
                             <div id="gpr-sig-checker-dept" class="sig-checker-dept"></div>
                         </td>
                     </tr>
@@ -1502,20 +1942,33 @@
         <!-- Gen Print Page 2: Fuel Estimate -->
         <div class="gp gp-page-break" id="gp-fuel-page">
             <div class="gp-num">2</div>
-            <div class="gp-logo">
-                <img src="pea_logo.jpg.jpg" alt="PEA" onerror="this.style.display='none';">
+            <div class="gp-logo" style="text-align: center; margin-bottom: 2mm;">
+                <img class="pea-logo" src="pea_logo.jpg.jpg" alt="การไฟฟ้าส่วนภูมิภาค"
+                    onerror="this.style.display='none';"
+                    style="height: 18mm; width: auto; display: block; margin: 0 auto;">
             </div>
-            <div class="gp-title">ประมาณการใช้น้ำมันเชื้อเพลิงเครื่องยนต์กำเนิดไฟฟ้า ขนาด <span id="gpf-gen-size" class="gpf-gen-size-val">300</span> kW</div>
+            <div class="gp-title">ประมาณการใช้น้ำมันเชื้อเพลิงเครื่องยนต์กำเนิดไฟฟ้า ขนาด <span id="gpf-gen-size"
+                    class="gpf-gen-size-val">300</span> kW</div>
             <div class="gp-subtitle">(เพื่อประกอบการพิจารณาของผู้ขอเช่า)</div>
 
             <table class="gp-info-table">
-                <tr><td class="label">วันที่</td><td><span class="val-line" id="gpf-date"></span></td></tr>
-                <tr><td class="label">วัตถุประสงค์</td><td><span class="val-line" id="gpf-purpose"></span></td></tr>
-                <tr><td class="label">วันที่ใช้งาน</td><td><span class="val-line" id="gpf-service-date-line"></span></td></tr>
+                <tr>
+                    <td class="label">วันที่</td>
+                    <td><span class="val-line" id="gpf-date"></span></td>
+                </tr>
+                <tr>
+                    <td class="label">วัตถุประสงค์</td>
+                    <td><span class="val-line" id="gpf-purpose"></span></td>
+                </tr>
+                <tr>
+                    <td class="label">วันที่ใช้งาน</td>
+                    <td><span class="val-line" id="gpf-service-date-line"></span></td>
+                </tr>
             </table>
 
             <div style="margin:2.5mm 0; text-align:center; font-size:14pt;">
-                โหลดไฟฟ้าเฉลี่ยประมาณ <b id="gpf-load-kw">0</b> kW | อัตราสิ้นเปลืองเฉลี่ย ~<b id="gpf-fuel-rate">0</b> ลิตร/ชม. | ราคาน้ำมันดีเซล <b id="gpf-fuel-price">0.00</b> บาท/ลิตร
+                โหลดไฟฟ้าเฉลี่ยประมาณ <b id="gpf-load-kw">0</b> kW | อัตราสิ้นเปลืองเฉลี่ย ~<b id="gpf-fuel-rate">0</b>
+                ลิตร/ชม. | ราคาน้ำมันดีเซล <b id="gpf-fuel-price">0.00</b> บาท/ลิตร
             </div>
 
             <table class="gp-table">
@@ -1535,7 +1988,12 @@
             <div class="gp-notes">
                 <div class="gp-notes-title">หมายเหตุ</div>
                 <ul class="gp-notes-list">
-                    <li>1. น้ำมันเชื้อเพลิงสำหรับเครื่องยนต์กำเนิดไฟฟ้า ขนาด <span class="gpf-gen-size-val">300</span> กิโลวัตต์ เป็นความรับผิดชอบของผู้เช่า โดยผู้ให้เช่าจะจัดเตรียมน้ำมันเชื้อเพลิงในปริมาณเต็มถังให้ในวันที่ส่งมอบเครื่อง ทั้งนี้ เมื่อสิ้นสุดระยะเวลาการเช่าและใช้งาน ผู้เช่ามีหน้าที่เติมน้ำมันเชื้อเพลิงให้คืนสู่ระดับเต็มถังตามสภาพเดิมที่ได้รับมอบ ก่อนการส่งคืนเครื่องยนต์กำเนิดไฟฟ้าแก่ผู้ให้เช่า</li>
+                    <li>1. น้ำมันเชื้อเพลิงสำหรับเครื่องยนต์กำเนิดไฟฟ้า ขนาด <span class="gpf-gen-size-val">300</span>
+                        กิโลวัตต์ เป็นความรับผิดชอบของผู้เช่า
+                        โดยผู้ให้เช่าจะจัดเตรียมน้ำมันเชื้อเพลิงในปริมาณเต็มถังให้ในวันที่ส่งมอบเครื่อง ทั้งนี้
+                        เมื่อสิ้นสุดระยะเวลาการเช่าและใช้งาน
+                        ผู้เช่ามีหน้าที่เติมน้ำมันเชื้อเพลิงให้คืนสู่ระดับเต็มถังตามสภาพเดิมที่ได้รับมอบ
+                        ก่อนการส่งคืนเครื่องยนต์กำเนิดไฟฟ้าแก่ผู้ให้เช่า</li>
                 </ul>
             </div>
 
@@ -1545,14 +2003,18 @@
                     <tr>
                         <td class="gp-sig-cell" style="padding-right:6mm;">
                             <div>(ลงชื่อ) ........................................ ผู้ประมาณการ</div>
-                            <div style="font-weight:600;" id="gpf-sig-estimator-name" class="sig-estimator-name">(นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง)</div>
+                            <div style="font-weight:600;" id="gpf-sig-estimator-name" class="sig-estimator-name">
+                                (นางสาวกรรณธ์ญาณัฐษ์ โพธิสว่าง)</div>
                             <div id="gpf-sig-estimator-pos" class="sig-estimator-pos">วิศวกร</div>
-                            <div id="gpf-sig-estimator-dept" class="sig-estimator-dept">แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
+                            <div id="gpf-sig-estimator-dept" class="sig-estimator-dept">
+                                แผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
                         </td>
                         <td class="gp-sig-cell" style="padding-left:6mm;">
                             <div>(ลงชื่อ) ........................................ ผู้ตรวจสอบ</div>
-                            <div style="font-weight:600;" id="gpf-sig-checker-name" class="sig-checker-name">(นายปฐมทรรศน์ ชงัดเวช)</div>
-                            <div id="gpf-sig-checker-pos" class="sig-checker-pos">หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
+                            <div style="font-weight:600;" id="gpf-sig-checker-name" class="sig-checker-name">
+                                (นายปฐมทรรศน์ ชงัดเวช)</div>
+                            <div id="gpf-sig-checker-pos" class="sig-checker-pos">
+                                หัวหน้าแผนกปฏิบัติการและบำรุงรักษาระบบไฟฟ้า</div>
                             <div id="gpf-sig-checker-dept" class="sig-checker-dept"></div>
                         </td>
                     </tr>
@@ -1567,8 +2029,10 @@
     <!-- Modal 1: Admin Add/Edit Booking Modal -->
     <div class="modal-overlay" id="admin-booking-modal" style="display:none;">
         <div class="modal-card" style="max-width:540px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
-                <h3 style="margin:0; font-size:1.15rem; color:var(--text-main);">⚡ บันทึกและจัดสรรคิวเครื่องยนต์กำเนิดไฟฟ้า</h3>
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+                <h3 style="margin:0; font-size:1.15rem; color:var(--text-main);">⚡
+                    บันทึกและจัดสรรคิวเครื่องยนต์กำเนิดไฟฟ้า</h3>
                 <button class="btn-close-modal" onclick="closeAdminBookingModal()">&times;</button>
             </div>
             <div class="form-group">
@@ -1619,7 +2083,8 @@
                     <input type="text" id="adm-responsible" placeholder="เช่น แผนกปฏิบัติการระบบไฟฟ้า">
                 </div>
             </div>
-            <div style="display:flex; justify-content:flex-end; gap:8px; border-top:1px solid var(--border-color); padding-top:12px;">
+            <div
+                style="display:flex; justify-content:flex-end; gap:8px; border-top:1px solid var(--border-color); padding-top:12px;">
                 <button class="btn btn-outline" onclick="closeAdminBookingModal()">ยกเลิก</button>
                 <button class="btn btn-green" id="btn-save-admin-booking">💾 บันทึกคิวงาน</button>
             </div>
@@ -1629,17 +2094,21 @@
     <!-- Modal 2: Excel & CSV Import/Export -->
     <div class="modal-overlay" id="admin-import-modal" style="display:none;">
         <div class="modal-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
                 <h3 style="margin:0; font-size:1.15rem;">📥 นำเข้า / ส่งออกข้อมูลคิวรถยนต์เครื่องกำเนิดไฟฟ้า</h3>
                 <button class="btn-close-modal" onclick="closeAdminImportModal()">&times;</button>
             </div>
             <div style="font-size:0.85rem; color:var(--text-body);">
-                เลือกนำเข้าข้อมูลผ่านไฟล์ <b>CSV (.csv)</b> หรือคัดลอกจาก <b>Excel</b> มาวางลงในช่องด้านล่างโดยตรงได้เลยครับ
+                เลือกนำเข้าข้อมูลผ่านไฟล์ <b>CSV (.csv)</b> หรือคัดลอกจาก <b>Excel</b>
+                มาวางลงในช่องด้านล่างโดยตรงได้เลยครับ
             </div>
-            <div class="section-divider" style="margin:5px 0;"><span>วิธีที่ 1: คัดลอกแถวจาก Excel มาวางโดยตรง</span></div>
+            <div class="section-divider" style="margin:5px 0;"><span>วิธีที่ 1: คัดลอกแถวจาก Excel มาวางโดยตรง</span>
+            </div>
             <div class="form-group">
                 <label>คัดลอกจาก Excel (เลือกตารางใน Excel กด Ctrl+C แล้วมากดวางที่นี่)</label>
-                <textarea id="import-excel-paste" rows="4" style="font-family:monospace; font-size:0.75rem;" placeholder="ตัวอย่างแถวที่วาง:&#13;พิธีเปิดสะพานฯ	อาคารด่านบึงกาฬ	18.4069	103.5414	GEN-800-01	800	กฟจ.บึงกาฬ	2025-12-24	2025-12-26	Active	1000 kVA	กฟจ.บก."></textarea>
+                <textarea id="import-excel-paste" rows="4" style="font-family:monospace; font-size:0.75rem;"
+                    placeholder="ตัวอย่างแถวที่วาง:&#13;พิธีเปิดสะพานฯ	อาคารด่านบึงกาฬ	18.4069	103.5414	GEN-800-01	800	กฟจ.บึงกาฬ	2025-12-24	2025-12-26	Active	1000 kVA	กฟจ.บก."></textarea>
             </div>
             <button class="btn btn-green" id="btn-import-excel-submit">⚡ นำเข้าข้อมูลคิวที่วาง</button>
             <div class="section-divider" style="margin:5px 0;"><span>วิธีที่ 2: อัปโหลดไฟล์ CSV</span></div>
@@ -1647,12 +2116,14 @@
                 <input type="file" id="import-csv-file" accept=".csv" style="flex:1;">
                 <button class="btn btn-outline" id="btn-download-csv-template">📥 ดาวน์โหลดแม่แบบ CSV</button>
             </div>
-            <div class="section-divider" style="margin:5px 0;"><span>วิธีที่ 3: ส่งออกข้อมูลเก็บไว้ (Backup)</span></div>
+            <div class="section-divider" style="margin:5px 0;"><span>วิธีที่ 3: ส่งออกข้อมูลเก็บไว้ (Backup)</span>
+            </div>
             <div style="display:flex; gap:8px;">
                 <button class="btn btn-outline" id="btn-export-fleet-csv" style="flex:1;">📤 ส่งออก CSV</button>
                 <button class="btn btn-outline" id="btn-export-fleet-json" style="flex:1;">📤 ส่งออก JSON</button>
             </div>
-            <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:12px;">
+            <div
+                style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:12px;">
                 <button class="btn btn-outline" onclick="closeAdminImportModal()">ปิดหน้าต่าง</button>
             </div>
         </div>
@@ -1661,11 +2132,14 @@
     <!-- Modal 3: Generator Asset Inventory Status Toggle -->
     <div class="modal-overlay" id="admin-inventory-modal" style="display:none;">
         <div class="modal-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
-                <h3 style="margin:0; font-size:1.15rem;">⚙️ รายชื่อและสถานะเครื่องยนต์กำเนิดไฟฟ้าทั้งหมด (24 เครื่อง)</h3>
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+                <h3 style="margin:0; font-size:1.15rem;">⚙️ รายชื่อและสถานะเครื่องยนต์กำเนิดไฟฟ้าทั้งหมด (24 เครื่อง)
+                </h3>
                 <button class="btn-close-modal" onclick="closeAdminInventoryModal()">&times;</button>
             </div>
-            <div style="overflow-y:auto; max-height:400px; border:1px solid var(--border-color); border-radius:var(--radius-md);">
+            <div
+                style="overflow-y:auto; max-height:400px; border:1px solid var(--border-color); border-radius:var(--radius-md);">
                 <table class="ynex-table">
                     <thead>
                         <tr>
@@ -1680,7 +2154,8 @@
                     </tbody>
                 </table>
             </div>
-            <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:12px;">
+            <div
+                style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:12px;">
                 <button class="btn btn-outline" onclick="closeAdminInventoryModal()">ปิดหน้าต่าง</button>
             </div>
         </div>
@@ -1689,7 +2164,8 @@
     <!-- Modal 4: Extend Rental Period -->
     <div class="modal-overlay" id="extend-rental-modal" style="display:none;">
         <div class="modal-card" style="max-width:420px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
                 <h3 style="margin:0; font-size:1.15rem;">🔄 ขยายระยะเวลาเช่าเครื่อง</h3>
                 <button class="btn-close-modal" onclick="closeExtendRentalModal()">&times;</button>
             </div>
@@ -1705,7 +2181,8 @@
                 <label>ระยะเวลาเช่าใหม่ (วัน)</label>
                 <input type="number" id="ext-days" min="1">
             </div>
-            <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:12px; gap:8px;">
+            <div
+                style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:12px; gap:8px;">
                 <button class="btn btn-outline" onclick="closeExtendRentalModal()">ยกเลิก</button>
                 <button class="btn btn-primary" onclick="submitExtendRental()">บันทึกข้อมูล</button>
             </div>
@@ -1713,9 +2190,11 @@
     </div>
 
     <!-- Modal 5: Inspect Booking Modal -->
-    <div class="modal-overlay" id="inspect-booking-modal" onclick="if(event.target===this) closeInspectBookingModal()" style="display:none;">
+    <div class="modal-overlay" id="inspect-booking-modal" onclick="if(event.target===this) closeInspectBookingModal()"
+        style="display:none;">
         <div class="modal-card" style="max-width:520px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
                 <h3 style="margin:0; font-size:1.15rem;">📋 ตรวจสอบข้อมูลคิวงาน</h3>
                 <button class="btn-close-modal" onclick="closeInspectBookingModal()">&times;</button>
             </div>
@@ -1753,8 +2232,11 @@
                     <input type="text" id="ins-responsible" disabled>
                 </div>
             </div>
-            <div id="ins-cost-section" style="background:var(--bg-surface-soft); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; margin-top:8px;">
-                <h4 style="margin:0 0 12px 0; font-size:0.95rem; border-bottom:1px dashed var(--border-color); padding-bottom:8px;">พยากรณ์ค่าใช้จ่าย</h4>
+            <div id="ins-cost-section"
+                style="background:var(--bg-surface-soft); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; margin-top:8px;">
+                <h4
+                    style="margin:0 0 12px 0; font-size:0.95rem; border-bottom:1px dashed var(--border-color); padding-bottom:8px;">
+                    พยากรณ์ค่าใช้จ่าย</h4>
                 <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
                     <span>ค่าเช่าเครื่องกำเนิดไฟฟ้า:</span>
                     <span id="ins-cost-rental" style="font-weight:600;">-</span>
@@ -1771,21 +2253,25 @@
                     <span>VAT 7%:</span>
                     <span id="ins-cost-vat" style="font-weight:600;">-</span>
                 </div>
-                <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px solid var(--border-color); font-size:1rem;">
+                <div
+                    style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px solid var(--border-color); font-size:1rem;">
                     <span style="font-weight:700;">ค่าบริการ กฟภ. (สุทธิ):</span>
                     <span id="ins-cost-total" style="font-weight:700; color:var(--primary);">-</span>
                 </div>
             </div>
-            <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:12px;">
+            <div
+                style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:12px;">
                 <button class="btn btn-outline" onclick="closeInspectBookingModal()">ยกเลิก</button>
             </div>
         </div>
     </div>
 
     <!-- Modal 6: Inspect Quote Modal -->
-    <div class="modal-overlay" id="inspect-quote-modal" onclick="if(event.target===this) closeInspectQuoteModal()" style="display:none;">
+    <div class="modal-overlay" id="inspect-quote-modal" onclick="if(event.target===this) closeInspectQuoteModal()"
+        style="display:none;">
         <div class="modal-card" style="max-width:520px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
                 <h3 style="margin:0; font-size:1.15rem;">📋 รายละเอียดใบเสนอราคา</h3>
                 <button class="btn-close-modal" onclick="closeInspectQuoteModal()">&times;</button>
             </div>
@@ -1831,8 +2317,11 @@
                     <input type="text" id="iq-created-at" disabled>
                 </div>
             </div>
-            <div id="iq-cost-section" style="background:var(--bg-surface-soft); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; margin-top:8px;">
-                <h4 style="margin:0 0 12px 0; font-size:0.95rem; border-bottom:1px dashed var(--border-color); padding-bottom:8px;">สรุปค่าใช้จ่ายสุทธิ</h4>
+            <div id="iq-cost-section"
+                style="background:var(--bg-surface-soft); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; margin-top:8px;">
+                <h4
+                    style="margin:0 0 12px 0; font-size:0.95rem; border-bottom:1px dashed var(--border-color); padding-bottom:8px;">
+                    สรุปค่าใช้จ่ายสุทธิ</h4>
                 <div id="iq-gen-costs" style="display:none;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
                         <span>ค่าเช่าเครื่องกำเนิดไฟฟ้า:</span>
@@ -1861,17 +2350,15 @@
                         <span id="iq-pea-cost-rental" style="font-weight:600;">-</span>
                     </div>
                 </div>
-                <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px solid var(--border-color); font-size:1rem;">
+                <div
+                    style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px solid var(--border-color); font-size:1rem;">
                     <span style="font-weight:700;">ยอดรวมสุทธิ:</span>
                     <span id="iq-cost-total" style="font-weight:700; color:var(--primary);">-</span>
                 </div>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-color); padding-top:12px; margin-top:8px;">
-                <button class="btn btn-outline" id="iq-print-btn" onclick="if(window._inspectedQuoteId) reprintQuote(window._inspectedQuoteId)" style="color:var(--accent-orange); border-color:var(--accent-orange-border); display:flex; align-items:center; gap:6px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-                    พิมพ์ใบเสนอราคา (PDF)
-                </button>
-                <button class="btn btn-outline" onclick="closeInspectQuoteModal()">ปิด</button>
+            <div
+                style="display:flex; justify-content:flex-end; align-items:center; border-top:1px solid var(--border-color); padding-top:12px; margin-top:8px;">
+                <button type="button" class="btn btn-outline" onclick="closeInspectQuoteModal()" style="min-width:90px; font-family:'Prompt',sans-serif;">ปิด</button>
             </div>
         </div>
     </div>
@@ -1882,25 +2369,31 @@
         <div class="modal-card" style="max-width: 400px;">
             <div class="modal-header">
                 <h3>แก้ไขโปรไฟล์</h3>
-                <button class="modal-close" onclick="document.getElementById('edit-profile-modal').style.display='none'">&times;</button>
+                <button class="modal-close"
+                    onclick="document.getElementById('edit-profile-modal').style.display='none'">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>ชื่อที่แสดง (Display Name)</label>
-                    <input type="text" id="profile-display-name" class="input-field" placeholder="เช่น กฟฉ.1">
+                    <label>ชื่อ - นามสกุล</label>
+                    <input type="text" id="profile-display-name" class="input-field" placeholder="เช่น สมชาย ใจดี">
                 </div>
                 <div class="form-group">
                     <label>อัปโหลดรูปประจำตัว (Avatar)</label>
-                    <input type="file" id="profile-avatar-upload" accept="image/*" class="input-field" style="padding: 4px;">
-                    <small style="color:var(--text-muted); display:block; margin-top:4px;">เลือกไฟล์ภาพขนาดเล็ก (ระบบจะแปลงเป็นข้อความจำกัดขนาดอัตโนมัติ)</small>
+                    <input type="file" id="profile-avatar-upload" accept="image/*" class="input-field"
+                        style="padding: 4px;">
+                    <small style="color:var(--text-muted); display:block; margin-top:4px;">เลือกไฟล์ภาพขนาดเล็ก
+                        (ระบบจะแปลงเป็นข้อความจำกัดขนาดอัตโนมัติ)</small>
                 </div>
                 <div id="profile-preview-container" style="display:flex; justify-content:center; margin-top: 10px;">
-                    <img id="profile-avatar-preview" src="" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; display: none; border: 2px solid #E2E8F0;">
+                    <img id="profile-avatar-preview" src=""
+                        style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; display: none; border: 2px solid #E2E8F0;">
                 </div>
-                <div id="profile-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 8px; display: none;"></div>
+                <div id="profile-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 8px; display: none;">
+                </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="document.getElementById('edit-profile-modal').style.display='none'">ยกเลิก</button>
+                <button class="btn btn-outline"
+                    onclick="document.getElementById('edit-profile-modal').style.display='none'">ยกเลิก</button>
                 <button class="btn btn-primary" id="btn-save-profile" onclick="saveProfile()">บันทึกข้อมูล</button>
             </div>
         </div>
@@ -1911,20 +2404,23 @@
         <div class="modal-card" style="max-width: 400px;">
             <div class="modal-header">
                 <h3>เพิ่มผู้ใช้งานระบบ</h3>
-                <button class="modal-close" onclick="document.getElementById('add-user-modal').style.display='none'">&times;</button>
+                <button class="modal-close" onclick="closeAddUserModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label>อีเมล (Email)</label>
-                    <input type="email" id="new-user-email" class="input-field" placeholder="เช่น test@pea.co.th">
+                    <input type="email" id="new-user-email" class="input-field" placeholder="เช่น test@pea.co.th"
+                        autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label>รหัสผ่าน (Password)</label>
-                    <input type="password" id="new-user-password" class="input-field" placeholder="อย่างน้อย 6 ตัวอักษร">
+                    <input type="password" id="new-user-password" class="input-field" placeholder="อย่างน้อย 6 ตัวอักษร"
+                        autocomplete="new-password">
                 </div>
                 <div class="form-group">
-                    <label>ชื่อที่แสดง (Display Name)</label>
-                    <input type="text" id="new-user-name" class="input-field" placeholder="ชื่อผู้ใช้งาน">
+                    <label>ชื่อ - นามสกุล</label>
+                    <input type="text" id="new-user-name" class="input-field" placeholder="เช่น สมชาย ใจดี"
+                        autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label>ระดับสิทธิ์ (Role)</label>
@@ -1934,17 +2430,123 @@
                         <option value="admin">ผู้ดูแลระบบ (Admin)</option>
                     </select>
                 </div>
-                <div id="add-user-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 8px; display: none;"></div>
+                <div id="add-user-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 8px; display: none;">
+                </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="document.getElementById('add-user-modal').style.display='none'">ยกเลิก</button>
+                <button class="btn btn-outline" onclick="closeAddUserModal()">ยกเลิก</button>
                 <button class="btn btn-primary" id="btn-create-user" onclick="createNewUser()">สร้างผู้ใช้</button>
             </div>
         </div>
     </div>
 
+    <!-- Contact Us Modal -->
+    <div class="modal-overlay" id="contact-modal" style="display:none;" onclick="if(event.target===this) closeContactModal()">
+        <div class="modal-card" style="max-width: 520px; padding: 24px; border-radius: 16px;">
+            <!-- Modal Header -->
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:14px; margin-bottom:18px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:40px; height:40px; border-radius:12px; background:linear-gradient(135deg,#10B981 0%,#059669 100%); display:flex; align-items:center; justify-content:center; color:white; box-shadow:0 4px 12px rgba(16,185,129,0.3);">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 style="margin:0; font-size:1.2rem; font-weight:700; color:var(--text-main); font-family:'Prompt',sans-serif;">ติดต่อเรา / ผู้พัฒนาระบบ</h3>
+                        <span style="font-size:0.8rem; color:var(--text-muted);">WeQuote PEA บึงกาฬ & OMG Innovation</span>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeContactModal()">&times;</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body" style="display:flex; flex-direction:column; gap:14px;">
+                <!-- Developer Team Card -->
+                <div style="background:var(--bg-surface-soft); border:1px solid var(--border-color); border-radius:12px; padding:16px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                        <span style="font-size:0.82rem; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+                            👨‍💻 รายละเอียดผู้พัฒนาระบบ
+                        </span>
+                        <span style="font-size:0.75rem; background:rgba(16,185,129,0.12); color:#059669; padding:2px 8px; border-radius:12px; font-weight:700; border:1px solid rgba(16,185,129,0.25);">
+                            v2.4 (2569)
+                        </span>
+                    </div>
+                    <div style="font-weight:700; font-size:1.05rem; color:var(--text-main); margin-bottom:4px;">
+                        พัฒนาระบบ PEA บึงกาฬ
+                    </div>
+                    <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+                        ร่วมกับ <b style="color:var(--text-main);">OMG Innovation</b> พัฒนาระบบประมาณการค่าบริการและบริหารคิวเครื่องกำเนิดไฟฟ้าเคลื่อนที่อัจฉริยะ (WeQuote PEA)
+                    </div>
+                </div>
+
+                <!-- Contact Channels -->
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <!-- Phone 1 -->
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:10px;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div style="width:36px; height:36px; border-radius:8px; background:#EFF6FF; color:#2563EB; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div style="font-size:0.75rem; color:var(--text-muted);">เบอร์โทรศัพท์ติดต่อ / สอบถาม</div>
+                                <div style="font-weight:700; font-size:0.95rem; color:var(--text-main);">042-491111, 042-491222</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <a href="tel:042491111" class="btn btn-outline" style="padding:5px 12px; font-size:0.82rem; text-decoration:none; display:inline-flex; align-items:center; gap:4px; color:#2563EB; border-color:#BFDBFE; font-weight:600;">
+                                📞 โทร
+                            </a>
+                            <button type="button" class="btn btn-outline" onclick="copyToClipboard('042-491111', 'คัดลอกเบอร์โทรศัพท์เรียบร้อยแล้ว!')" style="padding:5px 8px; font-size:0.82rem;" title="คัดลอกเบอร์โทร">
+                                📋
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:10px;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div style="width:36px; height:36px; border-radius:8px; background:#ECFDF5; color:#059669; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                    <polyline points="22,6 12,13 2,6"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <div style="font-size:0.75rem; color:var(--text-muted);">อีเมลติดต่อสอบถาม (Email)</div>
+                                <div style="font-weight:700; font-size:0.95rem; color:var(--text-main);">pea.buengkan@pea.co.th</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <a href="mailto:pea.buengkan@pea.co.th" class="btn btn-outline" style="padding:5px 12px; font-size:0.82rem; text-decoration:none; display:inline-flex; align-items:center; gap:4px; color:#059669; border-color:#A7F3D0; font-weight:600;">
+                                ✉️ อีเมล
+                            </a>
+                            <button type="button" class="btn btn-outline" onclick="copyToClipboard('pea.buengkan@pea.co.th', 'คัดลอกอีเมลเรียบร้อยแล้ว!')" style="padding:5px 8px; font-size:0.82rem;" title="คัดลอกอีเมล">
+                                📋
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Office Location -->
+                <div style="padding:12px 14px; background:var(--bg-surface-soft); border:1px solid var(--border-color); border-radius:10px; font-size:0.84rem; color:var(--text-muted); display:flex; align-items:flex-start; gap:10px;">
+                    <span style="font-size:1.1rem;">📍</span>
+                    <div>
+                        <b style="color:var(--text-main);">ที่ทำการ:</b> การไฟฟ้าส่วนภูมิภาคจังหวัดบึงกาฬ เลขที่ 99 หมู่ 1 ต.วิศิษฐ์ อ.เมือง จ.บึงกาฬ 38000
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer" style="margin-top:16px; display:flex; justify-content:flex-end;">
+                <button type="button" class="btn btn-primary" onclick="closeContactModal()" style="min-width:110px; font-family:'Prompt',sans-serif;">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Application Script -->
-    <script src="app.js?v=50"></script>
+    <script src="app.js?v=195"></script>
 </body>
 
 </html>

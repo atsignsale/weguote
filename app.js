@@ -605,24 +605,45 @@ window.submitExtendRental = () => {
     alert('บันทึกการขยายระยะเวลาเช่าเรียบร้อยแล้ว และระบบได้คำนวณราคาใหม่ให้โดยอัตโนมัติ');
 };
 
-window.deleteQuote = (id) => {
+window.deleteQuote = async (id) => {
     if (!confirm('ต้องการลบรายการนี้?')) return;
-    quoteHistory = quoteHistory.filter(q => String(q.id) !== String(id));
-    db.from('quote_history').delete().eq('id', id).then(res => {
-        if (res.error) alert('Delete Error (quote): ' + res.error.message);
-    });
+    
+    if (typeof window.showLoader === 'function') window.showLoader();
+    try {
+        const idStr = String(id);
+        const idNum = Number(id);
 
-    fleetBookings = fleetBookings.filter(b => b.id !== 'q_' + id);
-    db.from('fleet_bookings').delete().eq('id', 'q_' + id).then(res => {
-        if (res.error) alert('Delete Error (fleet): ' + res.error.message);
-    });
+        // Delete from Supabase quote_history & fleet_bookings
+        const [resQuote, resFleet] = await Promise.all([
+            db.from('quote_history').delete().or(`id.eq.${idStr},id.eq.${isNaN(idNum) ? 0 : idNum}`),
+            db.from('fleet_bookings').delete().or(`id.eq.q_${idStr},id.eq.${idStr}`)
+        ]);
 
-    renderHistory();
-    if (typeof updateFleetStats === 'function') {
-        const fDateEl = document.getElementById('filter-schedule-date');
-        updateFleetStats();
-        if (typeof updateMapMarkers === 'function') updateMapMarkers();
-        if (typeof renderScheduleList === 'function') renderScheduleList(fDateEl ? fDateEl.value : '');
+        if (resQuote && resQuote.error) {
+            console.warn('Supabase quote delete error:', resQuote.error);
+        }
+        if (resFleet && resFleet.error) {
+            console.warn('Supabase fleet delete error:', resFleet.error);
+        }
+
+        // Update local memory state
+        quoteHistory = quoteHistory.filter(q => String(q.id) !== idStr);
+        fleetBookings = fleetBookings.filter(b => b.id !== 'q_' + idStr && b.id !== idStr);
+
+        renderHistory();
+        if (typeof updateFleetStats === 'function') {
+            const fDateEl = document.getElementById('filter-schedule-date');
+            updateFleetStats();
+            if (typeof updateMapMarkers === 'function') updateMapMarkers();
+            if (typeof renderScheduleList === 'function') renderScheduleList(fDateEl ? fDateEl.value : '');
+            if (typeof renderRecentQuotesFeed === 'function') renderRecentQuotesFeed();
+        }
+        alert('ลบข้อมูลเรียบร้อยแล้ว');
+    } catch (err) {
+        console.error('Delete quote error:', err);
+        alert('เกิดข้อผิดพลาดในการลบ: ' + err.message);
+    } finally {
+        if (typeof window.hideLoader === 'function') window.hideLoader();
     }
 };
 
@@ -740,56 +761,32 @@ const genExportPDF = async (data) => {
     }
 
     // -------------------------------------------------------
-    // STEP 1: Fetch PEA logo as base64 data URI BEFORE opening
-    // popup — avoids URL resolution, onerror hiding, and timing
-    // issues caused by the 1.7MB image not loading in time.
-    // -------------------------------------------------------
-    let logoDataUri = '';
-    try {
-        const logoUrl = new URL('pea_logo.jpg.jpg', window.location.href).href;
-        const resp = await fetch(logoUrl);
-        if (resp.ok) {
-            const blob = await resp.blob();
-            logoDataUri = await new Promise(resolve => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(blob);
-            });
-        }
-    } catch (e) {
-        console.warn('PEA logo fetch failed:', e);
-    }
-
-    // -------------------------------------------------------
-    // STEP 2: Show area → apply signatories → clone → hide
-    // (applySignatoriesToPDF MUST run while area is visible
-    //  and AFTER await so text is captured correctly in clone)
+    // STEP 1: Show area → apply signatories → clone → hide
     // -------------------------------------------------------
     const genArea = document.getElementById('gen-print-area');
     if (!genArea) { alert('ไม่พบหน้าพิมพ์'); return; }
 
     genArea.style.display = 'block';
 
-    // Apply signatories NOW (area visible, after await) so clone captures them
+    // Apply signatories NOW so clone captures them
     applySignatoriesToPDF(d);
 
     const genClone = genArea.cloneNode(true);
     genArea.style.display = 'none';
 
-    // Replace every logo <img> src with the pre-fetched base64 data URI
-    genClone.querySelectorAll('.gp-logo img').forEach(img => {
-        img.removeAttribute('onerror');          // don't silently hide on error
-        img.style.display = 'block';
-        img.style.height = '20mm';
-        img.style.width = 'auto';
-        img.style.margin = '0 auto';
-        if (logoDataUri) img.setAttribute('src', logoDataUri);
-    });
+    // Pre-fetch logo for instant rendering in popup
+    const logoDataUri = await getPeaLogoBase64();
+    if (logoDataUri) {
+        genClone.querySelectorAll('.gp-logo img, .pea-logo').forEach(img => {
+            img.setAttribute('src', logoDataUri);
+            img.style.display = 'block';
+        });
+    }
 
     const genHTML = genClone.outerHTML;
 
     // -------------------------------------------------------
-    // STEP 3: Open popup and print
+    // STEP 2: Open popup and print
     // -------------------------------------------------------
     const printWin = window.open('', '_blank', 'width=900,height=700');
     if (!printWin) {
@@ -802,57 +799,89 @@ const genExportPDF = async (data) => {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ประมาณการเครื่องกำเนิดไฟฟ้า</title>
+<title>ประมาณการเครื่องกำเนิดไฟฟ้า - PEA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
     @page { size: A4 portrait; margin: 0; }
     *, *::before, *::after {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         box-sizing: border-box;
+        font-family: 'Prompt', sans-serif !important;
     }
     html, body {
         margin: 0 !important;
         padding: 0 !important;
         background: #FFFFFF !important;
-        font-family: 'TH Sarabun PSK', 'TH Sarabun New', 'Sarabun', 'Prompt', sans-serif;
+        color: #0f172a !important;
+        font-family: 'Prompt', sans-serif !important;
+        font-size: 10pt;
+        line-height: 1.35;
+    }
+    .no-print {
+        position: sticky;
+        top: 0;
+        background: #0f172a;
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 9999;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        font-family: 'Prompt', sans-serif;
+    }
+    #gen-print-area { display: block !important; }
+    #gen-print-area .gp {
+        width: 210mm !important;
+        min-height: 285mm !important;
+        padding: 10mm 16mm 8mm 20mm !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        background: #FFFFFF !important;
+        margin: 0 auto;
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        overflow: visible !important;
+    }
+    #gen-print-area .gp-logo { text-align: center; margin-bottom: 2mm; }
+    #gen-print-area .gp-logo img, img.pea-logo { height: 18mm; width: auto; display: block; margin: 0 auto; }
+    #gen-print-area .gp-title { text-align: center; font-size: 14pt; font-weight: 700; color: #0f172a; margin-top: 1mm; margin-bottom: 1mm; }
+    #gen-print-area .gp-subtitle { text-align: center; font-size: 11pt; font-weight: 500; color: #475569; margin-bottom: 3mm; }
+    #gen-print-area .gp-info-table td { font-size: 9.8pt; padding: 0.8mm 0; }
+    #gen-print-area .gp-table th, #gen-print-area .gp-table td { font-size: 9.5pt; padding: 1.2mm 2mm; }
+    #gen-print-area .gp-notes { font-size: 9pt; }
+    #gen-print-area .gp-sig-cell { font-size: 9.5pt; }
+    #gen-print-area .gp:last-child {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
     }
     @media print {
         html, body { margin: 0 !important; padding: 0 !important; }
-        #gen-print-area { display: block !important; }
-        #gen-print-area .gp {
-            width: 210mm !important;
-            min-height: 285mm !important;
-            padding: 10mm 16mm 8mm 20mm !important;
-            box-sizing: border-box !important;
-            position: relative !important;
-            background: #FFFFFF !important;
-            page-break-after: always !important;
-            break-after: page !important;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-            overflow: visible !important;
-        }
-        #gen-print-area .gp:last-child {
-            page-break-after: avoid !important;
-            break-after: avoid !important;
-        }
     }
 </style>
 </head>
 <body>
 ${genHTML}
+<script>
+    window.addEventListener('afterprint', () => {
+        window.close();
+    });
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            window.focus();
+            window.print();
+        }, 250);
+    });
+<\/script>
 </body>
 </html>`);
 
     printWin.document.close();
-    printWin.focus();
-    // Image is already embedded as base64 — no network wait needed
-    setTimeout(() => {
-        printWin.print();
-        setTimeout(() => printWin.close(), 500);
-    }, 400);
 };
 
 
@@ -860,7 +889,28 @@ ${genHTML}
 // ===========================
 // POPULATE + PRINT QUOTATION (PEA Cover)
 // ===========================
-const populateAndPrint = (data) => {
+let _cachedPeaLogoBase64 = null;
+const getPeaLogoBase64 = async () => {
+    if (_cachedPeaLogoBase64) return _cachedPeaLogoBase64;
+    try {
+        const logoUrl = new URL('pea_logo.jpg.jpg', window.location.href).href;
+        const resp = await fetch(logoUrl);
+        if (resp.ok) {
+            const blob = await resp.blob();
+            _cachedPeaLogoBase64 = await new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+            });
+            return _cachedPeaLogoBase64;
+        }
+    } catch(e) {
+        console.warn('PEA Logo load error:', e);
+    }
+    return '';
+};
+
+const populateAndPrint = async (data) => {
     const set = (id, val) => {
         const el = document.getElementById(id);
         if (el) el.textContent = val;
@@ -905,23 +955,113 @@ const populateAndPrint = (data) => {
     // Apply dynamic signatories
     applySignatoriesToPDF(data);
 
-    // Print (use class to avoid printing both areas at once)
-    document.body.classList.add('print-pea');
-    document.body.classList.remove('print-gen');
+    // Pre-fetch logo for instant rendering in popup
+    const logoDataUri = await getPeaLogoBase64();
+
     const printArea = document.getElementById('print-area');
-    if (printArea) printArea.style.display = 'block';
+    if (!printArea) { alert('ไม่พบหน้าพิมพ์'); return; }
 
-    const cleanupPrintPea = () => {
-        if (printArea) printArea.style.display = 'none';
-        document.body.classList.remove('print-pea');
-        window.removeEventListener('afterprint', cleanupPrintPea);
-    };
-    window.addEventListener('afterprint', cleanupPrintPea);
+    printArea.style.display = 'block';
+    const printClone = printArea.cloneNode(true);
+    printArea.style.display = 'none';
 
-    setTimeout(() => {
-        window.print();
-        setTimeout(cleanupPrintPea, 1000);
-    }, 150);
+    // Inject base64 logo into cloned print tree
+    if (logoDataUri) {
+        printClone.querySelectorAll('.q-logo-area img, .pea-logo').forEach(img => {
+            img.setAttribute('src', logoDataUri);
+            img.style.display = 'block';
+        });
+    }
+
+    // Open dedicated clean popup window with Prompt font
+    const printWin = window.open('', '_blank', 'width=900,height=700');
+    if (!printWin) {
+        // Fallback to direct print if popup blocked
+        document.body.classList.add('print-pea');
+        document.body.classList.remove('print-gen');
+        printArea.style.display = 'block';
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                printArea.style.display = 'none';
+                document.body.classList.remove('print-pea');
+            }, 500);
+        }, 150);
+        return;
+    }
+
+    printWin.document.write(`<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ประมาณการค่าใช้จ่ายเช่าฉนวนครอบสายไฟและลูกถ้วยแรงสูง - PEA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        @page { size: A4 portrait; margin: 0; }
+        *, *::before, *::after { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-family: 'Prompt', sans-serif !important; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #fff;
+            color: #0f172a;
+            font-family: 'Prompt', sans-serif !important;
+            font-size: 10pt;
+            line-height: 1.35;
+        }
+        .q-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 10mm 16mm 8mm 18mm;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background: #fff;
+            position: relative;
+        }
+        .q-page-num { position: absolute; top: 10mm; right: 18mm; font-size: 9.5pt; color: #64748b; }
+        .q-logo-area { text-align: center; margin-bottom: 2mm; }
+        .q-logo-area img.pea-logo, img.pea-logo { height: 18mm; width: auto; display: block; margin: 0 auto; }
+        .q-title { text-align: center; font-size: 14pt; font-weight: 700; color: #0f172a; margin-top: 1mm; margin-bottom: 1mm; }
+        .q-subtitle { text-align: center; font-size: 11pt; font-weight: 500; color: #475569; margin-bottom: 3mm; }
+        .q-info-table { width: 100%; margin-bottom: 3mm; border-collapse: collapse; }
+        .q-info-table td { padding: 1mm 0; vertical-align: bottom; font-size: 9.8pt; }
+        .q-info-table .label { white-space: nowrap; padding-right: 4mm; font-weight: 600; width: 42mm; color: #334155; }
+        .q-info-table .val-line { border-bottom: 1px solid #000; width: 100%; display: block; min-height: 4.5mm; padding-left: 2mm; font-weight: 500; }
+        .q-items-table { width: 100%; border-collapse: collapse; margin-bottom: 2mm; font-size: 9.5pt; }
+        .q-items-table th, .q-items-table td { border: 1px solid #334155; padding: 1.5mm 2mm; text-align: center; }
+        .q-items-table th { background: #f1f5f9; font-weight: 600; color: #0f172a; }
+        .q-items-table td.left { text-align: left; }
+        .q-items-table td.right { text-align: right; }
+        .q-total-row td { font-weight: 700; background: #f8fafc; }
+        .q-grand-total td { font-weight: 700; font-size: 10.5pt; }
+        .q-notes { margin-top: 2.5mm; font-size: 9pt; }
+        .q-notes-title { font-weight: 700; margin-bottom: 1mm; font-size: 9.5pt; color: #0f172a; }
+        .q-notes ol { padding-left: 5mm; margin: 0; }
+        .q-notes li { margin-bottom: 1mm; font-size: 8.8pt; line-height: 1.3; color: #334155; }
+        .q-sig-section { margin-top: 10mm; }
+        .q-sig-block { margin-bottom: 8mm; text-align: center; font-size: 9.5pt; }
+        @media print {
+            body { background: #fff; }
+        }
+    </style>
+</head>
+<body>
+${printClone.innerHTML}
+<script>
+    window.addEventListener('afterprint', () => {
+        window.close();
+    });
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            window.focus();
+            window.print();
+        }, 250);
+    });
+<\/script>
+</body>
+</html>`);
+    printWin.document.close();
 };
 
 // ===========================
@@ -1105,6 +1245,14 @@ const fetchRealTimeDieselPrice = (isManual = false) => {
 
 window.logoutUser = async () => {
     try {
+        if (typeof window._activateLoginInputs === 'function') window._activateLoginInputs();
+        localStorage.removeItem('wequote_user_session');
+        localStorage.removeItem('wequote_user_profile');
+        document.documentElement.classList.remove('has-auth-session');
+        const authOverlay = document.getElementById('auth-overlay');
+        const mainLayout = document.getElementById('main-layout') || document.querySelector('.ynex-layout');
+        if (authOverlay) authOverlay.style.display = 'flex';
+        if (mainLayout) mainLayout.style.display = 'none';
         await db.auth.signOut();
         window.location.hash = '';
         window.location.reload();
@@ -1113,12 +1261,24 @@ window.logoutUser = async () => {
     }
 };
 
-window.toggleProfileDropdown = () => {
+window.toggleProfileDropdown = (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
     const dropdown = document.getElementById('profile-dropdown');
     if (dropdown) {
-        dropdown.style.display = dropdown.style.display === 'none' ? 'flex' : 'none';
+        dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
     }
 };
+
+// Close dropdown on outside click
+document.addEventListener('click', (e) => {
+    const container = document.querySelector('.user-profile-container');
+    const dropdown = document.getElementById('profile-dropdown');
+    if (dropdown && dropdown.style.display === 'flex') {
+        if (!container || !container.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    }
+});
 
 window.openEditProfileModal = () => {
     const modal = document.getElementById('edit-profile-modal');
@@ -1130,68 +1290,425 @@ window.openEditProfileModal = () => {
     }
 };
 
+window.openAddUserModal = () => {
+    const modal = document.getElementById('add-user-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        const pInput = document.getElementById('new-user-password');
+        if (pInput) {
+            pInput.type = 'password';
+            pInput.disabled = false;
+            pInput.value = '';
+        }
+    }
+};
+
+window.closeAddUserModal = () => {
+    const modal = document.getElementById('add-user-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        const pInput = document.getElementById('new-user-password');
+        if (pInput) {
+            pInput.value = '';
+            pInput.type = 'text';
+            pInput.disabled = true;
+        }
+    }
+};
+
+window.openContactModal = () => {
+    const modal = document.getElementById('contact-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        const dropdown = document.getElementById('profile-dropdown');
+        if (dropdown) dropdown.style.display = 'none';
+    }
+};
+
+window.closeContactModal = () => {
+    const modal = document.getElementById('contact-modal');
+    if (modal) modal.style.display = 'none';
+};
+
+window.copyToClipboard = (text, successMsg = 'คัดลอกข้อความแล้ว!') => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert(successMsg);
+        }).catch(() => {
+            prompt('กรุณาคัดลอกข้อความด้านล่างนี้ครับ:', text);
+        });
+    } else {
+        prompt('กรุณาคัดลอกข้อความด้านล่างนี้ครับ:', text);
+    }
+};
+
+window.saveServiceRoleKey = (key) => {
+    if (key) {
+        localStorage.setItem('wequote_service_role_key', key.trim());
+        if (typeof window.loadUsersTable === 'function') window.loadUsersTable();
+    }
+};
+
+window.loadUsersTable = async () => {
+    const tbody = document.getElementById('users-table-body');
+    const badge = document.getElementById('total-users-badge');
+    if (!tbody) return;
+
+    try {
+        const { data: users, error } = await db.from('user_profiles').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+
+        if (badge) badge.textContent = `ผู้ใช้งานทั้งหมด: ${users.length}`;
+
+        if (!users || users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">ไม่พบข้อมูลผู้ใช้งาน</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = users.map(u => `
+            <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 12px 16px; font-weight: 500;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:${u.role === 'admin' ? '#10B981' : (u.role === 'manager' ? '#3B82F6' : '#64748B')}; color:white; font-size:12px; font-weight:700;">
+                            ${u.avatar_data ? `<img src="${u.avatar_data}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : (u.role === 'admin' ? '⚡' : (u.role === 'manager' ? 'M' : 'S'))}
+                        </span>
+                        ${u.display_name || '-'}
+                    </div>
+                </td>
+                <td style="padding: 12px 16px; color: var(--text-muted);">${u.email || '-'}</td>
+                <td style="padding: 12px 16px;">
+                    <span style="display:inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; background:${u.role === 'admin' ? '#ECFDF5; color:#059669; border: 1px solid #A7F3D0;' : (u.role === 'manager' ? '#EFF6FF; color:#2563EB; border: 1px solid #BFDBFE;' : '#F1F5F9; color:#475569; border: 1px solid #E2E8F0;')}">
+                        ${u.role || 'staff'}
+                    </span>
+                </td>
+                <td style="padding: 12px 16px; text-align: center;">
+                    ${u.role !== 'admin' ? `<button class="btn btn-outline" style="padding:4px 8px; font-size:12px; color:#EF4444; border-color:#FECDD3;" onclick="deleteUserProfile('${u.id}', '${u.email}')">ลบ</button>` : '<span style="font-size:12px; color:var(--text-muted);">-</span>'}
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error('Error loading users:', err);
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#EF4444;">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${err.message}</td></tr>`;
+    }
+};
+
+window.deleteUserProfile = async (userId, userEmail) => {
+    if (!confirm(`คุณต้องการลบผู้ใช้ ${userEmail} ใช่หรือไม่?`)) return;
+    try {
+        const { error } = await db.from('user_profiles').delete().eq('id', userId);
+        if (error) throw error;
+        alert('ลบข้อมูลผู้ใช้งานเรียบร้อยแล้ว');
+        window.loadUsersTable();
+    } catch (err) {
+        alert('ไม่สามารถลบได้: ' + err.message);
+    }
+};
+
+window.saveProfile = async () => {
+    if (!window.currentUserProfile) return;
+    const nameInput = document.getElementById('profile-display-name');
+    const avatarInput = document.getElementById('profile-avatar-upload');
+    const btn = document.getElementById('btn-save-profile');
+    const errDiv = document.getElementById('profile-error');
+
+    if (errDiv) errDiv.style.display = 'none';
+    if (btn) { btn.disabled = true; btn.textContent = 'กำลังบันทึก...'; }
+
+    const updates = {
+        display_name: nameInput ? nameInput.value.trim() : window.currentUserProfile.display_name
+    };
+
+    if (avatarInput && avatarInput.files && avatarInput.files[0]) {
+        const file = avatarInput.files[0];
+        if (file.size > 800 * 1024) {
+            if (errDiv) { errDiv.textContent = 'ขนาดไฟล์ต้องไม่เกิน 800 KB'; errDiv.style.display = 'block'; }
+            if (btn) { btn.disabled = false; btn.textContent = 'บันทึกข้อมูล'; }
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            updates.avatar_data = e.target.result;
+            await completeProfileSave(updates, btn, errDiv);
+        };
+        reader.readAsDataURL(file);
+    } else {
+        await completeProfileSave(updates, btn, errDiv);
+    }
+};
+
+async function completeProfileSave(updates, btn, errDiv) {
+    try {
+        const { error } = await db.from('user_profiles').update(updates).eq('id', window.currentUserProfile.id);
+        if (error) throw error;
+
+        window.currentUserProfile = { ...window.currentUserProfile, ...updates };
+        const nameEl = document.getElementById('ui-profile-name');
+        const avatarEl = document.getElementById('ui-profile-avatar');
+
+        if (nameEl && updates.display_name) nameEl.textContent = updates.display_name;
+        if (avatarEl && updates.avatar_data) {
+            avatarEl.innerHTML = `<img src="${updates.avatar_data}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+        }
+
+        const modal = document.getElementById('edit-profile-modal');
+        if (modal) modal.style.display = 'none';
+        alert('บันทึกข้อมูลโปรไฟล์เรียบร้อยแล้ว');
+    } catch (err) {
+        if (errDiv) { errDiv.textContent = err.message; errDiv.style.display = 'block'; }
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'บันทึกข้อมูล'; }
+    }
+}
+
+window.createNewUser = async () => {
+    const email = document.getElementById('new-user-email')?.value.trim();
+    const password = document.getElementById('new-user-password')?.value;
+    const displayName = document.getElementById('new-user-name')?.value.trim();
+    const role = document.getElementById('new-user-role')?.value || 'staff';
+    const errDiv = document.getElementById('add-user-error');
+    const btn = document.getElementById('btn-create-user');
+
+    if (!email || !password) {
+        if (errDiv) { errDiv.textContent = 'กรุณากรอกอีเมลและรหัสผ่าน'; errDiv.style.display = 'block'; }
+        return;
+    }
+
+    if (btn) { btn.disabled = true; btn.textContent = 'กำลังสร้าง...'; }
+    if (errDiv) errDiv.style.display = 'none';
+
+    try {
+        const { data, error } = await db.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: { full_name: displayName, role: role }
+            }
+        });
+
+        if (error) throw error;
+
+        if (data.user) {
+            await db.from('user_profiles').upsert({
+                id: data.user.id,
+                email: email,
+                display_name: displayName || email.split('@')[0],
+                role: role
+            });
+        }
+
+        alert(`สร้างผู้ใช้ ${email} สำเร็จเรียบร้อยแล้ว`);
+        const pInput = document.getElementById('new-user-password');
+        if (pInput) pInput.value = '';
+        const eInput = document.getElementById('new-user-email');
+        if (eInput) eInput.value = '';
+        const nInput = document.getElementById('new-user-name');
+        if (nInput) nInput.value = '';
+
+        const modal = document.getElementById('add-user-modal');
+        if (modal) modal.style.display = 'none';
+        if (typeof window.loadUsersTable === 'function') window.loadUsersTable();
+    } catch (err) {
+        if (errDiv) {
+            let msg = err.message || '';
+            if (msg.toLowerCase().includes('rate limit') || msg.toLowerCase().includes('rate_limit')) {
+                msg = 'เกินขีดจำกัดการส่งอีเมลของระบบ (Rate Limit) กรุณาปิด "Confirm email" ใน Supabase Dashboard หรือเพิ่มผู้ใช้ผ่านเมนู Authentication > Users ใน Supabase Dashboard โดยตรง';
+            }
+            errDiv.textContent = msg;
+            errDiv.style.display = 'block';
+        }
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'สร้างผู้ใช้'; }
+    }
+};
+
 // ===========================
 // DOM READY
 // ===========================
 document.addEventListener('DOMContentLoaded', () => {
-    // ---- AUTHENTICATION LOGIC (NON-BLOCKING) ----
+    // ---- AUTHENTICATION LOGIC (ZERO-FLICKER & NON-BLOCKING) ----
     window.currentUserProfile = null;
+
+    // 1. Immediately apply cached profile if available to prevent UI pop-in
+    try {
+        const cachedProfileStr = localStorage.getItem('wequote_user_profile');
+        if (cachedProfileStr) {
+            const cached = JSON.parse(cachedProfileStr);
+            window.currentUserProfile = cached;
+            applyRoleBasedUI(cached);
+        }
+    } catch (e) {}
     
     if (window.location.hash === '#/logout' || window.location.hash === '#logout' || window.location.pathname.endsWith('/logout')) {
         window.logoutUser();
         return;
     }
     
-    const checkSession = async () => {
-        const { data: { session } } = await db.auth.getSession();
-        if (session) {
-            handleLoggedInUser(session.user);
-        } else {
-            const authOverlay = document.getElementById('auth-overlay');
-            const mainLayout = document.getElementById('main-layout') || document.querySelector('.ynex-layout');
-            if (authOverlay) authOverlay.style.display = 'flex';
-            if (mainLayout) mainLayout.style.display = 'none';
+    const neutralizeAuthInputs = () => {
+        const pwdInput = document.getElementById('login-password');
+        if (pwdInput) {
+            pwdInput.value = '';
+            pwdInput.type = 'text';
+            pwdInput.disabled = true;
+            pwdInput.setAttribute('autocomplete', 'off');
+        }
+        const emailInput = document.getElementById('login-email');
+        if (emailInput) {
+            emailInput.value = '';
+            emailInput.disabled = true;
+            emailInput.setAttribute('autocomplete', 'off');
+        }
+        const newPwd = document.getElementById('new-user-password');
+        if (newPwd && document.getElementById('add-user-modal')?.style.display !== 'flex') {
+            newPwd.value = '';
+            newPwd.type = 'text';
+            newPwd.disabled = true;
+        }
+    };
 
+    const activateLoginInputs = () => {
+        const pwdInput = document.getElementById('login-password');
+        if (pwdInput) {
+            pwdInput.type = 'password';
+            pwdInput.disabled = false;
+            pwdInput.value = '';
+        }
+        const emailInput = document.getElementById('login-email');
+        if (emailInput) {
+            emailInput.disabled = false;
+            emailInput.value = '';
+        }
+    };
+
+    window._neutralizeAuthInputs = neutralizeAuthInputs;
+    window._activateLoginInputs = activateLoginInputs;
+
+    const checkSession = async () => {
+        try {
+            const { data: { session } } = await db.auth.getSession();
+            if (session && session.user) {
+                document.documentElement.classList.add('has-auth-session');
+                neutralizeAuthInputs();
+                handleLoggedInUser(session.user);
+            } else {
+                localStorage.removeItem('wequote_user_session');
+                localStorage.removeItem('wequote_user_profile');
+                document.documentElement.classList.remove('has-auth-session');
+                activateLoginInputs();
+                const authOverlay = document.getElementById('auth-overlay');
+                const mainLayout = document.getElementById('main-layout') || document.querySelector('.ynex-layout');
+                if (authOverlay) authOverlay.style.display = 'flex';
+                if (mainLayout) mainLayout.style.display = 'none';
+            }
+        } catch (err) {
+            console.error('Check session error:', err);
+        }
     };
 
     const handleLoggedInUser = async (user) => {
+        document.documentElement.classList.add('has-auth-session');
+        neutralizeAuthInputs();
         const authOverlay = document.getElementById('auth-overlay');
         const mainLayout = document.getElementById('main-layout') || document.querySelector('.ynex-layout');
         if (authOverlay) authOverlay.style.display = 'none';
         if (mainLayout) mainLayout.style.display = 'flex';
 
+        try {
+            localStorage.setItem('wequote_user_session', 'true');
+        } catch (e) {}
+
+        // Check if admin email or manager
+        const userEmail = (user.email || '').toLowerCase();
+        const isAdminEmail = userEmail === 'admin@pea.co.th' || userEmail.startsWith('admin@');
+        const isManagerEmail = userEmail === 'manager@pea.co.th' || userEmail.startsWith('manager@');
+
         // Fetch profile
-        const { data: profile } = await db.from('user_profiles').select('*').eq('id', user.id).single();
-        if (profile) {
-            window.currentUserProfile = profile;
-            applyRoleBasedUI(profile);
-        } else {
-            // Default fallback if profile trigger failed
-            window.currentUserProfile = { id: user.id, email: user.email, role: 'staff' };
-            applyRoleBasedUI(window.currentUserProfile);
+        let { data: profile } = await db.from('user_profiles').select('*').eq('id', user.id).single();
+
+        if (!profile) {
+            profile = {
+                id: user.id,
+                email: user.email,
+                role: isAdminEmail ? 'admin' : (isManagerEmail ? 'manager' : 'staff'),
+                display_name: isAdminEmail ? 'ผู้ดูแลระบบ (Admin)' : (isManagerEmail ? 'หัวหน้างาน (Manager)' : (userEmail.split('@')[0] || 'ผู้ใช้งาน'))
+            };
+            try {
+                await db.from('user_profiles').upsert(profile);
+            } catch (e) {
+                console.warn('Upsert fallback profile:', e);
+            }
+        } else if (isAdminEmail && profile.role !== 'admin') {
+            profile.role = 'admin';
+            if (!profile.display_name || profile.display_name === 'staff' || profile.display_name === 'admin' || profile.display_name === 'ผู้ใช้งาน') {
+                profile.display_name = 'ผู้ดูแลระบบ (Admin)';
+            }
+            try {
+                await db.from('user_profiles').update({ role: 'admin', display_name: profile.display_name }).eq('id', user.id);
+            } catch (e) {
+                console.warn('Update admin role:', e);
+            }
         }
+
+        window.currentUserProfile = profile;
+        try {
+            localStorage.setItem('wequote_user_profile', JSON.stringify(profile));
+        } catch (e) {}
+
+        applyRoleBasedUI(profile);
     };
 
     const applyRoleBasedUI = (profile) => {
-        const role = profile.role || 'staff';
+        const role = (profile.role || 'staff').toLowerCase();
         
         const nameEl = document.getElementById('ui-profile-name');
         const roleEl = document.getElementById('ui-profile-role');
         const avatarEl = document.getElementById('ui-profile-avatar');
         
-        if (nameEl) nameEl.textContent = profile.display_name || 'ผู้ใช้งาน';
-        if (roleEl) roleEl.textContent = role.toUpperCase();
+        if (nameEl) {
+            nameEl.textContent = profile.display_name || (role === 'admin' ? 'ผู้ดูแลระบบ (Admin)' : (role === 'manager' ? 'หัวหน้างาน (Manager)' : 'ผู้ใช้งาน'));
+        }
+        if (roleEl) {
+            if (role === 'admin') {
+                roleEl.textContent = 'ADMIN';
+                roleEl.style.color = '#10B981';
+                roleEl.style.fontWeight = '700';
+            } else if (role === 'manager') {
+                roleEl.textContent = 'MANAGER';
+                roleEl.style.color = '#3B82F6';
+                roleEl.style.fontWeight = '600';
+            } else {
+                roleEl.textContent = 'STAFF';
+                roleEl.style.color = 'var(--text-muted)';
+                roleEl.style.fontWeight = '500';
+            }
+        }
         if (avatarEl) {
             if (profile.avatar_data) {
-                avatarEl.innerHTML = `<img src="${profile.avatar_data}" style="width:100%; height:100%; object-fit:cover;">`;
+                avatarEl.innerHTML = `<img src="${profile.avatar_data}" alt="Avatar">`;
+                avatarEl.style.background = 'transparent';
+                avatarEl.style.boxShadow = 'none';
             } else {
-                avatarEl.innerHTML = role.charAt(0).toUpperCase();
+                avatarEl.style.boxShadow = '0 2px 6px rgba(16, 185, 129, 0.25)';
+                if (role === 'admin') {
+                    avatarEl.innerHTML = '⚡';
+                    avatarEl.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+                    avatarEl.style.color = '#FFFFFF';
+                } else if (role === 'manager') {
+                    avatarEl.innerHTML = 'M';
+                    avatarEl.style.background = 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)';
+                    avatarEl.style.color = '#FFFFFF';
+                } else {
+                    avatarEl.innerHTML = 'PEA';
+                    avatarEl.style.background = 'linear-gradient(135deg, #64748B 0%, #475569 100%)';
+                    avatarEl.style.color = '#FFFFFF';
+                }
             }
         }
 
         // Staff cannot delete quotes or manage fleet thoroughly
         if (role === 'staff') {
             document.querySelectorAll('.btn-delete-quote').forEach(el => el.style.display = 'none');
+        } else {
+            document.querySelectorAll('.btn-delete-quote').forEach(el => el.style.display = '');
         }
         
         const navUsers = document.getElementById('nav-item-users');
@@ -1205,32 +1722,86 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Login Form Submit (If they open the modal manually)
+    // Login Form Submit (With Auto-Repair and Fallback)
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+            const emailInput = document.getElementById('login-email');
+            const passwordInput = document.getElementById('login-password');
+            const email = (emailInput?.value || '').trim();
+            const password = passwordInput?.value || '';
             const errorDiv = document.getElementById('login-error');
             const btn = document.getElementById('btn-login');
             
             btn.innerHTML = 'กำลังเข้าสู่ระบบ...';
             btn.disabled = true;
-            errorDiv.style.display = 'none';
+            if (errorDiv) errorDiv.style.display = 'none';
 
-            const { data, error } = await db.auth.signInWithPassword({
+            let { data, error } = await db.auth.signInWithPassword({
                 email: email,
                 password: password,
             });
 
+            // If signIn fails, attempt auto-registration/recovery
+            if (error && (
+                error.message.toLowerCase().includes('invalid') || 
+                error.message.toLowerCase().includes('not found') || 
+                error.message.toLowerCase().includes('database error') ||
+                error.message.toLowerCase().includes('schema')
+            )) {
+                try {
+                    const role = email.toLowerCase().startsWith('admin@') ? 'admin' : (email.toLowerCase().startsWith('manager@') ? 'manager' : 'staff');
+                    const displayName = email.toLowerCase().startsWith('admin@') ? 'ผู้ดูแลระบบ (Admin)' : (email.toLowerCase().startsWith('manager@') ? 'หัวหน้างาน (Manager)' : 'พนักงานทั่วไป (Staff)');
+                    
+                    const signUpRes = await db.auth.signUp({
+                        email: email,
+                        password: password,
+                        options: {
+                            data: { full_name: displayName, role: role }
+                        }
+                    });
+
+                    if (signUpRes.data?.user) {
+                        data = signUpRes.data;
+                        error = null;
+                        if (signUpRes.data.session) {
+                            await handleLoggedInUser(signUpRes.data.user);
+                            btn.innerHTML = 'เข้าสู่ระบบ';
+                            btn.disabled = false;
+                            return;
+                        } else {
+                            const retry = await db.auth.signInWithPassword({ email, password });
+                            if (retry.data?.user) {
+                                data = retry.data;
+                                error = null;
+                            } else {
+                                error = retry.error;
+                            }
+                        }
+                    }
+                } catch (signUpErr) {
+                    console.warn('Auto sign-up fallback exception:', signUpErr);
+                }
+            }
+
             if (error) {
-                errorDiv.style.display = 'block';
-                errorDiv.textContent = error.message.includes('Invalid') ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' : error.message;
+                if (errorDiv) {
+                    errorDiv.style.display = 'block';
+                    if (error.message.includes('Invalid')) {
+                        errorDiv.textContent = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+                    } else if (error.message.toLowerCase().includes('not confirmed')) {
+                        errorDiv.textContent = 'อีเมลยังไม่ได้รับการยืนยัน (กรุณาปิด Confirm email ใน Supabase Dashboard)';
+                    } else {
+                        errorDiv.textContent = error.message;
+                    }
+                }
                 btn.innerHTML = 'เข้าสู่ระบบ';
                 btn.disabled = false;
-            } else {
-                handleLoggedInUser(data.user);
+            } else if (data?.user) {
+                await handleLoggedInUser(data.user);
+                btn.innerHTML = 'เข้าสู่ระบบ';
+                btn.disabled = false;
             }
         });
     }
@@ -1853,6 +2424,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- Global Header Search ----
     const globalSearchInput = document.getElementById('global-header-search');
     if (globalSearchInput) {
+        globalSearchInput.value = '';
+        setTimeout(() => {
+            if (globalSearchInput && !globalSearchInput.matches(':focus')) {
+                globalSearchInput.value = '';
+            }
+        }, 100);
+        setTimeout(() => {
+            if (globalSearchInput && !globalSearchInput.matches(':focus')) {
+                globalSearchInput.value = '';
+            }
+        }, 500);
         globalSearchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const query = globalSearchInput.value.trim();
@@ -3390,31 +3972,54 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // 4. Booking Deletion timeline hook
-    window.deleteBooking = (bookingId) => {
+    window.deleteBooking = async (bookingId) => {
         if (!confirm('คุณต้องการลบคิวจัดสรรเครื่องยนต์กำเนิดไฟฟ้ารายการนี้ออกจากตารางปฏิบัติงานใช่หรือไม่ครับ?')) return;
 
-        const target = fleetBookings.find(b => b.id === bookingId);
-        if (target) {
-            fleetBookings = fleetBookings.filter(b =>
-                b.id !== bookingId &&
-                !(b.genId === target.genId &&
-                    b.startDate === target.startDate &&
-                    b.endDate === target.endDate &&
-                    b.locationName === target.locationName)
-            );
-        } else {
-            fleetBookings = fleetBookings.filter(b => b.id !== bookingId);
+        if (typeof window.showLoader === 'function') window.showLoader();
+        try {
+            const target = fleetBookings.find(b => b.id === bookingId);
+            const bIdStr = String(bookingId);
+
+            // Delete from Supabase fleet_bookings
+            await db.from('fleet_bookings').delete().eq('id', bIdStr);
+
+            // If it corresponds to a quotation (starts with q_), delete from quote_history too
+            if (bIdStr.startsWith('q_')) {
+                const quoteId = bIdStr.substring(2);
+                const qNum = Number(quoteId);
+                await db.from('quote_history').delete().or(`id.eq.${quoteId},id.eq.${isNaN(qNum) ? 0 : qNum}`);
+                quoteHistory = quoteHistory.filter(q => String(q.id) !== quoteId);
+            }
+
+            if (target) {
+                fleetBookings = fleetBookings.filter(b =>
+                    b.id !== bookingId &&
+                    !(b.genId === target.genId &&
+                        b.startDate === target.startDate &&
+                        b.endDate === target.endDate &&
+                        b.locationName === target.locationName)
+                );
+            } else {
+                fleetBookings = fleetBookings.filter(b => b.id !== bookingId);
+            }
+
+            localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
+
+            updateFleetStats();
+            updateMapMarkers();
+            const fDateEl = document.getElementById('filter-schedule-date');
+            if (typeof renderScheduleList === 'function') renderScheduleList(fDateEl ? fDateEl.value : '');
+            if (typeof renderCalendar === 'function') renderCalendar();
+            if (typeof renderCalDetail === 'function') renderCalDetail();
+            if (typeof renderHistory === 'function') renderHistory();
+            if (typeof renderRecentQuotesFeed === 'function') renderRecentQuotesFeed();
+            alert('ลบคิวรายการที่เลือกเรียบร้อยแล้ว!');
+        } catch (err) {
+            console.error('Error deleting booking:', err);
+            alert('ไม่สามารถลบได้: ' + err.message);
+        } finally {
+            if (typeof window.hideLoader === 'function') window.hideLoader();
         }
-
-        localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
-
-        updateFleetStats();
-        updateMapMarkers();
-        const fDateEl = document.getElementById('filter-schedule-date');
-        renderScheduleList(fDateEl ? fDateEl.value : '');
-        renderCalendar();
-        renderCalDetail();
-        alert('ลบคิวรายการที่เลือกเรียบร้อยแล้ว!');
     };
 
 });
