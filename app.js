@@ -220,6 +220,9 @@ async function initSupabaseData() {
         if (typeof updateMapMarkers === 'function') updateMapMarkers();
         if (typeof initDashboardMap === 'function') initDashboardMap();
         if (typeof renderRecentQuotesFeed === 'function') renderRecentQuotesFeed();
+        if (typeof renderDashboard === 'function') renderDashboard();
+        if (typeof renderCalendar === 'function') renderCalendar();
+        if (typeof renderScheduleList === 'function') renderScheduleList('');
     } catch(e) {
         alert("ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาตรวจสอบว่าคุณได้รันคำสั่ง SQL สร้างตารางใน Supabase แล้วหรือไม่");
         console.error("Error loading data from Supabase", e);
