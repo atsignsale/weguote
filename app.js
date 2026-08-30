@@ -195,135 +195,36 @@ let GENERATOR_FLEET = [
     { id: 'gen_nhn_60_1',   name: 'NHN-GEN-500',     size: 60,  hubId: 'hub_nonghan',       status: 'Standby' }
 ];
 
-// Initial Generator Fleet (กฟฉ.1)
-if (!localStorage.getItem('generatorFleet')) {
-    localStorage.setItem('generatorFleet', JSON.stringify(GENERATOR_FLEET));
-} else {
+// Supabase Initialization
+const supabaseUrl = 'https://zqgxufzvghzvdkoyiynw.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxZ3h1Znp2Z2h6dmRrb3lpeW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwNDYwOTUsImV4cCI6MjEwMzYyMjA5NX0.GKOnpHzWxdBe79TQUCHdK0O56psZVivN-mBYGptIydM';
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+let fleetBookings = [];
+let quoteHistory = [];
+
+async function initSupabaseData() {
     try {
-        const storedFleet = JSON.parse(localStorage.getItem('generatorFleet'));
-        if (Array.isArray(storedFleet) && storedFleet.length > 0) {
-            GENERATOR_FLEET = storedFleet;
-        }
-    } catch(e) {}
+        const [quotesRes, bookingsRes, fleetRes] = await Promise.all([
+            supabase.from('quote_history').select('*').order('created_at', { ascending: false }),
+            supabase.from('fleet_bookings').select('*').order('created_at', { ascending: false }),
+            supabase.from('generator_fleet').select('*')
+        ]);
+
+        if (quotesRes.data) quoteHistory = quotesRes.data.map(q => q.data);
+        if (bookingsRes.data) fleetBookings = bookingsRes.data.map(b => b.data);
+        if (fleetRes.data && fleetRes.data.length > 0) GENERATOR_FLEET = fleetRes.data.map(f => f.data);
+
+        renderHistory();
+        if (typeof updateFleetStats === 'function') updateFleetStats();
+        if (typeof updateMapMarkers === 'function') updateMapMarkers();
+        if (typeof initDashboardMap === 'function') initDashboardMap();
+        if (typeof renderRecentQuotesFeed === 'function') renderRecentQuotesFeed();
+    } catch(e) {
+        console.error("Error loading data from Supabase", e);
+    }
 }
 
-// Clean out any demo bookings from localStorage
-try {
-    let existingBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
-    if (Array.isArray(existingBookings)) {
-        const cleanedBookings = existingBookings.filter(b => 
-            !String(b.id).startsWith('b_demo_') &&
-            b.id !== 'b_demo_1' && b.id !== 'b_demo_2' && b.id !== 'b_demo_3' &&
-            !['BKA-GEN-500', 'NE1-GEN-800-01', 'KKN-GEN-500'].includes(b.genName && b.id && b.id.startsWith('b_demo') ? b.genName : '')
-        );
-        localStorage.setItem('fleetBookings', JSON.stringify(cleanedBookings));
-    }
-} catch(e) {}
-
-try {
-    let existingQuotes = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
-    if (Array.isArray(existingQuotes)) {
-        const cleanedQuotes = existingQuotes.filter(q => 
-            !String(q.id).startsWith('b_demo_') &&
-            q.id !== 'b_demo_1' && q.id !== 'b_demo_2' && q.id !== 'b_demo_3'
-        );
-        localStorage.setItem('coverQuoteHistory', JSON.stringify(cleanedQuotes));
-    }
-} catch(e) {}
-
-let fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
-if (!Array.isArray(fleetBookings)) fleetBookings = [];
-
-// HISTORY STORAGE
-// ===========================
-let quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
-if (!Array.isArray(quoteHistory)) quoteHistory = [];
-
-// Sync quote history to fleet bookings
-const syncFleetBookingsFromHistory = () => {
-    fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
-    if (!fleetBookings || !Array.isArray(fleetBookings)) fleetBookings = [];
-    quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
-    if (!quoteHistory || !Array.isArray(quoteHistory)) quoteHistory = [];
-
-    // Ensure all saved generator quotes from quoteHistory are represented in fleetBookings
-    quoteHistory.forEach(q => {
-        if (q.type === 'generator' && q.startDate && q.endDate) {
-            const bookingId = 'q_' + q.id;
-            const existingIdx = fleetBookings.findIndex(b => b.id === bookingId);
-
-            let lat = q.lat;
-            let lng = q.lng;
-            let hubName = q.hubName;
-            let genId = q.genId;
-            let genName = q.genName;
-
-            if (!lat || !lng || isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) {
-                let matchedHub = null;
-                if (q.location) {
-                    const loc = q.location;
-                    matchedHub = DISTRICT_HUBS.find(h => {
-                        const cleanName = h.name.replace('กฟจ.', '').replace('กฟส.', '').replace('กฟฉ.1', '').replace('(', '').replace(')', '').trim();
-                        return loc.includes(cleanName) || loc.includes(h.name);
-                    });
-                }
-                if (!matchedHub && genId) {
-                    const g = GENERATOR_FLEET.find(x => x.id === genId);
-                    if (g) matchedHub = DISTRICT_HUBS.find(h => h.id === g.hubId);
-                }
-                if (!matchedHub) {
-                    const g = GENERATOR_FLEET.find(x => x.size === q.genSize);
-                    if (g) matchedHub = DISTRICT_HUBS.find(h => h.id === g.hubId);
-                }
-                if (!matchedHub) matchedHub = DISTRICT_HUBS[0];
-                lat = matchedHub.lat;
-                lng = matchedHub.lng;
-                if (!hubName) hubName = matchedHub.name;
-                q.lat = parseFloat(lat);
-                q.lng = parseFloat(lng);
-                q.hubName = hubName;
-            }
-
-            if (!genId) {
-                const g = GENERATOR_FLEET.find(x => x.size === q.genSize) || GENERATOR_FLEET[0];
-                genId = g.id;
-                genName = g.name;
-                if (!hubName) {
-                    const hub = DISTRICT_HUBS.find(h => h.id === g.hubId);
-                    hubName = hub ? hub.name : 'กฟจ.อุดรธานี';
-                }
-                q.genId = genId;
-                q.genName = genName;
-            }
-
-            const bookingObj = {
-                id: bookingId,
-                projectName: q.purpose || q.custName || 'งานบริการเครื่องกำเนิดไฟฟ้า',
-                locationName: q.location || 'จุดติดตั้งปฏิบัติงาน',
-                lat: parseFloat(lat),
-                lng: parseFloat(lng),
-                genId: genId,
-                genName: genName || `GEN-${q.genSize}`,
-                genSize: q.genSize || 300,
-                hubName: hubName || 'กฟจ.อุดรธานี',
-                startDate: q.startDate,
-                endDate: q.endDate,
-                status: q.status || 'Active',
-                responsible: q.custName || 'แผนกปฏิบัติการระบบไฟฟ้า'
-            };
-
-            if (existingIdx > -1) {
-                fleetBookings[existingIdx] = { ...fleetBookings[existingIdx], ...bookingObj };
-            } else {
-                fleetBookings.unshift(bookingObj);
-            }
-        }
-    });
-
-    localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
-};
-
-syncFleetBookingsFromHistory();
 
 const saveHistory = (entry) => {
     const entryCopy = JSON.parse(JSON.stringify(entry));
@@ -394,21 +295,21 @@ const saveHistory = (entry) => {
             responsible: entryCopy.custName || 'แผนกปฏิบัติการระบบไฟฟ้า'
         };
 
-        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
         const existingIdx = fleetBookings.findIndex(b => b.id === bookingId);
         if (existingIdx > -1) {
             fleetBookings[existingIdx] = bookingObj;
         } else {
             fleetBookings.unshift(bookingObj);
         }
-        localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
+        
+        // Save to Supabase
+        supabase.from('fleet_bookings').upsert({ id: bookingId, data: bookingObj }).then();
     }
 
-    quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
     quoteHistory.unshift(entryCopy);
-    localStorage.setItem('coverQuoteHistory', JSON.stringify(quoteHistory));
+    // Save to Supabase
+    supabase.from('quote_history').upsert({ id: entryCopy.id, type: entryCopy.type, data: entryCopy }).then();
     
-    syncFleetBookingsFromHistory();
     renderHistory();
 };
 
@@ -423,7 +324,6 @@ const escapeHTML = (str) => {
 };
 
 window.renderHistory = () => {
-    quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
     const container = document.getElementById('history-list');
     if (!container) return;
 
@@ -483,8 +383,6 @@ window.renderHistory = () => {
 };
 
 window.inspectQuote = window.inspectQuoteDetails = (id) => {
-    quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
-    fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
     const q = quoteHistory.find(x => String(x.id) === String(id));
     if (!q) {
         alert('ไม่พบข้อมูลใบเสนอราคารายการนี้');
@@ -656,13 +554,13 @@ window.submitExtendRental = () => {
     q.grandTotal = newGrandTotal;
     
     quoteHistory[qIndex] = q;
-    localStorage.setItem('coverQuoteHistory', JSON.stringify(quoteHistory));
+    supabase.from('quote_history').upsert({ id: q.id, type: q.type, data: q }).then();
     
     const fIdx = fleetBookings.findIndex(b => b.id === 'q_' + qId);
     if (fIdx > -1) {
         fleetBookings[fIdx].startDate = newStart;
         fleetBookings[fIdx].endDate = newEnd;
-        localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
+        supabase.from('fleet_bookings').upsert({ id: fleetBookings[fIdx].id, data: fleetBookings[fIdx] }).then();
     }
     
     renderHistory();
@@ -676,10 +574,10 @@ window.submitExtendRental = () => {
 window.deleteQuote = (id) => {
     if (!confirm('ต้องการลบรายการนี้?')) return;
     quoteHistory = quoteHistory.filter(q => q.id !== id);
-    localStorage.setItem('coverQuoteHistory', JSON.stringify(quoteHistory));
+    supabase.from('quote_history').delete().eq('id', id).then();
     
     fleetBookings = fleetBookings.filter(b => b.id !== 'q_' + id);
-    localStorage.setItem('fleetBookings', JSON.stringify(fleetBookings));
+    supabase.from('fleet_bookings').delete().eq('id', 'q_' + id).then();
     
     renderHistory();
     if (typeof updateFleetStats === 'function') {
@@ -691,7 +589,6 @@ window.deleteQuote = (id) => {
 };
 
 window.reprintQuote = (id) => {
-    quoteHistory = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
     const q = quoteHistory.find(x => String(x.id) === String(id));
     if (!q) {
         alert('ไม่พบข้อมูลใบเสนอราคาที่จะพิมพ์');
@@ -1172,6 +1069,9 @@ const fetchRealTimeDieselPrice = (isManual = false) => {
 // DOM READY
 // ===========================
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Supabase Data First
+    initSupabaseData();
+
     // Initialize Signatories Sync and LocalStorage
     initSignatoriesSync();
 
@@ -1487,7 +1387,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tbody = document.getElementById('dash-recent-quotes-tbody');
         if (!tbody) return;
         
-        const history = JSON.parse(localStorage.getItem('coverQuoteHistory') || '[]');
+        const history = quoteHistory;
         if (history.length === 0) {
             tbody.innerHTML = `
                 <tr>
@@ -1574,8 +1474,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Render all generator job coordinates
-        fleetBookings = JSON.parse(localStorage.getItem('fleetBookings') || '[]');
-        
         fleetBookings.forEach(booking => {
             if (booking.lat && booking.lng && booking.genSize > 0) {
                 const orangeIcon = L.icon({
