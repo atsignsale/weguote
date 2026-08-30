@@ -380,7 +380,7 @@ window.renderHistory = () => {
             </div>
             <div class="history-item-actions">
                 <button class="btn btn-outline btn-xs" onclick="event.stopPropagation(); reprintQuote(${q.id})">พิมพ์</button>
-                <button class="btn btn-outline btn-xs" style="color:#e74c3c;border-color:#e74c3c;" onclick="event.stopPropagation(); deleteQuote(${q.id})">ยกเลิก</button>
+                <button class="btn btn-outline btn-xs" style="color:#e74c3c;border-color:#e74c3c;" onclick="event.stopPropagation(); deleteQuote(${q.id})">ลบข้อมูล</button>
             </div>
         </div>
         `;
