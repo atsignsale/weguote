@@ -1820,6 +1820,35 @@ input[readonly], select:disabled, textarea[disabled] {
 /* -----------------------------
    11. MODAL SYSTEM
    ----------------------------- */
+/* Anti-Autofill & Security Password Masking */
+.auth-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: 'Prompt', sans-serif;
+    box-sizing: border-box;
+    outline: none;
+    transition: all 0.2s ease;
+    background: #FFFFFF;
+    color: #1e293b;
+}
+.auth-input:focus {
+    border-color: #10B981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+.auth-password-masked {
+    -webkit-text-security: disc !important;
+    text-security: disc !important;
+    letter-spacing: 2px;
+}
+.auth-password-masked.show-plain {
+    -webkit-text-security: none !important;
+    text-security: none !important;
+    letter-spacing: normal;
+}
+
 .modal-overlay {
     position: fixed;
     inset: 0;
