@@ -232,12 +232,12 @@ async function initSupabaseData() {
         if (bookingsRes.data) fleetBookings = bookingsRes.data.map(b => b.data);
         if (fleetRes.data && fleetRes.data.length > 0) GENERATOR_FLEET = fleetRes.data.map(f => f.data);
 
-        renderHistory();
-        if (typeof renderDashboard === 'function') renderDashboard();
-        if (typeof updateFleetStats === 'function') updateFleetStats();
-        if (typeof updateMapMarkers === 'function') updateMapMarkers();
-        if (typeof initDashboardMap === 'function') initDashboardMap();
-        if (typeof renderRecentQuotesFeed === 'function') renderRecentQuotesFeed();
+        if (typeof window.renderHistory === 'function') window.renderHistory();
+        if (typeof window.renderDashboard === 'function') window.renderDashboard();
+        if (typeof window.updateFleetStats === 'function') window.updateFleetStats();
+        if (typeof window.updateMapMarkers === 'function') window.updateMapMarkers();
+        if (typeof window.initDashboardMap === 'function') window.initDashboardMap();
+        if (typeof window.renderRecentQuotesFeed === 'function') window.renderRecentQuotesFeed();
     } catch (e) {
         alert("ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาตรวจสอบว่าคุณได้รันคำสั่ง SQL สร้างตารางใน Supabase แล้วหรือไม่");
         console.error("Error loading data from Supabase", e);
@@ -1412,7 +1412,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const renderRecentQuotesFeed = () => {
+    window.renderRecentQuotesFeed = () => {
         const tbody = document.getElementById('dash-recent-quotes-tbody');
         if (!tbody) return;
 
@@ -1463,7 +1463,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let dashboardMap = null;
     let dashboardMarkersGroup = null;
 
-    const initDashboardMap = () => {
+    window.initDashboardMap = () => {
         const mapContainer = document.getElementById('dashboard-map');
         if (!mapContainer) return;
 
@@ -1540,7 +1540,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const renderDashboard = () => {
+    window.renderDashboard = () => {
         // Refresh data from localStorage to ensure we have the absolute latest state
         // removed localStorage fetch
         // removed localStorage fetch
@@ -2173,7 +2173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMapMarkers();
     };
 
-    const updateMapMarkers = () => {
+    window.updateMapMarkers = () => {
         if (!map) return;
         if (!markersGroup) {
             markersGroup = L.layerGroup().addTo(map);
@@ -2546,7 +2546,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(`เตรียมข้อมูลคิวเครื่องยนต์ ${gen.name} สำเร็จ!\nระบบได้ส่งข้อมูลไปยังใบเสนอราคาแล้ว:\n- คลังต้นทาง: ${hub.name}\n- ปลายทางปฏิบัติงาน: ${targetName}\n- ระยะทางไป-กลับ: ${roundTrip} กม.\n\n* ข้อมูลคิวจะถูกบันทึกลงปฏิทิน เมื่อคุณกดปุ่ม "บันทึกข้อมูล" ในหน้านี้`);
     };
 
-    const updateFleetStats = () => {
+    window.updateFleetStats = () => {
         // removed localStorage fetch
         const total = GENERATOR_FLEET.length;
         const maint = GENERATOR_FLEET.filter(g => g.status === 'Maintenance').length;
